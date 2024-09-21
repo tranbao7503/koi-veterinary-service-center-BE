@@ -1,7 +1,6 @@
 package org.ftf.koifishveterinaryservicecenter.model;
 
 import jakarta.persistence.*;
-import org.ftf.koifishveterinaryservicecenter.model.veterinarian_slots.VeterinarianSlots;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.util.LinkedHashSet;
@@ -16,7 +15,7 @@ public class User {
     @Column(name = "user_id", nullable = false)
     private Integer userId;
 
-    @Column(name = "username", nullable = false, length = 50)
+    @Column(name = "username", nullable = false, length = 50, unique = true)
     private String username;
 
     @Column(name = "password", nullable = false, length = 255)
@@ -54,15 +53,15 @@ public class User {
     // Uni-directional, non-identifying relationship
     // Owning side: User
     // Inverse side: Address
-    @OneToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "address_id", nullable = false)
+    @OneToOne(fetch = FetchType.LAZY/*, optional = true*/)
+    @JoinColumn(name = "address_id"/*, unique = false, nullable = true*/)
     private Address address;
 
 
     // Bidirectional, identifying relationship
     // Owning side: Fish
     // Inverse side: User(customer)
-    @OneToMany(mappedBy = "customer", orphanRemoval = true)
+    @OneToMany(mappedBy = "customer"/*, orphanRemoval = true*/) // Shouldn't allow to remove data
     // orphanRemoval: true -->  remove User then all related Fishes will be removed
     private Set<Fish> fishes = new LinkedHashSet<>();
 

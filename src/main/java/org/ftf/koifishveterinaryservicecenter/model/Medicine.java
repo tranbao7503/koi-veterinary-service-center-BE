@@ -17,7 +17,7 @@ public class Medicine {
     @Column(name = "medicine_id", nullable = false)
     private Integer medicineId;
 
-    @Column(name = "medicine_name", length = 50, nullable = true)
+    @Column(name = "medicine_name", length = 50, nullable = false)
     private String medicineName;
 
     // Bidirectional, identifying  relationship

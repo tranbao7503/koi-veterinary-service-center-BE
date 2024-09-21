@@ -3,6 +3,7 @@ package org.ftf.koifishveterinaryservicecenter.model.veterinarian_slots;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.ftf.koifishveterinaryservicecenter.enums.SlotStatus;
 import org.ftf.koifishveterinaryservicecenter.model.TimeSlot;
 import org.ftf.koifishveterinaryservicecenter.model.User;
 import org.hibernate.annotations.ColumnDefault;
@@ -16,9 +17,10 @@ public class VeterinarianSlots {
     @EmbeddedId
     private VeterinarianSlotId veterinarianSlotId;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     @ColumnDefault("'AVAILABLE'")
-    private String status;
+    private SlotStatus status;
 
     // Bidirectional, identifying  relationship
     // Owning side: VeterinarianSlots

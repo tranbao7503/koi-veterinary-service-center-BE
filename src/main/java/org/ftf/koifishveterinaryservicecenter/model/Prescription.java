@@ -21,8 +21,8 @@ public class Prescription {
     @Column(name = "prescription_id", nullable = false)
     private Integer prescriptionId;
 
-    @Lob
-    @Column(name = "instruction", nullable = false)
+//    @Lob
+    @Column(name = "instruction", nullable = false, columnDefinition = "TEXT")
     private String instruction;
 
     // Bidirectional, identifying  relationship

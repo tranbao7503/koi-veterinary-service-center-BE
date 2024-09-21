@@ -28,8 +28,8 @@ public class Service {
     @Column(name = "service_name", length = 50, nullable = false)
     private String serviceName;
 
-    @Lob
-    @Column(name = "description", nullable = false)
+//    @Lob
+    @Column(name = "description", nullable = false, columnDefinition = "TEXT")
     private String description;
 
     @Column(name = "service_price", nullable = false, precision = 6, scale = 2)   // decimal(6,2)

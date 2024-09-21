@@ -3,6 +3,7 @@ package org.ftf.koifishveterinaryservicecenter.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.ftf.koifishveterinaryservicecenter.enums.AppointmentStatus;
 
 import java.time.LocalDateTime;
 
@@ -17,14 +18,15 @@ public class Status {
     @Column(name = "status_id", nullable = false)
     private Integer statusId;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status_name", nullable = false)
-    private String statusName;
+    private AppointmentStatus statusName;
 
-    @Column(name = "time", nullable = false)
+    @Column(name = "time", nullable = false, columnDefinition = "DATETIME")
     private LocalDateTime time;
 
-    @Lob
-    @Column(name = "note", nullable = false)
+    //@Lob --- use columnDefinition = "TEXT" to define type of field in database
+    @Column(name = "note", nullable = true, columnDefinition = "TEXT")
     private String note;
 
     // Bidirectional, identifying relationship

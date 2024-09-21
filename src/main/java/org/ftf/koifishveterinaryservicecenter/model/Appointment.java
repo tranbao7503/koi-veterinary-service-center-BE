@@ -3,6 +3,7 @@ package org.ftf.koifishveterinaryservicecenter.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.ftf.koifishveterinaryservicecenter.enums.AppointmentStatus;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.math.BigDecimal;
@@ -21,18 +22,19 @@ public class Appointment {
     @Column(name = "appointment_id", nullable = false)
     private Integer appointmentId;
 
-    @Column(name = "created_date", nullable = false)
+    @Column(name = "created_date", nullable = false, columnDefinition = "DATETIME")
     private LocalDateTime createdDate;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "current_status", nullable = false)
     @ColumnDefault("'PENDING'")
-    private String currentStatus;
+    private AppointmentStatus currentStatus;
 
     @Column(name = "cusomter_name", nullable = false, length = 100)
     private String customerName;
 
-    @Lob
-    @Column(name = "description", nullable = true)
+//    @Lob
+    @Column(name = "description", nullable = true, columnDefinition = "TEXT")
     private String description;
 
     @Column(name = "total_price", nullable = false, precision = 6, scale = 2)

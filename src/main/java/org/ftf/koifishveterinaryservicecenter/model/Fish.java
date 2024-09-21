@@ -3,6 +3,7 @@ package org.ftf.koifishveterinaryservicecenter.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.ftf.koifishveterinaryservicecenter.enums.Gender;
 
 import java.math.BigDecimal;
 import java.util.LinkedHashSet;
@@ -19,8 +20,9 @@ public class Fish {
     @Column(name = "fish_id", nullable = false)
     private Integer fishId;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "gender", nullable = false)
-    private String gender;
+    private Gender gender;
 
     @Column(name = "age", nullable = false)
     private Integer age;

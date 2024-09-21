@@ -16,10 +16,10 @@ public class Role {
     @Column(name = "role_id", nullable = false)
     private Integer roleId;
 
-    @Column(name = "role_key", nullable = false, length = 4)
+    @Column(name = "role_key", nullable = false, length = 4, unique = true)
     private String roleKey;  // MAN, CUS, STA, VET
 
-    @Column(name = "role_name", nullable = false, length = 20)
+    @Column(name = "role_name", nullable = false, length = 20, unique = true)
     private String roleName;
 
 

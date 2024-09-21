@@ -21,11 +21,11 @@ public class Feedback {
     @Column(name = "rating", nullable = true)
     private Integer rating;
 
-    @Lob
-    @Column(name = "comment", nullable = true)
+//    @Lob
+    @Column(name = "comment", nullable = true, columnDefinition = "TEXT")
     private String comment;
 
-    @Column(name = "datetime", nullable = false)
+    @Column(name = "datetime", nullable = false, columnDefinition = "DATETIME")
     private LocalDateTime datetime;
 
     // Bidirectional, identifying relationship
