@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>org.ftf</groupId>
-    <artifactId>koi-fish-veterinary-service-center</artifactId>
+    <artifactId>koi-fish-veterinary-service-center-BE</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>koi-fish-veterinary-service-center</name>
-    <description>koi-fish-veterinary-service-center</description>
+    <name>koi-fish-veterinary-service-center-be</name>
+    <description>koi-fish-veterinary-service-center-be</description>
     <url/>
     <licenses>
         <license/>
