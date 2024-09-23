@@ -32,7 +32,7 @@ public class Service {
     @Column(name = "description", nullable = false, columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "service_price", nullable = false, precision = 6, scale = 2)   // decimal(6,2)
+    @Column(name = "service_price", nullable = false, precision = 10, scale = 2)   // decimal(6,2)
     private BigDecimal servicePrice;
 
     // Bidirectional, Identifying relationship

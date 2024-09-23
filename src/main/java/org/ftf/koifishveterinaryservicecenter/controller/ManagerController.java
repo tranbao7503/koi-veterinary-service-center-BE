@@ -1,16 +1,14 @@
 package org.ftf.koifishveterinaryservicecenter.controller;
 
 import org.ftf.koifishveterinaryservicecenter.dto.ServiceDTO;
-import org.ftf.koifishveterinaryservicecenter.model.Service;
 import org.ftf.koifishveterinaryservicecenter.service.ServiceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.management.ServiceNotFoundException;
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -26,11 +24,36 @@ public class ManagerController {
     }
 
     /*
-    * Return list of available services
-    * */
-    @GetMapping("service-list")
+     * Return list of available services
+     * */
+    @GetMapping("services")
     public ResponseEntity<List<ServiceDTO>> getAllServices() {
+
         List<ServiceDTO> serviceDTOs = serviceService.getAllServices();
-        return new ResponseEntity<>(serviceDTOs, HttpStatus.OK);
+
+        if(serviceDTOs.isEmpty()) { //There are no services
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } else {
+            return new ResponseEntity<>(serviceDTOs, HttpStatus.OK);
+        }
+    }
+
+    /*
+    * Update price of a service
+    * */
+    @PutMapping("services/{serviceID}/update-price")
+    public ResponseEntity<String> updateServicePrice(
+            @PathVariable("serviceID") Integer serviceID,
+            @RequestBody ServiceDTO serviceDTO) {
+
+        try {
+            BigDecimal price = serviceDTO.getServicePrice();
+            serviceService.updateServicePrice(serviceID, price);
+            return new ResponseEntity<>("Price Updated Successfully", HttpStatus.OK);
+        } catch (ServiceNotFoundException e) { // Service not found
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) { // Other exceptions
+            return new ResponseEntity<>("Service Update Failed", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
