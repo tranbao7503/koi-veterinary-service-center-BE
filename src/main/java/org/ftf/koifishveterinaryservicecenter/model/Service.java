@@ -38,7 +38,7 @@ public class Service {
     // Bidirectional, Identifying relationship
     // Owning side: Appointment
     // Inverse side: Service
-    @OneToMany(mappedBy = "service")
+    @OneToMany(mappedBy = "service", fetch = FetchType.LAZY)
     private Set<Appointment> appointments = new LinkedHashSet<>();
 
 
