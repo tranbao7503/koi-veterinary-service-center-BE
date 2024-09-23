@@ -6,6 +6,8 @@ import org.ftf.koifishveterinaryservicecenter.repository.ServiceRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.management.ServiceNotFoundException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -45,5 +47,17 @@ public class ServiceService {
                 .map(this::convertToServiceDTO)
                 .collect(Collectors.toList());
         return serviceDTOs;
+    }
+
+
+    /*
+    * Update price of service
+    * */
+    public void updateServicePrice(Integer serviceId, BigDecimal newPrice) throws ServiceNotFoundException {
+        Service service = serviceRepository.findById(serviceId)
+                .orElseThrow(() -> new ServiceNotFoundException("Service Not Found With ID: " + serviceId)); // Throw exception whether service not found
+
+        service.setServicePrice(newPrice); // Update price
+        serviceRepository.save(service); // Save to database
     }
 }
