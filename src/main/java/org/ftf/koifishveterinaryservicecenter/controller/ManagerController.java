@@ -1,7 +1,9 @@
 package org.ftf.koifishveterinaryservicecenter.controller;
 
 import org.ftf.koifishveterinaryservicecenter.dto.ServiceDTO;
+import org.ftf.koifishveterinaryservicecenter.dto.UserDTO;
 import org.ftf.koifishveterinaryservicecenter.service.ServiceService;
+import org.ftf.koifishveterinaryservicecenter.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,10 +19,12 @@ import java.util.List;
 public class ManagerController {
 
     private ServiceService serviceService;
+    private UserService userService;
 
     @Autowired
-    public ManagerController(ServiceService serviceService) {
+    public ManagerController(ServiceService serviceService, UserService userService) {
         this.serviceService = serviceService;
+        this.userService = userService;
     }
 
     /*
@@ -41,7 +45,7 @@ public class ManagerController {
     /*
     * Update price of a service
     * */
-    @PutMapping("services/{serviceID}/update-price")
+   /* @PutMapping("services/{serviceID}/update-price")
     public ResponseEntity<String> updateServicePrice(
             @PathVariable("serviceID") Integer serviceID,
             @RequestBody ServiceDTO serviceDTO) {
@@ -55,5 +59,19 @@ public class ManagerController {
         } catch (Exception e) { // Other exceptions
             return new ResponseEntity<>("Service Update Failed", HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }*/
+
+    @GetMapping("customers")
+    public ResponseEntity<List<UserDTO>> getAllCustomers(){
+        List<UserDTO> customers=userService.getAllCustomers();
+
+        if(customers.isEmpty()){
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }else{
+            return new ResponseEntity<>(customers,HttpStatus.OK);
+        }
     }
+
+
+
 }

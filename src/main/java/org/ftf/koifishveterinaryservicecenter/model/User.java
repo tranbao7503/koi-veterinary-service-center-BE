@@ -88,4 +88,123 @@ public class User {
     )
     private Set<TimeSlot> timeSlots = new LinkedHashSet<>();
 
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
+
+    public Set<TimeSlot> getTimeSlots() {
+        return timeSlots;
+    }
+
+    public void setTimeSlots(Set<TimeSlot> timeSlots) {
+        this.timeSlots = timeSlots;
+    }
+
+    public Set<Appointment> getAllAssignedAppointmentOfVeterinarian() {
+        return allAssignedAppointmentOfVeterinarian;
+    }
+
+    public void setAllAssignedAppointmentOfVeterinarian(Set<Appointment> allAssignedAppointmentOfVeterinarian) {
+        this.allAssignedAppointmentOfVeterinarian = allAssignedAppointmentOfVeterinarian;
+    }
+
+    public Set<Appointment> getAllBookedAppointmentOfCustomer() {
+        return allBookedAppointmentOfCustomer;
+    }
+
+    public void setAllBookedAppointmentOfCustomer(Set<Appointment> allBookedAppointmentOfCustomer) {
+        this.allBookedAppointmentOfCustomer = allBookedAppointmentOfCustomer;
+    }
+
+    public Set<Fish> getFishes() {
+        return fishes;
+    }
+
+    public void setFishes(Set<Fish> fishes) {
+        this.fishes = fishes;
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
 }

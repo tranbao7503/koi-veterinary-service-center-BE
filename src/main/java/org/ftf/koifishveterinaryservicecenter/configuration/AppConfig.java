@@ -12,6 +12,8 @@ public class AppConfig {
     * ModelMapper use for mapping Entity to DTO
     * */
     public ModelMapper modelMapper(){
-        return new ModelMapper();
+        ModelMapper modelMapper = new ModelMapper();
+        modelMapper.getConfiguration().setAmbiguityIgnored(true);
+        return modelMapper;
     }
 }
