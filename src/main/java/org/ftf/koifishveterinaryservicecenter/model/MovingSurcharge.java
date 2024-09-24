@@ -24,7 +24,7 @@ public class MovingSurcharge {
     @Column(name = "district", nullable = false, length = 50)
     private String district;
 
-    @Column(name = "price", nullable = false, precision = 6, scale = 2)
+    @Column(name = "price", nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 
 
