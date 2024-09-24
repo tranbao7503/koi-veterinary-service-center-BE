@@ -30,10 +30,10 @@ public class Fish {
     @Column(name = "species", nullable = false, length = 50)
     private String species;
 
-    @Column(name = "size", nullable = false, precision = 6, scale = 2)
+    @Column(name = "size", nullable = false, precision = 10, scale = 2)
     private BigDecimal size;
 
-    @Column(name = "weight", nullable = false, precision = 6, scale = 2)
+    @Column(name = "weight", nullable = false, precision = 10, scale = 2)
     private BigDecimal weight;
 
     @Column(name = "color", nullable = false, length = 45)

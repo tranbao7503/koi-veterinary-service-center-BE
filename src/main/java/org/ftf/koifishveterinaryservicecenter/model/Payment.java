@@ -31,7 +31,7 @@ public class Payment {
     @Column(name = "transaction_id", length = 100, nullable = true, unique = true)
     private String transactionId;
 
-    @Column(name = "amount", nullable = false, precision = 6, scale = 2)
+    @Column(name = "amount", nullable = false, precision = 10, scale = 2)
     private BigDecimal amount;
 
 //    @Lob

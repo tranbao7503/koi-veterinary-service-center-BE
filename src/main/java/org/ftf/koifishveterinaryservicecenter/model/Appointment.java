@@ -37,7 +37,7 @@ public class Appointment {
     @Column(name = "description", nullable = true, columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "total_price", nullable = false, precision = 6, scale = 2)
+    @Column(name = "total_price", nullable = false, precision = 10, scale = 2)
     private BigDecimal totalPrice;
 
 
