@@ -2,8 +2,8 @@ package org.ftf.koifishveterinaryservicecenter.services;
 
 import org.assertj.core.api.Assertions;
 
-import org.ftf.koifishveterinaryservicecenter.koifishservice.entity.Service;
-import org.ftf.koifishveterinaryservicecenter.koifishservice.repository.ServiceRepository;
+import org.ftf.koifishveterinaryservicecenter.entity.Service;
+import org.ftf.koifishveterinaryservicecenter.repository.ServiceRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
