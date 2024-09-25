@@ -44,8 +44,7 @@ public class ServiceController {
     @GetMapping("/{service_id}")
     public ResponseEntity<?> getServiceById(@PathVariable("service_id") Integer serviceId) {
         try {
-            Service service = serviceServiceImpl.getServiceById(serviceId);
-            ServiceDTO serviceDTO = serviceMapper.convertToServiceDTO(service);
+            ServiceDTO serviceDTO = serviceServiceImpl.getServiceById(serviceId);
             return new ResponseEntity<>(serviceDTO, HttpStatus.OK);
         } catch (AppointmentServiceNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -56,7 +55,7 @@ public class ServiceController {
      * Update price of a service
      * */
     @PutMapping("/{serviceID}")
-    public ResponseEntity<?> updateServicePrice(
+    public ResponseEntity<?> updateService(
             @PathVariable("serviceID") Integer serviceID,
             @RequestBody ServiceDTO serviceFromRequest) {
 

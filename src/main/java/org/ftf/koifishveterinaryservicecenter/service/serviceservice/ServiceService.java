@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface ServiceService {
     ServiceDTO updateService(Integer serviceId, ServiceDTO serviceDTO);
-    Service getServiceById(Integer serviceId);
+    ServiceDTO getServiceById(Integer serviceId);
     List<ServiceDTO> getAllServices();
 }
