@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.ftf.koifishveterinaryservicecenter.enums.AppointmentStatus;
+import org.ftf.koifishveterinaryservicecenter.koifishservice.entity.Service;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.math.BigDecimal;

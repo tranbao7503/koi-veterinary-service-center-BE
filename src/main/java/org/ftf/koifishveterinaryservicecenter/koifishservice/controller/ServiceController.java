@@ -4,13 +4,12 @@ import org.ftf.koifishveterinaryservicecenter.koifishservice.dto.ServiceDTO;
 import org.ftf.koifishveterinaryservicecenter.koifishservice.exception.AppointmentServiceNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.koifishservice.mapper.ServiceMapper;
 import org.ftf.koifishveterinaryservicecenter.koifishservice.service.ServiceService;
-import org.ftf.koifishveterinaryservicecenter.model.Service;
+import org.ftf.koifishveterinaryservicecenter.koifishservice.entity.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @RestController

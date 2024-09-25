@@ -1,7 +1,8 @@
-package org.ftf.koifishveterinaryservicecenter.model;
+package org.ftf.koifishveterinaryservicecenter.koifishservice.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.ftf.koifishveterinaryservicecenter.model.Appointment;
 
 
 import java.math.BigDecimal;
