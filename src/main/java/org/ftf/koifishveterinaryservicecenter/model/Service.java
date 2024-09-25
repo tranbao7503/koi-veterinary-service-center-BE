@@ -12,6 +12,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Builder
+
 @NoArgsConstructor
 @AllArgsConstructor
 
@@ -22,13 +23,13 @@ public class Service {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "service_id",nullable = false)
+    @Column(name = "service_id", nullable = false)
     private Integer serviceId;
 
     @Column(name = "service_name", length = 50, nullable = false)
     private String serviceName;
 
-//    @Lob
+    //    @Lob
     @Column(name = "description", nullable = false, columnDefinition = "TEXT")
     private String description;
 
@@ -41,5 +42,12 @@ public class Service {
     @OneToMany(mappedBy = "service", fetch = FetchType.LAZY)
     private Set<Appointment> appointments = new LinkedHashSet<>();
 
-
+    @Override
+    public String toString() {
+        return "Service{" +
+                "serviceId=" + serviceId +
+                ", serviceName='" + serviceName + '\'' +
+                ", description='" + description + '\'' +
+                ", servicePrice=" + servicePrice;
+    }
 }
