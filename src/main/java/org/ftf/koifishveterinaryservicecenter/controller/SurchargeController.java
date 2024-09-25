@@ -23,7 +23,7 @@ public class SurchargeController {
     }
 
     /*
-     * Get all MovingSurcharge from database
+     * Return all MovingSurcharge from database
      * */
     @GetMapping("")
     public ResponseEntity<List<MovingSurchargeDTO>> getAllMovingSurcharges() {
@@ -39,12 +39,30 @@ public class SurchargeController {
      * Get Moving Surcharge by ID
      * */
     @GetMapping("{surchargeID}")
-    public ResponseEntity<?> getMovingSurcharge(@PathVariable("surchargeID") Integer surchargeID) {
+    public ResponseEntity<?> getMovingSurcharge(
+            @PathVariable("surchargeID") Integer surchargeID) {
         try {
             MovingSurchargeDTO movingSurchargeDTO = surchargeService.getMovingSurchargeById(surchargeID);
             return new ResponseEntity<>(movingSurchargeDTO, HttpStatus.OK);
         } catch (MovingSurchargeNotFoundException e) { // Moving surcharge not existed
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
+
+    /*
+    * Update price of a moving surcharge
+    * */
+    @PutMapping("{surchargeID}")
+    public ResponseEntity<?> updateMovingSurcharge(
+            @PathVariable("surchargeID") Integer surchargeID,
+            @RequestBody MovingSurchargeDTO movingSurchargeFromRequest) {
+        try {
+            MovingSurchargeDTO movingSurchargeDTO = surchargeService.updateMovingSurcharge(surchargeID, movingSurchargeFromRequest);
+            return new ResponseEntity<>(movingSurchargeDTO, HttpStatus.OK);
+        } catch (MovingSurchargeNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Moving Surcharge Update Failed", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

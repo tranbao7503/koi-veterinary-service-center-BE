@@ -24,8 +24,8 @@ public class SurchargeServiceImpl implements SurchargeService {
     }
 
     /*
-    * Get all MovingSurcharge from database
-    * */
+     * Get all MovingSurcharge from database
+     * */
     @Override
     public List<MovingSurchargeDTO> getAllMovingSurcharges() {
 
@@ -40,14 +40,14 @@ public class SurchargeServiceImpl implements SurchargeService {
     }
 
     /*
-    * Get MovingSurcharge By ID
-    * */
+     * Get MovingSurcharge By ID
+     * */
     @Override
     public MovingSurchargeDTO getMovingSurchargeById(Integer id) throws MovingSurchargeNotFoundException {
 
         MovingSurcharge movingSurcharge = movingSurchargeRepository.findById(id).orElse(null);
 
-        if(movingSurcharge == null) { // MovingSurcharge not existed with given id
+        if (movingSurcharge == null) { // MovingSurcharge not existed
             throw new MovingSurchargeNotFoundException("Moving Surcharge not found with id: " + id);
         } else { // MovingSurcharge existed
             return movingSurchargeMapper.convertToMovingSurchargeDTO(movingSurcharge);
@@ -57,6 +57,14 @@ public class SurchargeServiceImpl implements SurchargeService {
 
     @Override
     public MovingSurchargeDTO updateMovingSurcharge(Integer movingSurchargeId, MovingSurchargeDTO movingSurchargeDTO) {
-        return null;
+        MovingSurcharge movingSurcharge = movingSurchargeRepository.findById(movingSurchargeId).orElse(null);
+
+        if (movingSurcharge == null) { // Moving surcharge not existed
+            throw new MovingSurchargeNotFoundException("Moving Surcharge not found with id: " + movingSurchargeId);
+        } else { // Moving surcharge existed
+            movingSurcharge = movingSurchargeMapper.convertToMovingSurcharge(movingSurchargeDTO); // Convert MovingSurcharge DTO into Entity
+            movingSurchargeRepository.save(movingSurcharge); // Update into database
+            return movingSurchargeDTO;
+        }
     }
 }
