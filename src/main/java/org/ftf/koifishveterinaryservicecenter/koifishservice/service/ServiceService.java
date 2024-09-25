@@ -3,13 +3,11 @@ package org.ftf.koifishveterinaryservicecenter.koifishservice.service;
 import org.ftf.koifishveterinaryservicecenter.koifishservice.dto.ServiceDTO;
 import org.ftf.koifishveterinaryservicecenter.koifishservice.exception.AppointmentServiceNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.koifishservice.mapper.ServiceMapper;
-import org.ftf.koifishveterinaryservicecenter.model.Service;
-import org.ftf.koifishveterinaryservicecenter.repository.ServiceRepository;
-import org.modelmapper.ModelMapper;
+import org.ftf.koifishveterinaryservicecenter.koifishservice.entity.Service;
+import org.ftf.koifishveterinaryservicecenter.koifishservice.repository.ServiceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.management.ServiceNotFoundException;
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
