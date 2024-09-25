@@ -32,7 +32,7 @@ public class ManagerController {
         }
     }
 
-    @GetMapping("veterinarian")
+    @GetMapping("veterinarians")
     public ResponseEntity<List<UserDTO>> getAllReterinarians(){
         List<UserDTO> veterinarians = managerService.getAllUser(3);
 
