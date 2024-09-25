@@ -1,4 +1,4 @@
-package org.ftf.koifishveterinaryservicecenter.model;
+package org.ftf.koifishveterinaryservicecenter.entity;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.ColumnDefault;

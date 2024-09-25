@@ -1,11 +1,11 @@
-package org.ftf.koifishveterinaryservicecenter.model.veterinarian_slots;
+package org.ftf.koifishveterinaryservicecenter.entity.veterinarian_slots;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.ftf.koifishveterinaryservicecenter.enums.SlotStatus;
-import org.ftf.koifishveterinaryservicecenter.model.TimeSlot;
-import org.ftf.koifishveterinaryservicecenter.model.User;
+import org.ftf.koifishveterinaryservicecenter.entity.TimeSlot;
+import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.hibernate.annotations.ColumnDefault;
 
 @Getter

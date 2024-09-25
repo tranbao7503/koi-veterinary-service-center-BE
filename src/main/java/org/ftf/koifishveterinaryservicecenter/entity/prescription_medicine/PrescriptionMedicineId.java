@@ -1,4 +1,4 @@
-package org.ftf.koifishveterinaryservicecenter.model.prescription_medicine;
+package org.ftf.koifishveterinaryservicecenter.entity.prescription_medicine;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;

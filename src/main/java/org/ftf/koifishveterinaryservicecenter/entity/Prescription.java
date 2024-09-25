@@ -1,10 +1,9 @@
-package org.ftf.koifishveterinaryservicecenter.model;
+package org.ftf.koifishveterinaryservicecenter.entity;
 
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.ftf.koifishveterinaryservicecenter.model.prescription_medicine.PrescriptionMedicine;
 
 import java.util.LinkedHashSet;
 import java.util.Set;

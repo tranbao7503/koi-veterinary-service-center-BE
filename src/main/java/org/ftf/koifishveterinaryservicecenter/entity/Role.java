@@ -1,9 +1,8 @@
-package org.ftf.koifishveterinaryservicecenter.model;
+package org.ftf.koifishveterinaryservicecenter.entity;
 
 
 import jakarta.persistence.*;
 
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 

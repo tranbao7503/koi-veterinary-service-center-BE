@@ -1,8 +1,7 @@
-package org.ftf.koifishveterinaryservicecenter.model;
+package org.ftf.koifishveterinaryservicecenter.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.ftf.koifishveterinaryservicecenter.model.veterinarian_slots.VeterinarianSlots;
 
 import java.util.LinkedHashSet;
 import java.util.Set;

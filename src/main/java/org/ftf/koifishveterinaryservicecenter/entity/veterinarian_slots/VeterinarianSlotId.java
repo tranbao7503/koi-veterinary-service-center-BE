@@ -1,4 +1,4 @@
-package org.ftf.koifishveterinaryservicecenter.model.veterinarian_slots;
+package org.ftf.koifishveterinaryservicecenter.entity.veterinarian_slots;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;

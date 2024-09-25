@@ -1,11 +1,11 @@
-package org.ftf.koifishveterinaryservicecenter.model.prescription_medicine;
+package org.ftf.koifishveterinaryservicecenter.entity.prescription_medicine;
 
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.ftf.koifishveterinaryservicecenter.model.Medicine;
-import org.ftf.koifishveterinaryservicecenter.model.Prescription;
+import org.ftf.koifishveterinaryservicecenter.entity.Medicine;
+import org.ftf.koifishveterinaryservicecenter.entity.Prescription;
 
 @Getter
 @Setter
