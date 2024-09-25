@@ -1,5 +1,7 @@
-package org.ftf.koifishveterinaryservicecenter.dto;
+package org.ftf.koifishveterinaryservicecenter.koifishservice.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -14,15 +16,20 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class ServiceDTO {
 
+
+    @JsonProperty("service_id")
     private Integer serviceId;
 
-    @NotBlank
+    @JsonProperty("service_name")
+    @NotBlank(message = "service name cannot be blank")
     private String serviceName;
 
-    @NotBlank
+    @JsonProperty("description")
+    @NotBlank(message = "description cannot be blank")
     private String description;
 
-    @NotNull
+    @JsonProperty("service_price")
+    @NotNull(message = "service price cannot be null")
     @DecimalMin(value = "0") // Service price must be at least 0
     private BigDecimal servicePrice;
 }
