@@ -20,16 +20,6 @@ public class ManagerController {
         this.userService = userService;
     }
 
-    @GetMapping("customers")
-    public ResponseEntity<List<UserDTO>> getAllCustomers(){
-        List<UserDTO> customers=userService.getAllCustomers();
-
-        if(customers.isEmpty()){
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }else{
-            return new ResponseEntity<>(customers,HttpStatus.OK);
-        }
-    }
 
 
 

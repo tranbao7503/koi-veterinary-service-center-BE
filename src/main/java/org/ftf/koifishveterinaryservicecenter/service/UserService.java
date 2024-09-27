@@ -1,6 +1,7 @@
 package org.ftf.koifishveterinaryservicecenter.service;
 
 import org.ftf.koifishveterinaryservicecenter.dto.UserDTO;
+import org.ftf.koifishveterinaryservicecenter.dto.UserDto;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.ftf.koifishveterinaryservicecenter.repository.UserRepository;
 import org.modelmapper.ModelMapper;
@@ -21,7 +22,7 @@ public class UserService {
         this.userRepository = userRepository;
         this.modelMapper = modelMapper;
     }
-    public UserDTO convertToUserDTO(User user) {
+    public User convertToUserDTO(User user) {
         TypeMap<User, UserDTO> typeMap = modelMapper.getTypeMap(User.class, UserDTO.class);
 //        typeMap.addMappings(mapper -> mapper.skip(User::getPassword));
         if (typeMap == null) {
@@ -37,12 +38,9 @@ public class UserService {
 //        return modelMapper.map(userDTO, org.ftf.koifishveterinaryservicecenter.model.Service.class);
 //    }
 
-    public List<UserDTO> getAllCustomers() {
+    public List<User> getAllCustomers() {
         List<User> users = userRepository.findAllByRoleRoleId(2);
-        List<UserDTO> userDtos = users.stream()
-                .map(this::convertToUserDTO)
-                .collect(Collectors.toList());
-        return userDtos;
+        return users;
     }
 
 
