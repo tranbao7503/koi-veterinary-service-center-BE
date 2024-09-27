@@ -1,11 +1,16 @@
 package org.ftf.koifishveterinaryservicecenter.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 
+@Getter
+@Setter
+@RequiredArgsConstructor
 @Entity
 @Table(name = "users")
 public class User {
@@ -46,14 +51,14 @@ public class User {
     // owning side: User
     // inverse side: Role
     @ManyToOne(fetch = FetchType.LAZY, optional = false)  // optional = false  <-> user must have a role
-    @JoinColumn(name = "role_id", nullable = false, referencedColumnName = "role_id")
+    @JoinColumn(name = "role_id", nullable = false)
     private Role role;
 
 
     // Uni-directional, non-identifying relationship
     // Owning side: User
     // Inverse side: Address
-    @OneToOne(fetch = FetchType.LAZY/*, optional = true*/)
+    @OneToOne(fetch = FetchType.EAGER /*, optional = true*/)
     @JoinColumn(name = "address_id"/*, unique = false, nullable = true*/)
     private Address address;
 
@@ -61,7 +66,8 @@ public class User {
     // Bidirectional, identifying relationship
     // Owning side: Fish
     // Inverse side: User(customer)
-    @OneToMany(mappedBy = "customer"/*, orphanRemoval = true*/) // Shouldn't allow to remove data
+    @OneToMany(mappedBy = "customer"/*, orphanRemoval = true*/)
+    @ToString.Exclude // Shouldn't allow to remove data
     // orphanRemoval: true -->  remove User then all related Fishes will be removed
     private Set<Fish> fishes = new LinkedHashSet<>();
 
@@ -69,12 +75,14 @@ public class User {
     // Owning side: Appointment
     // Inverse side: User(customer)
     @OneToMany(mappedBy = "customer")
+    @ToString.Exclude
     private Set<Appointment> allBookedAppointmentOfCustomer = new LinkedHashSet<>();
 
     // Bidirectional, identifying relationship
     // Owning side: Appointment
     // Inverse side: User(veterinarian)
     @OneToMany(mappedBy = "veterinarian")
+    @ToString.Exclude
     private Set<Appointment> allAssignedAppointmentOfVeterinarian = new LinkedHashSet<>();
 
     // Bidirectional, identifying  relationship
@@ -88,4 +96,32 @@ public class User {
     )
     private Set<TimeSlot> timeSlots = new LinkedHashSet<>();
 
+
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "userId=" + userId +
+                ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", avatar='" + avatar + '\'' +
+                ", address=" + address +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return enabled == user.enabled && Objects.equals(userId, user.userId) && Objects.equals(username, user.username) && Objects.equals(password, user.password) && Objects.equals(email, user.email) && Objects.equals(firstName, user.firstName) && Objects.equals(lastName, user.lastName) && Objects.equals(phoneNumber, user.phoneNumber) && Objects.equals(avatar, user.avatar) && Objects.equals(role, user.role) && Objects.equals(address, user.address) && Objects.equals(fishes, user.fishes) && Objects.equals(allBookedAppointmentOfCustomer, user.allBookedAppointmentOfCustomer) && Objects.equals(allAssignedAppointmentOfVeterinarian, user.allAssignedAppointmentOfVeterinarian) && Objects.equals(timeSlots, user.timeSlots);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(userId, username, password, email, firstName, lastName, phoneNumber, avatar, enabled, role, address, fishes, allBookedAppointmentOfCustomer, allAssignedAppointmentOfVeterinarian, timeSlots);
+    }
 }

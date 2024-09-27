@@ -30,14 +30,15 @@ public class ServiceController {
      * Return list of available services
      * */
     @GetMapping
-    public ResponseEntity<List<ServiceDTO>> getAllServices() {
+    public ResponseEntity<?> getAllServices() {
 
-        List<ServiceDTO> serviceDTOs = serviceServiceImpl.getAllServices();
+        List<Service> services = serviceServiceImpl.getAllServices();
 
-        if (serviceDTOs.isEmpty()) { //There are no services
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        List<ServiceDTO> result = serviceMapper.convertToListDTO(services);
+        if (services.isEmpty()) { //There are no services
+            return new ResponseEntity<>(result, HttpStatus.NO_CONTENT);
         } else {
-            return new ResponseEntity<>(serviceDTOs, HttpStatus.OK);
+            return new ResponseEntity<>(result, HttpStatus.OK);
         }
     }
 
@@ -56,12 +57,16 @@ public class ServiceController {
      * Update price of a service
      * */
     @PutMapping("/{serviceID}")
-    public ResponseEntity<?> updateServicePrice(
-            @PathVariable("serviceID") Integer serviceID,
-            @RequestBody ServiceDTO serviceFromRequest) {
+    public ResponseEntity<?> updateServicePrice(@PathVariable("serviceID") Integer serviceID, @RequestBody ServiceDTO serviceFromRequest) {
 
         try {
-            ServiceDTO dto = serviceServiceImpl.updateService(serviceID, serviceFromRequest);
+
+            // convert to entity
+            Service convertService = serviceMapper.convertToService(serviceFromRequest);
+
+            Service result = serviceServiceImpl.updateService(serviceID, convertService);
+
+            ServiceDTO dto = serviceMapper.convertToServiceDTO(result);
             return new ResponseEntity<>(dto, HttpStatus.OK);
         } catch (AppointmentServiceNotFoundException e) { // Service not found
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
