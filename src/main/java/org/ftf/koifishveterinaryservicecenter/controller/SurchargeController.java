@@ -5,7 +5,6 @@ import org.ftf.koifishveterinaryservicecenter.entity.MovingSurcharge;
 import org.ftf.koifishveterinaryservicecenter.exception.MovingSurchargeNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.MovingSurchargeMapper;
 import org.ftf.koifishveterinaryservicecenter.service.surchargeservice.SurchargeService;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -56,6 +55,24 @@ public class SurchargeController {
             return new ResponseEntity<>(movingSurchargeDTO, HttpStatus.OK);
         } catch (MovingSurchargeNotFoundException e) { // Moving surcharge not existed
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
+
+    /*
+    * Update price of a moving surcharge
+    * */
+    @PutMapping("/{surchargeID}")
+    public ResponseEntity<?> updateMovingSurcharge(
+            @PathVariable("surchargeID") Integer surchargeID,
+            @RequestBody MovingSurchargeDTO movingSurchargeFromRequest) {
+        try {
+            MovingSurcharge movingSurcharge = movingSurchargeMapper.convertToMovingSurcharge(movingSurchargeFromRequest);
+            surchargeService.updateMovingSurcharge(surchargeID, movingSurcharge);
+            return new ResponseEntity<>(movingSurchargeFromRequest, HttpStatus.OK);
+        } catch (MovingSurchargeNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Moving Surcharge Update Failed", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

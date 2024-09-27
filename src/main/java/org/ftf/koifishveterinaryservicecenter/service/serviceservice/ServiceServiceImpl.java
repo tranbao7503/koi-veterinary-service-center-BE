@@ -52,9 +52,9 @@ public class ServiceServiceImpl implements ServiceService {
         if (serviceFromDb == null) {
             throw new AppointmentServiceNotFoundException("Service not found with ID: " + serviceId);
         }
-
         serviceFromDb = serviceRepository.save(serviceFromRequest);
         return serviceFromDb;
+
     }
 
 }

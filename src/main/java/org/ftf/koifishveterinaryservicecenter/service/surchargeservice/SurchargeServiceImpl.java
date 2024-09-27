@@ -56,7 +56,15 @@ public class SurchargeServiceImpl implements SurchargeService {
     }
 
     @Override
-    public MovingSurcharge updateMovingSurcharge(Integer movingSurchargeId, MovingSurcharge movingSurchargeDTO) {
-        return null;
+    public MovingSurcharge updateMovingSurcharge(Integer movingSurchargeId, MovingSurcharge movingSurchargeFromRequest) {
+        MovingSurcharge movingSurcharge = movingSurchargeRepository.findById(movingSurchargeId).orElse(null);
+
+        if (movingSurcharge == null) { // Moving surcharge not existed
+            throw new MovingSurchargeNotFoundException("Moving Surcharge not found with id: " + movingSurchargeId);
+        } else { // Moving surcharge existed
+//            movingSurcharge = movingSurchargeMapper.convertToMovingSurcharge(movingSurchargeFromRequest); // Convert MovingSurcharge DTO into Entity
+            movingSurchargeRepository.save(movingSurchargeFromRequest); // Update into database
+            return movingSurchargeFromRequest;
+        }
     }
 }

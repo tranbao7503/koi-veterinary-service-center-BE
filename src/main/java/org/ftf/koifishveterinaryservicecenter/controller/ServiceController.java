@@ -1,10 +1,10 @@
 package org.ftf.koifishveterinaryservicecenter.controller;
 
 import org.ftf.koifishveterinaryservicecenter.dto.ServiceDTO;
+import org.ftf.koifishveterinaryservicecenter.entity.Service;
 import org.ftf.koifishveterinaryservicecenter.exception.AppointmentServiceNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.ServiceMapper;
 import org.ftf.koifishveterinaryservicecenter.service.serviceservice.ServiceService;
-import org.ftf.koifishveterinaryservicecenter.entity.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,8 +47,11 @@ public class ServiceController {
         }
     }
 
-    @GetMapping("/{service_id}")
-    public ResponseEntity<?> getServiceById(@PathVariable("service_id") Integer serviceId) {
+    /*
+    * Find a service by ID
+    * */
+    @GetMapping("/{serviceID}")
+    public ResponseEntity<?> getServiceById(@PathVariable("serviceID") Integer serviceId) {
         try {
             Service service = serviceServiceImpl.getServiceById(serviceId);
             ServiceDTO serviceDTO = serviceMapper.convertToServiceDTO(service);
