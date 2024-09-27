@@ -1,15 +1,14 @@
 package org.ftf.koifishveterinaryservicecenter.controller;
 
 
+import org.ftf.koifishveterinaryservicecenter.dto.AddressDto;
 import org.ftf.koifishveterinaryservicecenter.dto.UserDto;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -28,6 +27,11 @@ public class UserController {
     public ResponseEntity<?> getProfile() {
         UserDto dto = userService.getUserProfile(1);
         return ResponseEntity.ok(dto);
+    }
+
+    @PutMapping("/address")
+    public ResponseEntity<?> updateAddress(@RequestBody AddressDto addressDto) {
+
     }
 
 
