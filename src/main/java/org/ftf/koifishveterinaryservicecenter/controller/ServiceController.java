@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 // @CrossOrigin: Security config
@@ -34,11 +35,15 @@ public class ServiceController {
 
         List<Service> services = serviceServiceImpl.getAllServices();
 
-        List<ServiceDTO> result = serviceMapper.convertToListDTO(services);
+
         if (services.isEmpty()) { //There are no services
-            return new ResponseEntity<>(result, HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } else {
-            return new ResponseEntity<>(result, HttpStatus.OK);
+            // Mapping to DTOs
+            List<ServiceDTO> serviceDTOs = services.stream()
+                    .map(serviceMapper::convertToServiceDTO)
+                    .collect(Collectors.toList());
+            return new ResponseEntity<>(serviceDTOs, HttpStatus.OK);
         }
     }
 
@@ -57,17 +62,14 @@ public class ServiceController {
      * Update price of a service
      * */
     @PutMapping("/{serviceID}")
-    public ResponseEntity<?> updateServicePrice(@PathVariable("serviceID") Integer serviceID, @RequestBody ServiceDTO serviceFromRequest) {
 
+    public ResponseEntity<?> updateService(
+            @PathVariable("serviceID") Integer serviceID,
+            @RequestBody ServiceDTO serviceFromRequest) {
         try {
-
-            // convert to entity
-            Service convertService = serviceMapper.convertToService(serviceFromRequest);
-
-            Service result = serviceServiceImpl.updateService(serviceID, convertService);
-
-            ServiceDTO dto = serviceMapper.convertToServiceDTO(result);
-            return new ResponseEntity<>(dto, HttpStatus.OK);
+            Service service = serviceMapper.convertToService(serviceFromRequest);
+            serviceServiceImpl.updateService(serviceID, service);
+            return new ResponseEntity<>(serviceFromRequest, HttpStatus.OK);
         } catch (AppointmentServiceNotFoundException e) { // Service not found
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (Exception e) { // Other exceptions

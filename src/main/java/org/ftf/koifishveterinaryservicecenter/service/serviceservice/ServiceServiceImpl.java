@@ -1,9 +1,9 @@
 package org.ftf.koifishveterinaryservicecenter.service.serviceservice;
 
 import org.ftf.koifishveterinaryservicecenter.dto.ServiceDTO;
+import org.ftf.koifishveterinaryservicecenter.entity.Service;
 import org.ftf.koifishveterinaryservicecenter.exception.AppointmentServiceNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.ServiceMapper;
-import org.ftf.koifishveterinaryservicecenter.entity.Service;
 import org.ftf.koifishveterinaryservicecenter.repository.ServiceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -32,9 +32,11 @@ public class ServiceServiceImpl implements ServiceService {
 
 
     @Override
-    public Service getServiceById(Integer serviceId) {
+    public Service getServiceById(Integer serviceId) throws AppointmentServiceNotFoundException {
         Service service = serviceRepository.findById(serviceId).orElse(null);
-        if (service == null) throw new AppointmentServiceNotFoundException("Service not found with ID: " + serviceId);
+        if (service == null){
+            throw new AppointmentServiceNotFoundException("Service not found with ID: " + serviceId);
+        }
         return service;
     }
 
@@ -50,6 +52,7 @@ public class ServiceServiceImpl implements ServiceService {
         if (serviceFromDb == null) {
             throw new AppointmentServiceNotFoundException("Service not found with ID: " + serviceId);
         }
+
         serviceFromDb = serviceRepository.save(serviceFromRequest);
         return serviceFromDb;
     }
