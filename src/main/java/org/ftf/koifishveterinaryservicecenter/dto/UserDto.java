@@ -20,6 +20,9 @@ public class UserDto {
     @JsonProperty("last_name")
     public String lastName;
 
+    @JsonProperty("username")
+    public String username;
+
     @JsonProperty("email")
     public String email;
 
