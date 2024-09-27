@@ -31,9 +31,10 @@ public class ServiceController {
      * Return list of available services
      * */
     @GetMapping
-    public ResponseEntity<List<ServiceDTO>> getAllServices() {
+    public ResponseEntity<?> getAllServices() {
 
         List<Service> services = serviceServiceImpl.getAllServices();
+
 
         if (services.isEmpty()) { //There are no services
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -61,6 +62,7 @@ public class ServiceController {
      * Update price of a service
      * */
     @PutMapping("/{serviceID}")
+
     public ResponseEntity<?> updateService(
             @PathVariable("serviceID") Integer serviceID,
             @RequestBody ServiceDTO serviceFromRequest) {

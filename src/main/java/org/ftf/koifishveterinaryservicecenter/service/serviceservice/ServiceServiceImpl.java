@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 public class ServiceServiceImpl implements ServiceService {
 
 
-
     private final ServiceRepository serviceRepository;
 
     @Autowired
@@ -54,12 +53,8 @@ public class ServiceServiceImpl implements ServiceService {
             throw new AppointmentServiceNotFoundException("Service not found with ID: " + serviceId);
         }
 
-        System.out.println(serviceFromRequest.toString());
-
-//        ServiceDTO result = serviceMapper.convertToServiceDTO();
-
-        serviceRepository.save(serviceFromRequest);
-        return serviceFromRequest;
+        serviceFromDb = serviceRepository.save(serviceFromRequest);
+        return serviceFromDb;
     }
 
 }
