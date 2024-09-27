@@ -9,6 +9,7 @@ import org.ftf.koifishveterinaryservicecenter.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -33,15 +34,14 @@ public class UserServiceImpl implements UserService {
         return userDto;
     }
 
-    public Set<User> getCustomers() {
-        Role role = roleRepository.findByRoleKey("CUS");
-        Set<User> customers = role.getUsers();
-
-        return customers;
+    /*
+    * Get all Veterinarians
+    * */
+    @Override
+    public List<User> getAllVeterinarians() {
+        Role role = roleRepository.findByRoleKey("VET");
+        List<User> veterinarians = new ArrayList<>(role.getUsers());
+        return veterinarians;
     }
-
-
-
-
 
 }

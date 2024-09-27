@@ -7,6 +7,8 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.factory.Mappers;
 
+import java.util.List;
+
 @Mapper(uses = AddressMapper.class)
 public interface UserMapper {
 
@@ -21,6 +23,14 @@ public interface UserMapper {
             @Mapping(source = "address", target = "address")
     })
     UserDto convertEntityToDto(User user);
+
+    /*
+    * Convert User entity to DTO without Address field
+    * */
+    @Mapping(target = "address", ignore = true)
+    UserDto convertEntityToDtoIgnoreAddress(User user);
+
+
 
 
 
