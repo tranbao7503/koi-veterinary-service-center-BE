@@ -66,7 +66,7 @@ public class User {
     // Bidirectional, identifying relationship
     // Owning side: Fish
     // Inverse side: User(customer)
-    @OneToMany(mappedBy = "customer"/*, orphanRemoval = true*/)
+    @OneToMany(mappedBy = "customer"/*, orphanRemoval = true*/, fetch = FetchType.LAZY)
     @ToString.Exclude // Shouldn't allow to remove data
     // orphanRemoval: true -->  remove User then all related Fishes will be removed
     private Set<Fish> fishes = new LinkedHashSet<>();
@@ -74,14 +74,14 @@ public class User {
     // Bidirectional, identifying relationship
     // Owning side: Appointment
     // Inverse side: User(customer)
-    @OneToMany(mappedBy = "customer")
+    @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY)
     @ToString.Exclude
     private Set<Appointment> allBookedAppointmentOfCustomer = new LinkedHashSet<>();
 
     // Bidirectional, identifying relationship
     // Owning side: Appointment
     // Inverse side: User(veterinarian)
-    @OneToMany(mappedBy = "veterinarian")
+    @OneToMany(mappedBy = "veterinarian", fetch = FetchType.LAZY)
     @ToString.Exclude
     private Set<Appointment> allAssignedAppointmentOfVeterinarian = new LinkedHashSet<>();
 

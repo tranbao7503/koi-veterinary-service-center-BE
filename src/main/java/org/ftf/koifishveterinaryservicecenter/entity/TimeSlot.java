@@ -42,7 +42,7 @@ public class TimeSlot {
     // Bidirectional, identifying relationship
     // Owning side: Appointment
     // Inverse side: TimeSlot
-    @OneToMany(mappedBy = "timeSlot")
+    @OneToMany(mappedBy = "timeSlot", fetch = FetchType.LAZY)
     private Set<Appointment> appointments = new LinkedHashSet<>();
 
     // Bidirectional, identifying  relationship
