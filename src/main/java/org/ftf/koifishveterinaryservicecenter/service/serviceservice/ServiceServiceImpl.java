@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 public class ServiceServiceImpl implements ServiceService {
 
 
-
     private final ServiceRepository serviceRepository;
 
     @Autowired
@@ -53,11 +52,9 @@ public class ServiceServiceImpl implements ServiceService {
         if (serviceFromDb == null) {
             throw new AppointmentServiceNotFoundException("Service not found with ID: " + serviceId);
         }
+        serviceFromDb = serviceRepository.save(serviceFromRequest);
+        return serviceFromDb;
 
-//        ServiceDTO result = serviceMapper.convertToServiceDTO();
-
-        serviceRepository.save(serviceFromRequest);
-        return serviceFromRequest;
     }
 
 }
