@@ -28,4 +28,15 @@ public class UsersRepositoryTests {
         System.out.println(user);
     }
 
+    @Test
+    public void testUpdateUserSuccess(){
+        String firstName = "John_New";
+
+        int userId = 1;
+        User user = userRepository.findUsersByUserId(userId);
+        user.setFirstName(firstName);
+        userRepository.save(user);
+        System.out.println(user.getFirstName());
+    }
+
 }

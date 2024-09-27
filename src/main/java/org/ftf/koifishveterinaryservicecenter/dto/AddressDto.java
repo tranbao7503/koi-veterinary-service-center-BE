@@ -19,7 +19,7 @@ public class AddressDto {
     @JsonProperty("ward")
     private String ward;
 
-    @JsonProperty("homeNumber")
+    @JsonProperty("home_number")
     private String homeNumber;
 
 

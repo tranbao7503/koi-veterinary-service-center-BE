@@ -25,5 +25,5 @@ public interface AddressMapper {
             @Mapping(source = "ward", target = "ward"),
             @Mapping(source = "homeNumber", target = "homeNumber")
     })
-    Address convertEntityToDto(AddressDto address);
+    Address convertDtoToEntity(AddressDto address);
 }
