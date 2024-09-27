@@ -10,12 +10,12 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 @Service
-public class ManagerService {
+public class UserService {
 
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
 
-    public ManagerService(UserRepository userRepository, ModelMapper modelMapper) {
+    public UserService(UserRepository userRepository, ModelMapper modelMapper) {
         this.userRepository = userRepository;
         this.modelMapper = modelMapper;
     }
