@@ -6,7 +6,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface UserRepository extends JpaRepository<User, Integer> {
-  User findUsersByUserId(int userId);
+    User findUsersByUserId(int userId);
+
+    boolean existsUserByPhoneNumber(String phoneNumber);
 
    List<User> findAllByRoleRoleId (Integer roleID);
 
