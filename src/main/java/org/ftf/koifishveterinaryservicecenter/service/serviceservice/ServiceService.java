@@ -6,7 +6,7 @@ import org.ftf.koifishveterinaryservicecenter.entity.Service;
 import java.util.List;
 
 public interface ServiceService {
-    ServiceDTO updateService(Integer serviceId, ServiceDTO serviceDTO);
+    Service updateService(Integer serviceId, Service service);
     Service getServiceById(Integer serviceId);
-    List<ServiceDTO> getAllServices();
+    List<Service> getAllServices();
 }
