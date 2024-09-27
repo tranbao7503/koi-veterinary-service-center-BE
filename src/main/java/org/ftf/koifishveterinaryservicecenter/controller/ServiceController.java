@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 // @CrossOrigin: Security config
@@ -32,11 +33,15 @@ public class ServiceController {
     @GetMapping
     public ResponseEntity<List<ServiceDTO>> getAllServices() {
 
-        List<ServiceDTO> serviceDTOs = serviceServiceImpl.getAllServices();
+        List<Service> services = serviceServiceImpl.getAllServices();
 
-        if (serviceDTOs.isEmpty()) { //There are no services
+        if (services.isEmpty()) { //There are no services
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } else {
+            // Mapping to DTOs
+            List<ServiceDTO> serviceDTOs = services.stream()
+                    .map(serviceMapper::convertToServiceDTO)
+                    .collect(Collectors.toList());
             return new ResponseEntity<>(serviceDTOs, HttpStatus.OK);
         }
     }
@@ -44,7 +49,8 @@ public class ServiceController {
     @GetMapping("/{service_id}")
     public ResponseEntity<?> getServiceById(@PathVariable("service_id") Integer serviceId) {
         try {
-            ServiceDTO serviceDTO = serviceServiceImpl.getServiceById(serviceId);
+            Service service = serviceServiceImpl.getServiceById(serviceId);
+            ServiceDTO serviceDTO = serviceMapper.convertToServiceDTO(service);
             return new ResponseEntity<>(serviceDTO, HttpStatus.OK);
         } catch (AppointmentServiceNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -58,10 +64,10 @@ public class ServiceController {
     public ResponseEntity<?> updateService(
             @PathVariable("serviceID") Integer serviceID,
             @RequestBody ServiceDTO serviceFromRequest) {
-
         try {
-            ServiceDTO dto = serviceServiceImpl.updateService(serviceID, serviceFromRequest);
-            return new ResponseEntity<>(dto, HttpStatus.OK);
+            Service service = serviceMapper.convertToService(serviceFromRequest);
+            serviceServiceImpl.updateService(serviceID, service);
+            return new ResponseEntity<>(serviceFromRequest, HttpStatus.OK);
         } catch (AppointmentServiceNotFoundException e) { // Service not found
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (Exception e) { // Other exceptions

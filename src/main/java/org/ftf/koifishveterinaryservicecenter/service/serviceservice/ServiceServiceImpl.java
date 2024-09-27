@@ -17,34 +17,28 @@ public class ServiceServiceImpl implements ServiceService {
 
 
     private final ServiceRepository serviceRepository;
-    private final ServiceMapper serviceMapper;
 
     @Autowired
-    public ServiceServiceImpl(ServiceRepository serviceRepository, ServiceMapper serviceMapper) {
+    public ServiceServiceImpl(ServiceRepository serviceRepository) {
         this.serviceRepository = serviceRepository;
-        this.serviceMapper = serviceMapper;
     }
 
     /*
      * Get all available services
      * */
-    public List<ServiceDTO> getAllServices() {
+    public List<Service> getAllServices() {
         List<Service> services = serviceRepository.findAll();
-        List<ServiceDTO> serviceDTOs = services.stream()
-                .map(serviceMapper::convertToServiceDTO)
-                .collect(Collectors.toList());
-        return serviceDTOs;
+        return services;
     }
 
 
     @Override
-    public ServiceDTO getServiceById(Integer serviceId) throws AppointmentServiceNotFoundException {
+    public Service getServiceById(Integer serviceId) throws AppointmentServiceNotFoundException {
         Service service = serviceRepository.findById(serviceId).orElse(null);
         if (service == null){
             throw new AppointmentServiceNotFoundException("Service not found with ID: " + serviceId);
         }
-        ServiceDTO serviceDTO = serviceMapper.convertToServiceDTO(service);
-        return serviceDTO;
+        return service;
     }
 
 
@@ -52,18 +46,20 @@ public class ServiceServiceImpl implements ServiceService {
      * Update price of service
      * */
     @Override
-    public ServiceDTO updateService(Integer serviceId, ServiceDTO serviceFromRequest) throws AppointmentServiceNotFoundException {
-
-        // convert dto -> entity
-        Service convertedService = serviceMapper.convertToService(serviceFromRequest);
+    public Service updateService(Integer serviceId, Service serviceFromRequest) throws AppointmentServiceNotFoundException {
 
         // check service existed from db
         Service serviceFromDb = serviceRepository.findById(serviceId).orElse(null);
         if (serviceFromDb == null) {
             throw new AppointmentServiceNotFoundException("Service not found with ID: " + serviceId);
         }
-        ServiceDTO result = serviceMapper.convertToServiceDTO(serviceRepository.save(convertedService));
-        return result;
+
+        System.out.println(serviceFromRequest.toString());
+
+//        ServiceDTO result = serviceMapper.convertToServiceDTO();
+
+        serviceRepository.save(serviceFromRequest);
+        return serviceFromRequest;
     }
 
 }
