@@ -1,6 +1,7 @@
 package org.ftf.koifishveterinaryservicecenter.repository;
 
 import org.ftf.koifishveterinaryservicecenter.entity.User;
+import org.ftf.koifishveterinaryservicecenter.enums.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -10,6 +11,9 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     boolean existsUserByPhoneNumber(String phoneNumber);
 
-   List<User> findAllByRoleRoleId (Integer roleID);
+   default List<User> findAllByRole (Role role){
+       return findAllByRoleRoleId(role.getValue());
+   }
+   List<User>findAllByRoleRoleId(int roleId);
 
   }

@@ -1,11 +1,20 @@
 package org.ftf.koifishveterinaryservicecenter.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
+
+
+@Getter
+@Setter
+@Builder
+
+@NoArgsConstructor
+@AllArgsConstructor
 
 @Entity
 @Table(name = "users")

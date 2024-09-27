@@ -2,12 +2,15 @@ package org.ftf.koifishveterinaryservicecenter.service.userservice;
 
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
+import org.ftf.koifishveterinaryservicecenter.enums.Role;
 import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.repository.AddressRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -60,7 +63,6 @@ public class UserServiceImpl implements UserService {
 
         // fill in empty fields
 
-
         // check firstname
         if (convertedCustomer.getFirstName() != null) {
             userFromDb.setFirstName(convertedCustomer.getFirstName());
@@ -81,5 +83,10 @@ public class UserServiceImpl implements UserService {
 
         // update user's profile for User instance
         return userFromDb;
+    }
+    @Override
+    public List<User> getAllCustomers() {
+        List<User> users = userRepository.findAllByRole(Role.CUSTOMER);
+        return users;
     }
 }

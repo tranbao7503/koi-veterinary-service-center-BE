@@ -9,7 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 
-public class UserDto {
+public class UserDTO {
 
     @JsonProperty("user_id")
     public Integer userId;
