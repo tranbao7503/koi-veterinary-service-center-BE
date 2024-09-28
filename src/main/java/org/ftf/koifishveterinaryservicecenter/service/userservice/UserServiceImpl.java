@@ -1,15 +1,17 @@
 package org.ftf.koifishveterinaryservicecenter.service.userservice;
 
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
+import org.ftf.koifishveterinaryservicecenter.entity.Role;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
-import org.ftf.koifishveterinaryservicecenter.enums.Role;
 import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.repository.AddressRepository;
+import org.ftf.koifishveterinaryservicecenter.repository.RoleRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -17,16 +19,25 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final AddressRepository addressRepository;
+    private final RoleRepository roleRepository;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, AddressRepository addressRepository) {
+    public UserServiceImpl(UserRepository userRepository, AddressRepository addressRepository, RoleRepository roleRepository) {
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
+        this.roleRepository = roleRepository;
     }
 
     @Override
     public User getUserProfile(Integer userId) {
         return userRepository.findUsersByUserId(userId);
+    }
+
+    @Override
+    public List<User> getAllVeterinarians() {
+        Role role = roleRepository.findByRoleKey("VET");
+        List<User> veterinarians = new ArrayList<>(role.getUsers());
+        return veterinarians;
     }
 
     @Override
@@ -63,6 +74,7 @@ public class UserServiceImpl implements UserService {
 
         // fill in empty fields
 
+
         // check firstname
         if (convertedCustomer.getFirstName() != null) {
             userFromDb.setFirstName(convertedCustomer.getFirstName());
@@ -86,7 +98,8 @@ public class UserServiceImpl implements UserService {
     }
     @Override
     public List<User> getAllCustomers() {
-        List<User> users = userRepository.findAllByRole(Role.CUSTOMER);
-        return users;
+        Role role = roleRepository.findByRoleKey("CUS");
+        List<User> customers = new ArrayList<>(role.getUsers());
+        return customers;
     }
 }

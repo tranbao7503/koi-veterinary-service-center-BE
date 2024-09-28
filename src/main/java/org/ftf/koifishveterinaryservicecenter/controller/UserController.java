@@ -21,12 +21,11 @@ import java.util.stream.Collectors;
 public class UserController {
 
     private final UserService userService;
-    private final UserMapper userMapper;
+
 
     @Autowired
-    public UserController(UserService userService,UserMapper userMapper) {
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.userMapper=userMapper;
     }
 
     @GetMapping("/profile")
@@ -36,6 +35,20 @@ public class UserController {
         User user = userService.getUserProfile(userId);
         UserDTO userDto = UserMapper.INSTANCE.convertEntityToDto(user);
         return ResponseEntity.ok(userDto);
+    }
+
+
+    @GetMapping("/veterinarians")
+    public ResponseEntity<List<UserDTO>> getAllVeterianrians() {
+        List<User> users = userService.getAllVeterinarians();
+        if(users.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } else {
+            List<UserDTO> userDtos = users.stream()
+                    .map(UserMapper.INSTANCE::convertEntityToDtoIgnoreAddress)
+                    .collect(Collectors.toList());
+            return new ResponseEntity<>(userDtos, HttpStatus.OK);
+        }
     }
 
     @PutMapping("/address")
@@ -76,7 +89,7 @@ public class UserController {
     }
 
 
-    @GetMapping("customers")
+    @GetMapping("/customers")
     public ResponseEntity<?> getAllCustomers(){
         List<User> customers = userService.getAllCustomers();
 
@@ -84,7 +97,7 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }else{
             List<UserDTO> userDTOs = customers.stream()
-                    .map(userMapper::convertEntityToDto)
+                    .map(UserMapper.INSTANCE::convertEntityToDto)
                     .collect(Collectors.toList());
             return new ResponseEntity<>(userDTOs, HttpStatus.OK);
         }

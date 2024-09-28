@@ -2,6 +2,7 @@ package org.ftf.koifishveterinaryservicecenter.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.ftf.koifishveterinaryservicecenter.entity.veterinarian_slots.VeterinarianSlots;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.util.LinkedHashSet;

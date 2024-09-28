@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 @RestController
 //@CrossOrigin
-@RequestMapping("/api/v1/Surcharges")
+@RequestMapping("/api/v1/surcharges")
 public class SurchargeController {
 
     private final SurchargeService surchargeService;

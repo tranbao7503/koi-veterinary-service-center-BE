@@ -6,11 +6,9 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.factory.Mappers;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 
-@Mapper(componentModel = "spring")
+@Mapper(uses = AddressMapper.class)
 public interface UserMapper {
 
     UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
@@ -24,6 +22,14 @@ public interface UserMapper {
             @Mapping(source = "address", target = "address")
     })
     UserDTO convertEntityToDto(User user);
+
+    /*
+    * Convert User entity to DTO without Address field
+    * */
+    @Mapping(target = "address", ignore = true)
+    UserDTO convertEntityToDtoIgnoreAddress(User user);
+
+
 
 
     @Mappings({

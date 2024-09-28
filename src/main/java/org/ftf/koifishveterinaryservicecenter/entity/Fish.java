@@ -53,13 +53,13 @@ public class Fish {
     // Bidirectional, non-identifying relationship
     // Owning side: Appointment
     // Inverse side: Fish
-    @OneToMany(mappedBy = "fish")
+    @OneToMany(mappedBy = "fish", fetch = FetchType.LAZY)
     private Set<Appointment> appointments = new LinkedHashSet<>();
 
     // Bidirectional, identifying relationship
     // Owning side: Image
     // Inverse side: Fish
-    @OneToMany(mappedBy = "fish")
+    @OneToMany(mappedBy = "fish", fetch = FetchType.LAZY)
     private Set<Image> images = new LinkedHashSet<>();
 
 
