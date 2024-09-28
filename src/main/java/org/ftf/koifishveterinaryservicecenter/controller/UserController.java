@@ -1,6 +1,7 @@
 package org.ftf.koifishveterinaryservicecenter.controller;
 
 
+import org.ftf.koifishveterinaryservicecenter.dto.AddressDto;
 import org.ftf.koifishveterinaryservicecenter.dto.UserDto;
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
@@ -12,15 +13,20 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @RestController
 @RequestMapping("/api/v1/users")
 public class UserController {
 
     private final UserService userService;
+    private final UserMapper userMapper;
 
     @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
+        this.userMapper=userMapper;
     }
 
     @GetMapping("/profile")
@@ -28,7 +34,7 @@ public class UserController {
 
         Integer userIdFromToken = 1;  // the userId takes from Authentication object in SecurityContext
         User user = userService.getUserProfile(userId);
-        UserDto userDto = UserMapper.INSTANCE.convertEntityToDto(user);
+        UserDTO userDto = UserMapper.INSTANCE.convertEntityToDto(user);
         return ResponseEntity.ok(userDto);
     }
 
@@ -42,12 +48,12 @@ public class UserController {
         // check(userIdFromToken, userId)
 
         User updatedCustomer = userService.updateAddress(userId, convertedAddress);
-        UserDto userDto = UserMapper.INSTANCE.convertEntityToDto(updatedCustomer);
+        UserDTO userDto = UserMapper.INSTANCE.convertEntityToDto(updatedCustomer);
         return ResponseEntity.ok(userDto);
     }
 
     @PutMapping("/profile")
-    public ResponseEntity<?> updateUserProfile(@RequestParam Integer userId, @RequestBody UserDto userFromRequest) {
+    public ResponseEntity<?> updateUserProfile(@RequestParam Integer userId, @RequestBody UserDTO userFromRequest) {
 
 
         try {
@@ -60,7 +66,7 @@ public class UserController {
 
             // check(userIdFromToken, userId)
             User updatedCustomer = userService.updateUserProfile(userId, convertedCustomer);
-            UserDto userDto = UserMapper.INSTANCE.convertEntityToDto(updatedCustomer);
+            UserDTO userDto = UserMapper.INSTANCE.convertEntityToDto(updatedCustomer);
             return ResponseEntity.ok(userDto);
 
         } catch (Exception e) {
@@ -68,4 +74,21 @@ public class UserController {
         }
 
     }
+
+
+    @GetMapping("customers")
+    public ResponseEntity<?> getAllCustomers(){
+        List<User> customers = userService.getAllCustomers();
+
+        if(customers.isEmpty()){
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }else{
+            List<UserDTO> userDTOs = customers.stream()
+                    .map(userMapper::convertEntityToDto)
+                    .collect(Collectors.toList());
+            return new ResponseEntity<>(userDTOs, HttpStatus.OK);
+        }
+    }
+
+
 }
