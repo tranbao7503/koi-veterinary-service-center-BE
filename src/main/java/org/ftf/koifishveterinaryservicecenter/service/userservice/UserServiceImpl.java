@@ -102,4 +102,23 @@ public class UserServiceImpl implements UserService {
         List<User> customers = new ArrayList<>(role.getUsers());
         return customers;
     }
+    @Override
+    public List<User> getAllStaffsAndVeterinarians(){
+        //Lay danh sach staffs
+        Role staffRole =roleRepository.findByRoleKey(("STA"));
+        List<User> staffs=new ArrayList<>(staffRole.getUsers());
+        //Lay danh sach veterians
+        Role veterinarianRole=roleRepository.findByRoleKey("VET");
+        List<User> veterinarians=new ArrayList<>(veterinarianRole.getUsers());
+
+        //Gop danh sach
+        List<User> staffsAndveterinarian=new ArrayList<>();
+        staffsAndveterinarian.addAll(staffs);
+        staffsAndveterinarian.addAll(veterinarians);
+
+        return  staffsAndveterinarian;
+    }
+
+
+
 }

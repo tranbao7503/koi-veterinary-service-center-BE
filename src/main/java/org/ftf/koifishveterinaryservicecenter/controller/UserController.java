@@ -9,11 +9,13 @@ import org.ftf.koifishveterinaryservicecenter.mapper.AddressMapper;
 import org.ftf.koifishveterinaryservicecenter.mapper.UserMapper;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @RestController
@@ -100,6 +102,19 @@ public class UserController {
                     .map(UserMapper.INSTANCE::convertEntityToDto)
                     .collect(Collectors.toList());
             return new ResponseEntity<>(userDTOs, HttpStatus.OK);
+        }
+    }
+    @GetMapping("/staffssandveterinarians")
+    public ResponseEntity<?> getAllStaffsAndVeterinarians(){
+        List<User> staffsAndVeterninarians=userService.getAllStaffsAndVeterinarians();
+
+        if(staffsAndVeterninarians.isEmpty()){
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }else{
+            List<UserDTO> userDTOS=staffsAndVeterninarians.stream()
+                    .map(UserMapper.INSTANCE::convertEntityToDto)
+                    .collect(Collectors.toList());
+                    return new ResponseEntity<>(userDTOS,HttpStatus.OK);
         }
     }
 
