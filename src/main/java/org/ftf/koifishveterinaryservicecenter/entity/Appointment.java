@@ -118,7 +118,7 @@ public class Appointment {
     // Bidirectional, non-identifying relationship
     // Owning side: Appointment
     // Inverse side: Appointment(Follow-up)
-    @OneToOne(mappedBy = "followUpAppointment")
+    @OneToOne(mappedBy = "followUpAppointment", fetch = FetchType.LAZY)
     private Appointment appointment;
 
     // Unidirectional, non-identifying relationship
@@ -131,7 +131,7 @@ public class Appointment {
     // Bidirectional, identifying relationship
     // Owning side: Status
     // Inverse side: Appointment
-    @OneToMany(mappedBy = "appointment")
+    @OneToMany(mappedBy = "appointment", fetch = FetchType.LAZY)
     private Set<Status> statuses = new LinkedHashSet<>();
 
 

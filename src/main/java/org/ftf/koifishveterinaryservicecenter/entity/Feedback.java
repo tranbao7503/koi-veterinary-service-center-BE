@@ -52,7 +52,7 @@ public class Feedback {
     // Bidirectional, non-identifying relationship
     // Owning side: Appointment
     // Inverse side: Feedback
-    @OneToOne(mappedBy = "feedback")
+    @OneToOne(mappedBy = "feedback", fetch = FetchType.LAZY)
     private Appointment appointment;
 
 }

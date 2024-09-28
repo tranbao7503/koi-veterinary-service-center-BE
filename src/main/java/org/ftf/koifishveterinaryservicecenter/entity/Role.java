@@ -2,11 +2,15 @@ package org.ftf.koifishveterinaryservicecenter.entity;
 
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 @Entity
+@Getter
+@Setter
 @Table(name = "roles")
 public class Role {
 
@@ -25,7 +29,7 @@ public class Role {
     // Bidirectional, identifying relationship
     // owning side: User
     // inverse side: Role
-    @OneToMany(mappedBy = "role")
+    @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
     private Set<User> users = new LinkedHashSet<>();
 
 
