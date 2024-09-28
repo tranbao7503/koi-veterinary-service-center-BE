@@ -9,9 +9,14 @@ import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
 
+
 @Getter
 @Setter
-@RequiredArgsConstructor
+@Builder
+
+@NoArgsConstructor
+@AllArgsConstructor
+
 @Entity
 @Table(name = "users")
 public class User {
@@ -52,14 +57,14 @@ public class User {
     // owning side: User
     // inverse side: Role
     @ManyToOne(fetch = FetchType.LAZY, optional = false)  // optional = false  <-> user must have a role
-    @JoinColumn(name = "role_id", nullable = false)
+    @JoinColumn(name = "role_id", nullable = false, referencedColumnName = "role_id")
     private Role role;
 
 
     // Uni-directional, non-identifying relationship
     // Owning side: User
     // Inverse side: Address
-    @OneToOne(fetch = FetchType.EAGER /*, optional = true*/)
+    @OneToOne(fetch = FetchType.LAZY/*, optional = true*/)
     @JoinColumn(name = "address_id"/*, unique = false, nullable = true*/)
     private Address address;
 
@@ -67,23 +72,20 @@ public class User {
     // Bidirectional, identifying relationship
     // Owning side: Fish
     // Inverse side: User(customer)
-    @OneToMany(mappedBy = "customer"/*, orphanRemoval = true*/, fetch = FetchType.LAZY)
-    @ToString.Exclude // Shouldn't allow to remove data
+    @OneToMany(mappedBy = "customer"/*, orphanRemoval = true*/) // Shouldn't allow to remove data
     // orphanRemoval: true -->  remove User then all related Fishes will be removed
     private Set<Fish> fishes = new LinkedHashSet<>();
 
     // Bidirectional, identifying relationship
     // Owning side: Appointment
     // Inverse side: User(customer)
-    @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY)
-    @ToString.Exclude
+    @OneToMany(mappedBy = "customer")
     private Set<Appointment> allBookedAppointmentOfCustomer = new LinkedHashSet<>();
 
     // Bidirectional, identifying relationship
     // Owning side: Appointment
     // Inverse side: User(veterinarian)
-    @OneToMany(mappedBy = "veterinarian", fetch = FetchType.LAZY)
-    @ToString.Exclude
+    @OneToMany(mappedBy = "veterinarian")
     private Set<Appointment> allAssignedAppointmentOfVeterinarian = new LinkedHashSet<>();
 
     // Bidirectional, identifying  relationship
