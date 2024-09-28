@@ -6,6 +6,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class ServiceMapper {
 
@@ -28,5 +30,13 @@ public class ServiceMapper {
      * */
     public Service convertToService(ServiceDTO serviceDTO) {
         return modelMapper.map(serviceDTO, Service.class);
+    }
+
+    public List<Service> convertToListEntity(List<ServiceDTO> serviceDTOList) {
+        return serviceDTOList.stream().map(entity -> convertToService(entity)).toList();
+    }
+
+    public List<ServiceDTO> convertToListDTO(List<Service> serviceList) {
+        return serviceList.stream().map(entity -> convertToServiceDTO(entity)).toList();
     }
 }
