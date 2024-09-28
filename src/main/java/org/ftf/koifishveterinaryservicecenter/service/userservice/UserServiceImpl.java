@@ -1,29 +1,32 @@
 package org.ftf.koifishveterinaryservicecenter.service.userservice;
 
-import org.ftf.koifishveterinaryservicecenter.dto.UserDto;
-import org.ftf.koifishveterinaryservicecenter.entity.Role;
+import org.ftf.koifishveterinaryservicecenter.entity.Address;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
-import org.ftf.koifishveterinaryservicecenter.mapper.UserMapper;
-import org.ftf.koifishveterinaryservicecenter.repository.RoleRepository;
+import org.ftf.koifishveterinaryservicecenter.enums.Role;
+import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
+import org.ftf.koifishveterinaryservicecenter.repository.AddressRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
+    private final AddressRepository addressRepository;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, AddressRepository addressRepository) {
         this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
+        this.addressRepository = addressRepository;
+    }
+
+    @Override
+    public User getUserProfile(Integer userId) {
+        return userRepository.findUsersByUserId(userId);
     }
 
     @Override
@@ -81,5 +84,10 @@ public class UserServiceImpl implements UserService {
 
         // update user's profile for User instance
         return userFromDb;
+    }
+    @Override
+    public List<User> getAllCustomers() {
+        List<User> users = userRepository.findAllByRole(Role.CUSTOMER);
+        return users;
     }
 }

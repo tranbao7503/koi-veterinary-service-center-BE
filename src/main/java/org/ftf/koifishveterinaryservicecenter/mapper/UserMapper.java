@@ -1,13 +1,16 @@
 package org.ftf.koifishveterinaryservicecenter.mapper;
 
-import org.ftf.koifishveterinaryservicecenter.dto.UserDto;
+import org.ftf.koifishveterinaryservicecenter.dto.UserDTO;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.factory.Mappers;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-@Mapper(uses = AddressMapper.class)
+
+@Mapper(componentModel = "spring")
 public interface UserMapper {
 
     UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
@@ -20,7 +23,7 @@ public interface UserMapper {
             @Mapping(source = "avatar", target = "avatar"),
             @Mapping(source = "address", target = "address")
     })
-    UserDto convertEntityToDto(User user);
+    UserDTO convertEntityToDto(User user);
 
 
     @Mappings({
@@ -31,7 +34,8 @@ public interface UserMapper {
             @Mapping(source = "avatar", target = "avatar"),
             @Mapping(source = "address", target = "address")
     })
-    User convertDtoToEntity(UserDto userDto);
+    User convertDtoToEntity(UserDTO userDto);
+
 
 
 }
