@@ -1,10 +1,21 @@
 package org.ftf.koifishveterinaryservicecenter.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
+import org.ftf.koifishveterinaryservicecenter.entity.veterinarian_slots.VeterinarianSlots;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
+
+
+@Getter
+@Setter
+@Builder
+
+@NoArgsConstructor
+@AllArgsConstructor
 
 @Entity
 @Table(name = "users")
@@ -88,4 +99,32 @@ public class User {
     )
     private Set<TimeSlot> timeSlots = new LinkedHashSet<>();
 
+
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "userId=" + userId +
+                ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", avatar='" + avatar + '\'' +
+                ", address=" + address +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return enabled == user.enabled && Objects.equals(userId, user.userId) && Objects.equals(username, user.username) && Objects.equals(password, user.password) && Objects.equals(email, user.email) && Objects.equals(firstName, user.firstName) && Objects.equals(lastName, user.lastName) && Objects.equals(phoneNumber, user.phoneNumber) && Objects.equals(avatar, user.avatar) && Objects.equals(role, user.role) && Objects.equals(address, user.address) && Objects.equals(fishes, user.fishes) && Objects.equals(allBookedAppointmentOfCustomer, user.allBookedAppointmentOfCustomer) && Objects.equals(allAssignedAppointmentOfVeterinarian, user.allAssignedAppointmentOfVeterinarian) && Objects.equals(timeSlots, user.timeSlots);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(userId, username, password, email, firstName, lastName, phoneNumber, avatar, enabled, role, address, fishes, allBookedAppointmentOfCustomer, allAssignedAppointmentOfVeterinarian, timeSlots);
+    }
 }
