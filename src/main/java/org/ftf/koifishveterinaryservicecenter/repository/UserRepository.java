@@ -7,5 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface UserRepository extends JpaRepository<User, Integer> {
-  User findUsersByUserId(int userId);
+    User findUsersByUserId(int userId);
+
+    boolean existsUserByPhoneNumber(String phoneNumber);
 }
