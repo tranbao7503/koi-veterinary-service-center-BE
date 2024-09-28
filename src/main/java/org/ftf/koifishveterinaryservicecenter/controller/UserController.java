@@ -2,7 +2,7 @@ package org.ftf.koifishveterinaryservicecenter.controller;
 
 
 import org.ftf.koifishveterinaryservicecenter.dto.AddressDto;
-import org.ftf.koifishveterinaryservicecenter.dto.UserDto;
+import org.ftf.koifishveterinaryservicecenter.dto.UserDTO;
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.ftf.koifishveterinaryservicecenter.mapper.AddressMapper;
@@ -24,7 +24,7 @@ public class UserController {
     private final UserMapper userMapper;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, UserMapper userMapper) {
         this.userService = userService;
         this.userMapper=userMapper;
     }
