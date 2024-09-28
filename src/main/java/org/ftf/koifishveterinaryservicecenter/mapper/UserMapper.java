@@ -23,6 +23,15 @@ public interface UserMapper {
     UserDto convertEntityToDto(User user);
 
 
+    @Mappings({
+            @Mapping(source = "firstName", target = "firstName"),
+            @Mapping(source = "lastName", target = "lastName"),
+            @Mapping(source = "email", target = "email"),
+            @Mapping(source = "phoneNumber", target = "phoneNumber"),
+            @Mapping(source = "avatar", target = "avatar"),
+            @Mapping(source = "address", target = "address")
+    })
+    User convertDtoToEntity(UserDto userDto);
 
 
 }

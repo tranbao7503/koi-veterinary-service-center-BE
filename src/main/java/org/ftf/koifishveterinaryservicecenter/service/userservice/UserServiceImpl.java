@@ -21,27 +21,65 @@ public class UserServiceImpl implements UserService {
     private final RoleRepository roleRepository;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository) {
+    public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
     }
 
     @Override
-    public UserDto getUserProfile(Integer userId) {
-        User user = userRepository.findUsersByUserId(userId);
-        UserDto userDto = UserMapper.INSTANCE.convertEntityToDto(user);
-        return userDto;
+    @Transactional
+    public User updateAddress(Integer userId, Address convertedAddress) {
+        User userFromDb = userRepository.findUsersByUserId(userId);
+
+        if (userFromDb == null) {
+            throw new UserNotFoundException("Not found user with Id: " + userId);
+        }
+
+        // set addressId for Address input
+        Integer addressId = userFromDb.getAddress().getAddressId();
+        convertedAddress.setAddressId(addressId);
+
+        // update Address property for User instance
+        Address updatedAddress = addressRepository.save(convertedAddress);
+        userFromDb.setAddress(updatedAddress);
+        return userFromDb;
     }
 
-    public Set<User> getCustomers() {
-        Role role = roleRepository.findByRoleKey("CUS");
-        Set<User> customers = role.getUsers();
+    @Override
+    @Transactional
+    public User updateUserProfile(Integer userId, User convertedCustomer) {
+        User userFromDb = userRepository.findUsersByUserId(userId);
 
-        return customers;
+        if (userFromDb == null) {
+            throw new UserNotFoundException("Not found user with Id: " + userId);
+        }
+
+        // set addressId for User input
+        Integer customerId = userFromDb.getUserId();
+        convertedCustomer.setUserId(userId);
+
+        // fill in empty fields
+
+
+        // check firstname
+        if (convertedCustomer.getFirstName() != null) {
+            userFromDb.setFirstName(convertedCustomer.getFirstName());
+        }
+
+        // check lastname
+        if (convertedCustomer.getLastName() != null) {
+            userFromDb.setLastName(convertedCustomer.getLastName());
+        }
+
+        // check phone number
+        String phoneNumber = convertedCustomer.getPhoneNumber();
+        if (!phoneNumber.equals(userFromDb.getPhoneNumber()) && !userRepository.existsUserByPhoneNumber(phoneNumber)) {
+            userFromDb.setPhoneNumber(phoneNumber);
+        }
+
+        userFromDb = userRepository.save(userFromDb);
+
+        // update user's profile for User instance
+        return userFromDb;
     }
-
-
-
-
-
 }
