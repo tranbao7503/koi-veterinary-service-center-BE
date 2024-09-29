@@ -14,4 +14,9 @@ public interface UserService {
     User updateUserProfile(Integer userId, User convertedCustomer);
 
     List<User> getAllCustomers();
+
+    List<User> getAllStaffsAndVeterinarians();
+
+    void signUp(String username,String password,String first_Name,String last_Name);
+
 }

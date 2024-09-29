@@ -3,11 +3,13 @@ package org.ftf.koifishveterinaryservicecenter.service.userservice;
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
 import org.ftf.koifishveterinaryservicecenter.entity.Role;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
+import org.ftf.koifishveterinaryservicecenter.exception.AuthenicationException;
 import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.repository.AddressRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.RoleRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,12 +22,14 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final AddressRepository addressRepository;
     private final RoleRepository roleRepository;
+    private final  PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, AddressRepository addressRepository, RoleRepository roleRepository) {
+    public UserServiceImpl(UserRepository userRepository, AddressRepository addressRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
         this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -102,4 +106,60 @@ public class UserServiceImpl implements UserService {
         List<User> customers = new ArrayList<>(role.getUsers());
         return customers;
     }
+    @Override
+    public List<User> getAllStaffsAndVeterinarians(){
+        //Lay danh sach staffs
+        Role staffRole =roleRepository.findByRoleKey(("STA"));
+        List<User> staffs=new ArrayList<>(staffRole.getUsers());
+        //Lay danh sach veterians
+        Role veterinarianRole=roleRepository.findByRoleKey("VET");
+        List<User> veterinarians=new ArrayList<>(veterinarianRole.getUsers());
+
+        //Gop danh sach
+        List<User> staffsAndveterinarian=new ArrayList<>();
+        staffsAndveterinarian.addAll(staffs);
+        staffsAndveterinarian.addAll(veterinarians);
+
+        return  staffsAndveterinarian;
+    }
+
+
+    @Override
+    public void signUp(String username,String password,String first_Name,String last_Name){
+
+        if(username==null||username.isBlank()){
+            throw new AuthenicationException("Username can not be empty");
+        }
+        if(password==null||password.isBlank()){
+            throw new AuthenicationException("Password can not be empty");
+        }
+        if(first_Name==null||first_Name.isBlank()){
+            throw new AuthenicationException("first_Name can not be empty");
+        }
+        if(last_Name==null||last_Name.isBlank()){
+            throw new AuthenicationException("last_Name can not be empty");
+        }
+        if(userRepository.findUserByUsername(username)!=null){
+            throw new AuthenicationException("Username is existed");
+        }
+
+        User user=new User();
+        user.setUsername(username);
+        user.setPassword(passwordEncoder.encode(password));
+        Role role = roleRepository.findByRoleKey("CUS");
+        user.setRole(role);
+        user.setFirstName(first_Name);
+        user.setLastName(last_Name);
+        userRepository.save(user);
+
+
+
+        //Validate
+
+
+    }
+
+
+
+
 }

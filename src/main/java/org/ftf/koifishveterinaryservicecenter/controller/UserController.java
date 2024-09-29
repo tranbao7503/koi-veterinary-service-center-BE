@@ -5,6 +5,7 @@ import org.ftf.koifishveterinaryservicecenter.dto.AddressDto;
 import org.ftf.koifishveterinaryservicecenter.dto.UserDTO;
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
+import org.ftf.koifishveterinaryservicecenter.exception.AuthenicationException;
 import org.ftf.koifishveterinaryservicecenter.mapper.AddressMapper;
 import org.ftf.koifishveterinaryservicecenter.mapper.UserMapper;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
@@ -41,7 +42,7 @@ public class UserController {
     @GetMapping("/veterinarians")
     public ResponseEntity<List<UserDTO>> getAllVeterianrians() {
         List<User> users = userService.getAllVeterinarians();
-        if(users.isEmpty()) {
+        if (users.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } else {
             List<UserDTO> userDtos = users.stream()
@@ -90,12 +91,12 @@ public class UserController {
 
 
     @GetMapping("/customers")
-    public ResponseEntity<?> getAllCustomers(){
+    public ResponseEntity<?> getAllCustomers() {
         List<User> customers = userService.getAllCustomers();
 
-        if(customers.isEmpty()){
+        if (customers.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }else{
+        } else {
             List<UserDTO> userDTOs = customers.stream()
                     .map(UserMapper.INSTANCE::convertEntityToDto)
                     .collect(Collectors.toList());
@@ -103,5 +104,29 @@ public class UserController {
         }
     }
 
+    @GetMapping("/staffssandveterinarians")
+    public ResponseEntity<?> getAllStaffsAndVeterinarians() {
+        List<User> staffsAndVeterninarians = userService.getAllStaffsAndVeterinarians();
 
+        if (staffsAndVeterninarians.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } else {
+            List<UserDTO> userDTOS = staffsAndVeterninarians.stream()
+                    .map(UserMapper.INSTANCE::convertEntityToDto)
+                    .collect(Collectors.toList());
+            return new ResponseEntity<>(userDTOS, HttpStatus.OK);
+        }
+    }
+
+    @PostMapping("signup")
+    public ResponseEntity<?> signUp(String username, String password, String first_name, String last_name) {
+        try {
+            userService.signUp(username, password, first_name, last_name);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (AuthenicationException ex) {
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+
+
+    }
 }
