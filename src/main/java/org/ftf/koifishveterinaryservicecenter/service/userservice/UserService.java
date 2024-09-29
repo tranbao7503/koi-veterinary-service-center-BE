@@ -1,4 +1,5 @@
 package org.ftf.koifishveterinaryservicecenter.service.userservice;
+import org.ftf.koifishveterinaryservicecenter.dto.UserDTO;
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
 

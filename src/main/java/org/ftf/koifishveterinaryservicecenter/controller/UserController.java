@@ -119,7 +119,7 @@ public class UserController {
     }
 
     @PostMapping("signup")
-    public ResponseEntity<?> signUp(String username, String password, String first_name, String last_name) {
+    public ResponseEntity<?> signUp(@RequestParam String username, @RequestParam String password, @RequestParam String first_name, @RequestParam String last_name) {
         try {
             userService.signUp(username, password, first_name, last_name);
             return new ResponseEntity<>(HttpStatus.OK);

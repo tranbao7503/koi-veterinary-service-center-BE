@@ -1,5 +1,6 @@
 package org.ftf.koifishveterinaryservicecenter.service.userservice;
 
+import org.ftf.koifishveterinaryservicecenter.dto.UserDTO;
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
 import org.ftf.koifishveterinaryservicecenter.entity.Role;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
@@ -130,9 +131,20 @@ public class UserServiceImpl implements UserService {
         if(username==null||username.isBlank()){
             throw new AuthenicationException("Username can not be empty");
         }
+        if(username.contains(" ")){
+            throw new AuthenicationException("Username can not contain white space");
+        }
         if(password==null||password.isBlank()){
             throw new AuthenicationException("Password can not be empty");
         }
+        if(password.length()<8){
+            throw new AuthenicationException("Password can not < 8 characters");
+        }
+        String passwordPattern = "^(?=.*[@#$%^&+=!{}]).{8,}$";
+        if (!password.matches(passwordPattern)) {
+            throw new AuthenicationException("Password must contain at least one special character and be at least 8 characters long");
+        }
+
         if(first_Name==null||first_Name.isBlank()){
             throw new AuthenicationException("first_Name can not be empty");
         }
