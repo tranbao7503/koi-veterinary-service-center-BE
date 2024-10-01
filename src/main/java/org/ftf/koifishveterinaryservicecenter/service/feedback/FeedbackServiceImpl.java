@@ -33,9 +33,18 @@ public class FeedbackServiceImpl implements FeedbackService {
     public List<Feedback> getFeedbacksByVeterianrianId(Integer veterianrianId) throws UserNotFoundException {
         User veterianrian = userService.getVeterinarianById(veterianrianId);
         List<Feedback> feedbacks = feedbackRepository.findByVeterianrianId(veterianrianId);
-        if(feedbacks.isEmpty()) {
+        if (feedbacks.isEmpty()) {
             throw new FeedbackNotFoundException("Feedback not found with veterianrian id: " + veterianrianId);
         }
         return feedbacks;
     }
+
+    @Override
+    public Feedback getFeedbackById(Integer feedbackId) {
+        Feedback feedback = feedbackRepository.findById(feedbackId).orElseThrow(
+                () -> new FeedbackNotFoundException("Feedback not found with id: " + feedbackId));
+        return feedback;
+    }
+
+
 }

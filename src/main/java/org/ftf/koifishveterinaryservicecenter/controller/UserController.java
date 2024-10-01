@@ -127,4 +127,20 @@ public class UserController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("/veterinarian/{veterinarianId}/feedbacks/{feedbackId}")
+    public ResponseEntity<?> getFeedback(@PathVariable("feedbackId") Integer feedbackId
+            , @PathVariable("veterinarianId") Integer veterinarianId) {
+        try{
+            Feedback feedback = feedbackService.getFeedbackById(feedbackId);
+            if(feedback.getVeterinarian().getUserId().equals(veterinarianId)) {
+                FeedbackDto feedbackDto = FeedbackMapper.INSTANCE.feedbackToFeedbackDto(feedback);
+                return new ResponseEntity<>(feedbackDto, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            }
+        } catch (FeedbackNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
+        }
+    }
 }
