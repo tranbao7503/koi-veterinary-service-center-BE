@@ -1,15 +1,12 @@
 package org.ftf.koifishveterinaryservicecenter.service.surchargeservice;
 
-import org.ftf.koifishveterinaryservicecenter.dto.MovingSurchargeDTO;
 import org.ftf.koifishveterinaryservicecenter.entity.MovingSurcharge;
 import org.ftf.koifishveterinaryservicecenter.exception.MovingSurchargeNotFoundException;
-import org.ftf.koifishveterinaryservicecenter.mapper.MovingSurchargeMapper;
 import org.ftf.koifishveterinaryservicecenter.repository.MovingSurchargeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class SurchargeServiceImpl implements SurchargeService {

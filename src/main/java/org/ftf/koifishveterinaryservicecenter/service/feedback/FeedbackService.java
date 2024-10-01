@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface FeedbackService {
     List<Feedback> getAllFeedbacks();
+    List<Feedback> getFeedbacksByVeterianrianId(Integer veterianrianId);
 }
