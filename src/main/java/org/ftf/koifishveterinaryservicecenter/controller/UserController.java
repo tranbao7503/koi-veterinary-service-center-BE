@@ -1,31 +1,40 @@
 package org.ftf.koifishveterinaryservicecenter.controller;
 
 
-import org.ftf.koifishveterinaryservicecenter.dto.AddressDto;
-import org.ftf.koifishveterinaryservicecenter.dto.UserDTO;
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
+import org.ftf.koifishveterinaryservicecenter.dto.*;
+import org.ftf.koifishveterinaryservicecenter.dto.response.AuthenticationResponse;
+import org.ftf.koifishveterinaryservicecenter.dto.response.IntrospectResponse;
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.ftf.koifishveterinaryservicecenter.mapper.AddressMapper;
 import org.ftf.koifishveterinaryservicecenter.mapper.UserMapper;
+import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.ParseException;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/users")
+/*@RequiredArgsConstructor*/
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserController {
 
     private final UserService userService;
+    private final AuthenticationService authenticationService;
 
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, AuthenticationService authenticationService) {
         this.userService = userService;
+        this.authenticationService = authenticationService;
     }
 
     @GetMapping("/profile")
@@ -41,7 +50,7 @@ public class UserController {
     @GetMapping("/veterinarians")
     public ResponseEntity<List<UserDTO>> getAllVeterianrians() {
         List<User> users = userService.getAllVeterinarians();
-        if(users.isEmpty()) {
+        if (users.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } else {
             List<UserDTO> userDtos = users.stream()
@@ -90,12 +99,12 @@ public class UserController {
 
 
     @GetMapping("/customers")
-    public ResponseEntity<?> getAllCustomers(){
+    public ResponseEntity<?> getAllCustomers() {
         List<User> customers = userService.getAllCustomers();
 
-        if(customers.isEmpty()){
+        if (customers.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }else{
+        } else {
             List<UserDTO> userDTOs = customers.stream()
                     .map(UserMapper.INSTANCE::convertEntityToDto)
                     .collect(Collectors.toList());
@@ -104,4 +113,23 @@ public class UserController {
     }
 
 
+    @PostMapping("/token")
+    ApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequestDTO request) {
+        var result = authenticationService.authenticate(request);
+        return ApiResponse.<AuthenticationResponse>builder()
+                .result(result)
+                .build();
+    }
+
+    @PostMapping("/introspect")
+    ApiResponse<IntrospectResponse> authenticate(@RequestBody IntrospectRequestDTO request)
+            throws ParseException {
+        var result = authenticationService.introspect(request);
+        if (result == null) {
+            return ApiResponse.<IntrospectResponse>builder().code(404).build();
+        }
+        return ApiResponse.<IntrospectResponse>builder()
+                .result(result)
+                .build();
+    }
 }
