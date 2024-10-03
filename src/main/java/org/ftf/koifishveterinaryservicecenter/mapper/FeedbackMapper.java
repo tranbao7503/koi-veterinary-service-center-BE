@@ -6,8 +6,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-import java.util.List;
-
 @Mapper(uses = FeedbackMapper.class, componentModel = "spring")
 public interface FeedbackMapper {
 
@@ -19,8 +17,10 @@ public interface FeedbackMapper {
     @Mapping(target = "appointment", ignore = true)
     FeedbackDto convertToFeedbackDto(Feedback feedback);
 
+    /*
+    * For Feedback DTO to view feedback details
+    * */
     @Mapping(source = "appointment.service.serviceName", target = "appointment.serviceName")
-    @Mapping(target = "appointment.timeSlot.appointments", ignore = true)
     FeedbackDto feedbackToFeedbackDto(Feedback feedback);
 
 }
