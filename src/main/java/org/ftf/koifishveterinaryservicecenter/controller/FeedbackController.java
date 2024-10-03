@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 //@CrossOrigin
@@ -18,11 +19,9 @@ import java.util.List;
 public class FeedbackController {
 
     private final FeedbackService feedbackService;
-    private final FeedbackMapper feedbackMapper;
 
-    public FeedbackController(FeedbackService feedbackService, FeedbackMapper feedbackMapper) {
+    public FeedbackController(FeedbackService feedbackService) {
         this.feedbackService = feedbackService;
-        this.feedbackMapper = feedbackMapper;
     }
 
     @GetMapping
@@ -31,8 +30,11 @@ public class FeedbackController {
         if (feedbacks.isEmpty()) {
             return new ResponseEntity(HttpStatus.NO_CONTENT);
         } else {
-            List<FeedbackDto> feedbackDtoList = feedbackMapper.convertToDtoList(feedbacks);
+            List<FeedbackDto> feedbackDtoList = feedbacks.stream()
+                    .map(FeedbackMapper.INSTANCE::convertToFeedbackDto)
+                    .collect(Collectors.toList());
             return new ResponseEntity<>(feedbackDtoList, HttpStatus.OK);
         }
     }
+
 }

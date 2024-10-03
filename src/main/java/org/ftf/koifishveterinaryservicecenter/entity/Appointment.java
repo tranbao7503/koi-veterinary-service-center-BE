@@ -30,7 +30,7 @@ public class Appointment {
     @ColumnDefault("'PENDING'")
     private AppointmentStatus currentStatus;
 
-    @Column(name = "cusomter_name", nullable = false, length = 100)
+    @Column(name = "customer_name", nullable = false, length = 100)
     private String customerName;
 
     @Column(name = "email", nullable = true, length = 50, unique = true)

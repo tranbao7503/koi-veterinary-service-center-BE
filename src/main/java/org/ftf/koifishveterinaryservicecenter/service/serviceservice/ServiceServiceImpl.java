@@ -1,14 +1,11 @@
 package org.ftf.koifishveterinaryservicecenter.service.serviceservice;
 
-import org.ftf.koifishveterinaryservicecenter.dto.ServiceDTO;
 import org.ftf.koifishveterinaryservicecenter.entity.Service;
 import org.ftf.koifishveterinaryservicecenter.exception.AppointmentServiceNotFoundException;
-import org.ftf.koifishveterinaryservicecenter.mapper.ServiceMapper;
 import org.ftf.koifishveterinaryservicecenter.repository.ServiceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @org.springframework.stereotype.Service
