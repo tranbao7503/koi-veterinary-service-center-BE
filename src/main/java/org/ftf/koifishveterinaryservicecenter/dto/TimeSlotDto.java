@@ -34,6 +34,6 @@ public class TimeSlotDto {
     @JsonProperty("description")
     private String description;
 
-    @JsonProperty("appointments")
-    private Set<Appointment> appointments;
+    @JsonProperty("appointment")
+    private AppointmentDto appointment;
 }
