@@ -29,7 +29,7 @@ public class FeedbackController {
     public ResponseEntity<List<FeedbackDto>> getAllFeedbacks() {
         List<Feedback> feedbacks = feedbackService.getAllFeedbacks();
         if (feedbacks.isEmpty()) {
-            return new ResponseEntity(HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } else {
             List<FeedbackDto> feedbackDtoList = feedbackMapper.convertToDtoList(feedbacks);
             return new ResponseEntity<>(feedbackDtoList, HttpStatus.OK);
