@@ -21,6 +21,7 @@ public interface FeedbackMapper {
     * For Feedback DTO to view feedback details
     * */
     @Mapping(source = "appointment.service.serviceName", target = "appointment.serviceName")
+    @Mapping(target = "appointment.timeSlot.appointment", ignore = true)
     FeedbackDto feedbackToFeedbackDto(Feedback feedback);
 
 }

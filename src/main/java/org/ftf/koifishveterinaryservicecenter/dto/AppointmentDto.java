@@ -30,6 +30,6 @@ public class AppointmentDto {
     @JsonProperty("time_slot")
     private TimeSlotDto timeSlot;
 
-    @JsonProperty("current_state")
+    @JsonProperty("current_status")
     private AppointmentStatus currentStatus;
 }
