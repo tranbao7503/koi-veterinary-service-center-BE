@@ -28,7 +28,6 @@ public class MedicalReport {
     // Uni-directional, identifying relationship
     // Owning side: MedicalReport
     // Inverse side: User
-    @MapsId("veterinarianId")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "veterinarian_id", nullable = false, referencedColumnName = "user_id")
     private User veterinarian;

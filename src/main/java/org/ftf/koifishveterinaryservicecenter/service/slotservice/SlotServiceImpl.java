@@ -1,6 +1,5 @@
 package org.ftf.koifishveterinaryservicecenter.service.slotservice;
 
-import org.ftf.koifishveterinaryservicecenter.entity.TimeSlot;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.ftf.koifishveterinaryservicecenter.exception.TimeSlotNotFound;
 import org.ftf.koifishveterinaryservicecenter.repository.TimeSlotRepository;

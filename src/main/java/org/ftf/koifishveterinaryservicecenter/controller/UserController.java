@@ -29,7 +29,6 @@ public class UserController {
     private final UserService userService;
     private final FeedbackService feedbackService;
 
-
     @Autowired
     public UserController(UserService userService, FeedbackService feedbackService) {
         this.userService = userService;
@@ -44,7 +43,6 @@ public class UserController {
         UserDTO userDto = UserMapper.INSTANCE.convertEntityToDto(user);
         return ResponseEntity.ok(userDto);
     }
-
 
     @GetMapping("/veterinarians")
     public ResponseEntity<List<UserDTO>> getAllVeterianrians() {

@@ -2,7 +2,9 @@ package org.ftf.koifishveterinaryservicecenter.entity.prescription_medicine;
 
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.ftf.koifishveterinaryservicecenter.entity.Medicine;
 import org.ftf.koifishveterinaryservicecenter.entity.Prescription;
@@ -10,6 +12,8 @@ import org.ftf.koifishveterinaryservicecenter.entity.Prescription;
 @Getter
 @Setter
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "prescription_medicine")
 public class PrescriptionMedicine {
 
@@ -35,4 +39,8 @@ public class PrescriptionMedicine {
     @JoinColumn(name = "prescription_id", nullable = false, referencedColumnName = "prescription_id")
     private Prescription prescription;
 
+    public PrescriptionMedicine(PrescriptionMedicineId prescriptionMedicineId, Integer quantity) {
+        this.prescriptionMedicineId = prescriptionMedicineId;
+        this.quantity = quantity;
+    }
 }
