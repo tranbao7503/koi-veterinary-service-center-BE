@@ -19,12 +19,10 @@ import java.util.stream.Collectors;
 public class ServiceController {
 
     private final ServiceService serviceServiceImpl;
-    private final ServiceMapper serviceMapper;
 
     @Autowired
-    public ServiceController(ServiceService serviceServiceImpl, ServiceMapper serviceMapper) {
+    public ServiceController(ServiceService serviceServiceImpl) {
         this.serviceServiceImpl = serviceServiceImpl;
-        this.serviceMapper = serviceMapper;
     }
 
     /*
@@ -41,7 +39,7 @@ public class ServiceController {
         } else {
             // Mapping to DTOs
             List<ServiceDTO> serviceDTOs = services.stream()
-                    .map(serviceMapper::convertToServiceDTO)
+                    .map(ServiceMapper.INSTANCE::convertToServiceDto)
                     .collect(Collectors.toList());
             return new ResponseEntity<>(serviceDTOs, HttpStatus.OK);
         }
@@ -54,7 +52,7 @@ public class ServiceController {
     public ResponseEntity<?> getServiceById(@PathVariable("serviceID") Integer serviceId) {
         try {
             Service service = serviceServiceImpl.getServiceById(serviceId);
-            ServiceDTO serviceDTO = serviceMapper.convertToServiceDTO(service);
+            ServiceDTO serviceDTO = ServiceMapper.INSTANCE.convertToServiceDto(service);
             return new ResponseEntity<>(serviceDTO, HttpStatus.OK);
         } catch (AppointmentServiceNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -70,7 +68,7 @@ public class ServiceController {
             @PathVariable("serviceID") Integer serviceID,
             @RequestBody ServiceDTO serviceFromRequest) {
         try {
-            Service service = serviceMapper.convertToService(serviceFromRequest);
+            Service service = ServiceMapper.INSTANCE.convertToServiceEntity(serviceFromRequest);
             serviceServiceImpl.updateService(serviceID, service);
             return new ResponseEntity<>(serviceFromRequest, HttpStatus.OK);
         } catch (AppointmentServiceNotFoundException e) { // Service not found

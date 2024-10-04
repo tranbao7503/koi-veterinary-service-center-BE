@@ -15,8 +15,7 @@ import java.util.Set;
 
 
 @Entity
-@Table(name = "time_slots")
-public class TimeSlot {
+@Table(name = "time_slots")public class TimeSlot {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,7 +34,7 @@ public class TimeSlot {
     @Column(name = "slot_order", nullable = false)
     private Integer slotOrder;
 
-//    @Lob
+    //    @Lob
     @Column(name = "description", nullable = false, columnDefinition = "TEXT")
     private String description;
 
@@ -57,3 +56,4 @@ public class TimeSlot {
     private Set<User> veterinarians = new LinkedHashSet<>();
 
 }
+

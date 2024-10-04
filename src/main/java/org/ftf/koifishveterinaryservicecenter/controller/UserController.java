@@ -2,11 +2,17 @@ package org.ftf.koifishveterinaryservicecenter.controller;
 
 
 import org.ftf.koifishveterinaryservicecenter.dto.AddressDto;
+import org.ftf.koifishveterinaryservicecenter.dto.FeedbackDto;
 import org.ftf.koifishveterinaryservicecenter.dto.UserDTO;
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
+import org.ftf.koifishveterinaryservicecenter.entity.Feedback;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
+import org.ftf.koifishveterinaryservicecenter.exception.FeedbackNotFoundException;
+import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.AddressMapper;
+import org.ftf.koifishveterinaryservicecenter.mapper.FeedbackMapper;
 import org.ftf.koifishveterinaryservicecenter.mapper.UserMapper;
+import org.ftf.koifishveterinaryservicecenter.service.feedback.FeedbackService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,11 +27,13 @@ import java.util.stream.Collectors;
 public class UserController {
 
     private final UserService userService;
+    private final FeedbackService feedbackService;
 
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, FeedbackService feedbackService) {
         this.userService = userService;
+        this.feedbackService = feedbackService;
     }
 
     @GetMapping("/profile")
@@ -41,7 +49,7 @@ public class UserController {
     @GetMapping("/veterinarians")
     public ResponseEntity<List<UserDTO>> getAllVeterianrians() {
         List<User> users = userService.getAllVeterinarians();
-        if(users.isEmpty()) {
+        if (users.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } else {
             List<UserDTO> userDtos = users.stream()
@@ -90,12 +98,12 @@ public class UserController {
 
 
     @GetMapping("/customers")
-    public ResponseEntity<?> getAllCustomers(){
+    public ResponseEntity<?> getAllCustomers() {
         List<User> customers = userService.getAllCustomers();
 
-        if(customers.isEmpty()){
+        if (customers.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }else{
+        } else {
             List<UserDTO> userDTOs = customers.stream()
                     .map(UserMapper.INSTANCE::convertEntityToDto)
                     .collect(Collectors.toList());
@@ -103,5 +111,36 @@ public class UserController {
         }
     }
 
+    @GetMapping("/veterinarian/{id}/feedbacks")
+    public ResponseEntity<?> getFeedbacks(@PathVariable("id") Integer id) {
+        try {
+            List<Feedback> feedbacks = feedbackService.getFeedbacksByVeterianrianId(id);
+            List<FeedbackDto> feedbackDtos = feedbacks.stream()
+                    .map(feedback -> FeedbackMapper.INSTANCE.convertToFeedbackDto(feedback))
+                    .collect(Collectors.toList());
+            return new ResponseEntity<>(feedbackDtos, HttpStatus.OK);
+        } catch (UserNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (FeedbackNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
+    @GetMapping("/veterinarian/{veterinarianId}/feedbacks/{feedbackId}")
+    public ResponseEntity<?> getFeedback(@PathVariable("feedbackId") Integer feedbackId
+            , @PathVariable("veterinarianId") Integer veterinarianId) {
+        try{
+            Feedback feedback = feedbackService.getFeedbackById(feedbackId);
+            if(feedback.getVeterinarian().getUserId().equals(veterinarianId)) {
+                FeedbackDto feedbackDto = FeedbackMapper.INSTANCE.feedbackToFeedbackDto(feedback);
+                return new ResponseEntity<>(feedbackDto, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            }
+        } catch (FeedbackNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
+        }
+    }
 }

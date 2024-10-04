@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/feedbacks")
@@ -21,7 +22,6 @@ public class FeedbackController {
     private final FeedbackService feedbackService;
     private final FeedbackMapper feedbackMapper;
 
-    @Autowired
     public FeedbackController(FeedbackService feedbackService, FeedbackMapper feedbackMapper) {
         this.feedbackService = feedbackService;
         this.feedbackMapper = feedbackMapper;
@@ -34,7 +34,7 @@ public class FeedbackController {
         if (feedbackList.isEmpty()) {
             return ResponseEntity.noContent().build();
         } else {
-            List<FeedbackDto> dtoList = feedbackMapper.convertToDtoList(feedbackList);
+            List<FeedbackDto> dtoList = feedbackList.stream().map(FeedbackMapper.INSTANCE::convertToFeedbackDto).toList();
             return ResponseEntity.ok(dtoList);
         }
     }
@@ -46,8 +46,11 @@ public class FeedbackController {
         if (feedbacks.isEmpty()) {
             return new ResponseEntity(HttpStatus.NO_CONTENT);
         } else {
-            List<FeedbackDto> feedbackDtoList = feedbackMapper.convertToDtoList(feedbacks);
+            List<FeedbackDto> feedbackDtoList = feedbacks.stream()
+                    .map(FeedbackMapper.INSTANCE::convertToFeedbackDto)
+                    .collect(Collectors.toList());
             return new ResponseEntity<>(feedbackDtoList, HttpStatus.OK);
         }
     }
+
 }
