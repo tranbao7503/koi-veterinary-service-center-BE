@@ -104,25 +104,17 @@ public class UserController {
         }
     }
 
-    @GetMapping("/staffssandveterinarians")
-    public ResponseEntity<?> getAllStaffsAndVeterinarians() {
-        List<User> staffsAndVeterninarians = userService.getAllStaffsAndVeterinarians();
 
-        if (staffsAndVeterninarians.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } else {
-            List<UserDTO> userDTOS = staffsAndVeterninarians.stream()
-                    .map(UserMapper.INSTANCE::convertEntityToDto)
-                    .collect(Collectors.toList());
-            return new ResponseEntity<>(userDTOS, HttpStatus.OK);
-        }
-    }
-
-    @PostMapping("signup")
-    public ResponseEntity<?> signUp(@RequestParam String username, @RequestParam String password, @RequestParam String first_name, @RequestParam String last_name) {
+    @PostMapping("/signup")
+    public ResponseEntity<?> signUp(@RequestBody UserDTO userDTOFromRequest) {
         try {
-            userService.signUp(username, password, first_name, last_name);
-            return new ResponseEntity<>(HttpStatus.OK);
+            String username = userDTOFromRequest.getUsername();
+            String password = userDTOFromRequest.getPassword();
+            String firstName = userDTOFromRequest.getFirstName();
+            String lastName = userDTOFromRequest.getLastName();
+
+            userService.signUp(username, password, firstName, lastName);
+            return new ResponseEntity<>("Sign up successfully",HttpStatus.OK);
         } catch (AuthenicationException ex) {
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
         }
