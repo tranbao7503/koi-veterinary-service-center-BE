@@ -103,20 +103,17 @@ public class UserServiceImpl implements UserService {
         return customers;
     }
     @Override
-    public List<User> getAllStaffsAndVeterinarians(){
-        //Lay danh sach staffs
-        Role staffRole =roleRepository.findByRoleKey(("STA"));
-        List<User> staffs=new ArrayList<>(staffRole.getUsers());
-        //Lay danh sach veterians
-        Role veterinarianRole=roleRepository.findByRoleKey("VET");
-        List<User> veterinarians=new ArrayList<>(veterinarianRole.getUsers());
+    public List<User> getAllStaffs() {
+        // Lấy danh sách staffs dựa vào Role
+        Role staffRole = roleRepository.findByRoleKey("STA");
 
-        //Gop danh sach
-        List<User> staffsAndveterinarian=new ArrayList<>();
-        staffsAndveterinarian.addAll(staffs);
-        staffsAndveterinarian.addAll(veterinarians);
+        // Kiểm tra nếu role không tồn tại
+        if (staffRole == null) {
+            return new ArrayList<>(); // Trả về danh sách rỗng nếu không tìm thấy role
+        }
 
-        return  staffsAndveterinarian;
+        // Trả về danh sách users từ role "STA"
+        return new ArrayList<>(staffRole.getUsers());
     }
 
 

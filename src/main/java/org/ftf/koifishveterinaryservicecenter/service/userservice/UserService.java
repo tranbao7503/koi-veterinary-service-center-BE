@@ -15,6 +15,6 @@ public interface UserService {
 
     List<User> getAllCustomers();
 
-    List<User> getAllStaffsAndVeterinarians();
+    List<User> getAllStaffs();
 
 }
