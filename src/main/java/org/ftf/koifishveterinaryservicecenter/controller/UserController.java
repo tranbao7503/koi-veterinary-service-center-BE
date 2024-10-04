@@ -1,7 +1,7 @@
 package org.ftf.koifishveterinaryservicecenter.controller;
 
 
-import org.ftf.koifishveterinaryservicecenter.dto.AddressDto;
+import org.ftf.koifishveterinaryservicecenter.dto.AddressDTO;
 import org.ftf.koifishveterinaryservicecenter.dto.FeedbackDto;
 import org.ftf.koifishveterinaryservicecenter.dto.UserDTO;
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
@@ -12,7 +12,7 @@ import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.AddressMapper;
 import org.ftf.koifishveterinaryservicecenter.mapper.FeedbackMapper;
 import org.ftf.koifishveterinaryservicecenter.mapper.UserMapper;
-import org.ftf.koifishveterinaryservicecenter.service.feedback.FeedbackService;
+import org.ftf.koifishveterinaryservicecenter.service.feedbackservice.FeedbackService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -58,7 +58,7 @@ public class UserController {
     }
 
     @PutMapping("/address")
-    public ResponseEntity<?> updateAddressForCustomer(@RequestParam Integer userId, @RequestBody AddressDto addressFromRequest) {
+    public ResponseEntity<?> updateAddressForCustomer(@RequestParam Integer userId, @RequestBody AddressDTO addressFromRequest) {
 
         Address convertedAddress = AddressMapper.INSTANCE.convertDtoToEntity(addressFromRequest);
 

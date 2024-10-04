@@ -33,6 +33,6 @@ public class UserDTO {
     public String avatar;
 
     @JsonProperty("address")
-    public AddressDto address;
+    public AddressDTO address;
 
 }
