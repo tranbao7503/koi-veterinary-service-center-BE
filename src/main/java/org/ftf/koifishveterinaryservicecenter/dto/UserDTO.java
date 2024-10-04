@@ -37,7 +37,7 @@ public class UserDTO {
     public String avatar;
 
     @JsonProperty("address")
-    public AddressDto address;
+    public AddressDTO address;
 
     public UserDTO(String firstName, String lastName, String username, String password) {
         this.firstName = firstName;

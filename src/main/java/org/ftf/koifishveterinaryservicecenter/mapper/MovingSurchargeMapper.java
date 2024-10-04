@@ -2,31 +2,15 @@ package org.ftf.koifishveterinaryservicecenter.mapper;
 
 import org.ftf.koifishveterinaryservicecenter.dto.MovingSurchargeDTO;
 import org.ftf.koifishveterinaryservicecenter.entity.MovingSurcharge;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.factory.Mappers;
 
-@Component
-public class MovingSurchargeMapper {
+@Mapper(uses = MovingSurchargeMapper.class)
+public interface MovingSurchargeMapper {
 
-    private final ModelMapper modelMapper;
+    MovingSurchargeMapper INSTANCE = Mappers.getMapper(MovingSurchargeMapper.class);
 
-    @Autowired
-    public MovingSurchargeMapper(ModelMapper modelMapper) {
-        this.modelMapper = modelMapper;
-    }
+    MovingSurchargeDTO convertToMovingSurchargeDto(MovingSurcharge movingSurcharge);
 
-    /*
-    * Convert MovingSurcharge entity to MovingSurcharge DTO
-    * */
-    public MovingSurchargeDTO convertToMovingSurchargeDTO(MovingSurcharge movingSurcharge) {
-        return modelMapper.map(movingSurcharge, MovingSurchargeDTO.class);
-    }
-
-    /*
-     * Convert MovingSurcharge DTO to MovingSurcharge entity
-     * */
-    public MovingSurcharge convertToMovingSurcharge(MovingSurchargeDTO movingSurchargeDTO) {
-        return modelMapper.map(movingSurchargeDTO, MovingSurcharge.class);
-    }
+    MovingSurcharge convertToMovingSurchargeEntity(MovingSurchargeDTO movingSurchargeDTO);
 }

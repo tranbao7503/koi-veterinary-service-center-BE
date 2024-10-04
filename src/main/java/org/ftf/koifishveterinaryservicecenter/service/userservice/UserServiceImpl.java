@@ -101,30 +101,15 @@ public class UserServiceImpl implements UserService {
         // update user's profile for User instance
         return userFromDb;
     }
+
     @Override
     public List<User> getAllCustomers() {
         Role role = roleRepository.findByRoleKey("CUS");
         List<User> customers = new ArrayList<>(role.getUsers());
         return customers;
     }
-    @Override
-    public List<User> getAllStaffsAndVeterinarians(){
-        //Lay danh sach staffs
-        Role staffRole =roleRepository.findByRoleKey(("STA"));
-        List<User> staffs=new ArrayList<>(staffRole.getUsers());
-        //Lay danh sach veterians
-        Role veterinarianRole=roleRepository.findByRoleKey("VET");
-        List<User> veterinarians=new ArrayList<>(veterinarianRole.getUsers());
 
-        //Gop danh sach
-        List<User> staffsAndveterinarian=new ArrayList<>();
-        staffsAndveterinarian.addAll(staffs);
-        staffsAndveterinarian.addAll(veterinarians);
-
-        return  staffsAndveterinarian;
-    }
-
-
+  
     @Override
     public void signUp(String username,String password,String first_Name,String last_Name){
 
@@ -163,15 +148,16 @@ public class UserServiceImpl implements UserService {
         user.setFirstName(first_Name);
         user.setLastName(last_Name);
         userRepository.save(user);
-
-
-
-        //Validate
-
-
     }
 
 
-
+    @Override
+    public User getVeterinarianById(Integer veterinarianId) {
+        User veterinarian = userRepository.findVeterinarianById(veterinarianId);
+        if (veterinarian == null) {
+            throw new UserNotFoundException("Veterinarian not found with Id: " + veterinarianId);
+        }
+        return veterinarian;
+    }
 
 }

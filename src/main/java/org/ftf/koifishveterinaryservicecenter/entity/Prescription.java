@@ -2,16 +2,18 @@ package org.ftf.koifishveterinaryservicecenter.entity;
 
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import org.ftf.koifishveterinaryservicecenter.entity.prescription_medicine.PrescriptionMedicine;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 @Getter
 @Setter
-
+@Builder
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "prescription")
 public class Prescription {
 
@@ -26,14 +28,8 @@ public class Prescription {
 
     // Bidirectional, identifying  relationship
     // Owning side: Prescription
-    // Inverse side: Medicine
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "prescription_medicine",
-            joinColumns = @JoinColumn(name = "prescription_id"),
-            inverseJoinColumns = @JoinColumn(name = "medicine_id")
-    )
-    private Set<Medicine> allMedicine = new LinkedHashSet<>();
-
+    // Inverse side: PrescriptionMedicine
+    @OneToMany(mappedBy = "prescription", orphanRemoval = true)
+    private Set<PrescriptionMedicine> prescriptionMedicines;
 
 }

@@ -16,8 +16,7 @@ public interface UserService {
 
     List<User> getAllCustomers();
 
-    List<User> getAllStaffsAndVeterinarians();
-
     void signUp(String username,String password,String first_Name,String last_Name);
-
+  
+    User getVeterinarianById(Integer veterinarianId);
 }
