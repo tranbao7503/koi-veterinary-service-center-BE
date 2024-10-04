@@ -17,4 +17,5 @@ public interface FeedbackRepository extends JpaRepository<Feedback, Integer> {
     @Query("select s from Feedback s where s.veterinarian.userId = :veterinarianId")
     List<Feedback> findByVeterianrianId(@Param("veterinarianId") Integer veterianrianId);
 
+
 }
