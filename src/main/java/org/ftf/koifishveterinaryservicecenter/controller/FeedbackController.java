@@ -20,11 +20,9 @@ import java.util.stream.Collectors;
 public class FeedbackController {
 
     private final FeedbackService feedbackService;
-    private final FeedbackMapper feedbackMapper;
 
-    public FeedbackController(FeedbackService feedbackService, FeedbackMapper feedbackMapper) {
+    public FeedbackController(FeedbackService feedbackService) {
         this.feedbackService = feedbackService;
-        this.feedbackMapper = feedbackMapper;
     }
 
     @GetMapping("/limited")
@@ -38,7 +36,6 @@ public class FeedbackController {
             return ResponseEntity.ok(dtoList);
         }
     }
-
 
     @GetMapping("/all")
     public ResponseEntity<List<FeedbackDto>> getAllFeedbacks() {
