@@ -1,10 +1,8 @@
 package org.ftf.koifishveterinaryservicecenter.controller;
 
 import org.ftf.koifishveterinaryservicecenter.dto.ServiceDTO;
-import org.ftf.koifishveterinaryservicecenter.dto.UserDTO;
 import org.ftf.koifishveterinaryservicecenter.entity.Service;
 import org.ftf.koifishveterinaryservicecenter.exception.AppointmentServiceNotFoundException;
-import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.ServiceMapper;
 import org.ftf.koifishveterinaryservicecenter.service.serviceservice.ServiceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 // @CrossOrigin: Security config
@@ -20,34 +19,40 @@ import java.util.List;
 public class ServiceController {
 
     private final ServiceService serviceServiceImpl;
-    private final ServiceMapper serviceMapper;
 
     @Autowired
-    public ServiceController(ServiceService serviceServiceImpl, ServiceMapper serviceMapper) {
+    public ServiceController(ServiceService serviceServiceImpl) {
         this.serviceServiceImpl = serviceServiceImpl;
-        this.serviceMapper = serviceMapper;
     }
 
     /*
      * Return list of available services
      * */
     @GetMapping
-    public ResponseEntity<List<ServiceDTO>> getAllServices() {
+    public ResponseEntity<?> getAllServices() {
 
-        List<ServiceDTO> serviceDTOs = serviceServiceImpl.getAllServices();
+        List<Service> services = serviceServiceImpl.getAllServices();
 
-        if (serviceDTOs.isEmpty()) { //There are no services
+
+        if (services.isEmpty()) { //There are no services
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } else {
+            // Mapping to DTOs
+            List<ServiceDTO> serviceDTOs = services.stream()
+                    .map(ServiceMapper.INSTANCE::convertToServiceDto)
+                    .collect(Collectors.toList());
             return new ResponseEntity<>(serviceDTOs, HttpStatus.OK);
         }
     }
 
-    @GetMapping("/{service_id}")
-    public ResponseEntity<?> getServiceById(@PathVariable("service_id") Integer serviceId) {
+    /*
+     * Find a service by ID
+     * */
+    @GetMapping("/{serviceID}")
+    public ResponseEntity<?> getServiceById(@PathVariable("serviceID") Integer serviceId) {
         try {
             Service service = serviceServiceImpl.getServiceById(serviceId);
-            ServiceDTO serviceDTO = serviceMapper.convertToServiceDTO(service);
+            ServiceDTO serviceDTO = ServiceMapper.INSTANCE.convertToServiceDto(service);
             return new ResponseEntity<>(serviceDTO, HttpStatus.OK);
         } catch (AppointmentServiceNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -58,13 +63,14 @@ public class ServiceController {
      * Update price of a service
      * */
     @PutMapping("/{serviceID}")
-    public ResponseEntity<?> updateServicePrice(
+
+    public ResponseEntity<?> updateService(
             @PathVariable("serviceID") Integer serviceID,
             @RequestBody ServiceDTO serviceFromRequest) {
-
         try {
-            ServiceDTO dto = serviceServiceImpl.updateService(serviceID, serviceFromRequest);
-            return new ResponseEntity<>(dto, HttpStatus.OK);
+            Service service = ServiceMapper.INSTANCE.convertToServiceEntity(serviceFromRequest);
+            serviceServiceImpl.updateService(serviceID, service);
+            return new ResponseEntity<>(serviceFromRequest, HttpStatus.OK);
         } catch (AppointmentServiceNotFoundException e) { // Service not found
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (Exception e) { // Other exceptions
@@ -72,23 +78,5 @@ public class ServiceController {
         }
     }
 
-    @PostMapping("/updateuser")
-    public ResponseEntity<UserDTO> updateUser(
-            @RequestParam int userId,
-            @RequestParam boolean enabled) {
 
-        try {
-            // Gọi phương thức updateUser từ service
-            UserDTO updatedUser = serviceServiceImpl.updateUserInfo(userId, enabled);
-
-            // Trả về kết quả thành công với đối tượng UserDTO đã cập nhật
-            return ResponseEntity.ok(updatedUser);
-        } catch (UserNotFoundException e) {
-            // Nếu không tìm thấy người dùng, trả về mã 404
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        } catch (Exception e) {
-            // Xử lý các ngoại lệ khác và trả về mã lỗi 500
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
-    }
 }

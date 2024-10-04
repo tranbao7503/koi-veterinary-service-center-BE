@@ -1,43 +1,19 @@
 package org.ftf.koifishveterinaryservicecenter.mapper;
 
 import org.ftf.koifishveterinaryservicecenter.dto.ServiceDTO;
-import org.ftf.koifishveterinaryservicecenter.dto.UserDTO;
 import org.ftf.koifishveterinaryservicecenter.entity.Service;
-import org.ftf.koifishveterinaryservicecenter.entity.User;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.factory.Mappers;
 
-@Component
-public class ServiceMapper {
 
-    private final ModelMapper modelMapper;
+@Mapper(componentModel = "spring", uses = ServiceMapper.class)
+public interface ServiceMapper {
 
-    @Autowired
-    public ServiceMapper(ModelMapper modelMapper) {
-        this.modelMapper = modelMapper;
-    }
+    ServiceMapper INSTANCE = Mappers.getMapper(ServiceMapper.class);
 
-    /*
-     * Convert Service entity to Service DTO
-     * */
-    public ServiceDTO convertToServiceDTO(Service service) {
-        return modelMapper.map(service, ServiceDTO.class);
-    }
+    ServiceDTO convertToServiceDto(Service service);
 
-    /*
-     * Convert Service DTO to Service entity
-     * */
-    public Service convertToService(ServiceDTO serviceDTO) {
-        return modelMapper.map(serviceDTO, Service.class);
-    }
-
-    /*
-     * Convert User entity to User DTO
-     * */
-    public UserDTO convertToUserDTO(User user) {
-        return modelMapper.map(user, UserDTO.class);
-    }
+    Service convertToServiceEntity(ServiceDTO serviceDTO);
 
 
 }

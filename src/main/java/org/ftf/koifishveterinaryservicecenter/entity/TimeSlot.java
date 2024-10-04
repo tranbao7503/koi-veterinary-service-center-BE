@@ -35,14 +35,14 @@ public class TimeSlot {
     @Column(name = "slot_order", nullable = false)
     private Integer slotOrder;
 
-//    @Lob
+    //    @Lob
     @Column(name = "description", nullable = false, columnDefinition = "TEXT")
     private String description;
 
     // Bidirectional, identifying relationship
     // Owning side: Appointment
     // Inverse side: TimeSlot
-    @OneToMany(mappedBy = "timeSlot")
+    @OneToMany(mappedBy = "timeSlot", fetch = FetchType.LAZY)
     private Set<Appointment> appointments = new LinkedHashSet<>();
 
     // Bidirectional, identifying  relationship
@@ -57,3 +57,4 @@ public class TimeSlot {
     private Set<User> veterinarians = new LinkedHashSet<>();
 
 }
+

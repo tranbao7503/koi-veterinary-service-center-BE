@@ -21,7 +21,7 @@ public class Feedback {
     @Column(name = "rating", nullable = true)
     private Integer rating;
 
-//    @Lob
+    //  @Lob
     @Column(name = "comment", nullable = true, columnDefinition = "TEXT")
     private String comment;
 
@@ -52,7 +52,7 @@ public class Feedback {
     // Bidirectional, non-identifying relationship
     // Owning side: Appointment
     // Inverse side: Feedback
-    @OneToOne(mappedBy = "feedback")
+    @OneToOne(mappedBy = "feedback", fetch = FetchType.LAZY)
     private Appointment appointment;
 
 }
