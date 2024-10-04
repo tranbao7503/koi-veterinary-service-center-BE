@@ -28,4 +28,7 @@ public class FeedbackDto {
     @JsonProperty("date_time")
     private LocalDateTime datetime;
 
+    @JsonProperty("appointment")
+    private AppointmentDto appointment;
+
 }

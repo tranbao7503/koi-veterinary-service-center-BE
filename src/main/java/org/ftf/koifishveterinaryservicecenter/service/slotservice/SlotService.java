@@ -6,5 +6,5 @@ import org.ftf.koifishveterinaryservicecenter.entity.veterinarian_slots.Veterina
 import java.util.List;
 
 public interface SlotService {
-    List<VeterinarianSlots> getVeterinarianSlots(Integer veterinarianId);
+    List<TimeSlot> getVeterinarianSlots(Integer veterinarianId);
 }

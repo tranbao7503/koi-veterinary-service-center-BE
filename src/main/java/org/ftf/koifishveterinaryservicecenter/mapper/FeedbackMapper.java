@@ -2,46 +2,26 @@ package org.ftf.koifishveterinaryservicecenter.mapper;
 
 import org.ftf.koifishveterinaryservicecenter.dto.FeedbackDto;
 import org.ftf.koifishveterinaryservicecenter.entity.Feedback;
-import org.ftf.koifishveterinaryservicecenter.repository.FeedbackRepository;
-import org.modelmapper.ModelMapper;
-import org.modelmapper.PropertyMap;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.factory.Mappers;
 
-import java.util.List;
-import java.util.stream.Collectors;
+@Mapper(uses = FeedbackMapper.class, componentModel = "spring")
+public interface FeedbackMapper {
 
-@Component
-public class FeedbackMapper {
+    FeedbackMapper INSTANCE = Mappers.getMapper(FeedbackMapper.class);
 
-    private final ModelMapper modelMapper;
+    /*
+    * Map all field of FeedbackDto
+    * */
+    @Mapping(target = "appointment", ignore = true)
+    FeedbackDto convertToFeedbackDto(Feedback feedback);
 
-    @Autowired
-    public FeedbackMapper(FeedbackRepository feedbackRepository) {
-        this.modelMapper = new ModelMapper();
-    }
+    /*
+    * For Feedback DTO to view feedback details
+    * */
+    @Mapping(source = "appointment.service.serviceName", target = "appointment.serviceName")
+    @Mapping(target = "appointment.timeSlot.appointment", ignore = true)
+    FeedbackDto feedbackToFeedbackDto(Feedback feedback);
 
-    // Method to convert Feedback entity to Feedback DTO
-    public FeedbackDto convertToDto(Feedback feedback) {
-        return modelMapper.map(feedback, FeedbackDto.class);
-    }
-
-    // Method to convert Feedback DTO to Feedback entity
-    public Feedback convertToEntity(FeedbackDto feedbackDto) {
-        return modelMapper.map(feedbackDto, Feedback.class);
-    }
-
-    // Method to convert a list of Feedback entities to a list of Feedback DTOs
-    public List<FeedbackDto> convertToDtoList(List<Feedback> feedbackList) {
-        return feedbackList.stream()
-                .map(this::convertToDto) // Convert each entity to DTO
-                .collect(Collectors.toList()); // Collect results into a list
-    }
-
-    // Method to convert a list of Feedback DTOs to a list of Feedback entities
-    public List<Feedback> convertToEntityList(List<FeedbackDto> feedbackDtoList) {
-        return feedbackDtoList.stream()
-                .map(this::convertToEntity) // Convert each DTO to entity
-                .collect(Collectors.toList()); // Collect results into a list
-    }
 }
