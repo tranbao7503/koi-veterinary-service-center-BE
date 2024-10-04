@@ -4,6 +4,7 @@ import org.ftf.koifishveterinaryservicecenter.dto.ServiceDTO;
 import org.ftf.koifishveterinaryservicecenter.dto.UserDTO;
 import org.ftf.koifishveterinaryservicecenter.entity.Service;
 import org.ftf.koifishveterinaryservicecenter.exception.AppointmentServiceNotFoundException;
+import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.ServiceMapper;
 import org.ftf.koifishveterinaryservicecenter.service.serviceservice.ServiceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,14 +72,23 @@ public class ServiceController {
         }
     }
 
-    @PostMapping("updateuser")
-    public ResponseEntity<UserDTO> updateVeterinarian(@RequestParam int userId, @RequestParam String password, @RequestParam String firstName, @RequestParam String lastName) {
-        UserDTO user = serviceServiceImpl.updateUser(userId, password, firstName, lastName);
-        if (user == null) {
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.ok(user);
-        }
+    @PostMapping("/updateuser")
+    public ResponseEntity<UserDTO> updateUser(
+            @RequestParam int userId,
+            @RequestParam boolean enabled) {
 
+        try {
+            // Gọi phương thức updateUser từ service
+            UserDTO updatedUser = serviceServiceImpl.updateUserInfo(userId, enabled);
+
+            // Trả về kết quả thành công với đối tượng UserDTO đã cập nhật
+            return ResponseEntity.ok(updatedUser);
+        } catch (UserNotFoundException e) {
+            // Nếu không tìm thấy người dùng, trả về mã 404
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (Exception e) {
+            // Xử lý các ngoại lệ khác và trả về mã lỗi 500
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 }

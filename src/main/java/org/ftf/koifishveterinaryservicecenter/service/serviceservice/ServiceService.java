@@ -11,5 +11,5 @@ public interface ServiceService {
     Service getServiceById(Integer serviceId);
     List<ServiceDTO> getAllServices();
 
-    UserDTO updateUser(int userId, String passWord, String firstName, String lastName);
+    UserDTO updateUserInfo(int userId, boolean enabled);
 }

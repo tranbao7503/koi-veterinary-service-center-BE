@@ -5,11 +5,11 @@ import org.ftf.koifishveterinaryservicecenter.dto.UserDTO;
 import org.ftf.koifishveterinaryservicecenter.entity.Service;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.ftf.koifishveterinaryservicecenter.exception.AppointmentServiceNotFoundException;
+import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.ServiceMapper;
 import org.ftf.koifishveterinaryservicecenter.repository.ServiceRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.UserRepository;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -72,24 +72,22 @@ public class ServiceServiceImpl implements ServiceService {
     }
 
 
-    public UserDTO convertToUserDTO(User user) {
-        TypeMap<User, UserDTO> typeMap = serviceMapper.getTypeMap(User.class, UserDTO.class);
-        if (typeMap == null) {
-            typeMap = serviceMapper.createTypeMap(User.class, UserDTO.class);
+    public UserDTO updateUserInfo(int userId, boolean enabled) {
+        // Lấy thông tin người dùng từ database
+        User userFromDb = userRepository.findById(userId).orElse(null);
+        if (userFromDb == null) {
+            throw new UserNotFoundException("User not found with ID: " + userId);
         }
-        return typeMap.map(user);
-    }
 
-    public UserDTO updateUserInfo(int userId, String firstName, String lastName) {
-        //kiem tra thong tin cu va thong tin moi
-        User user = userRepository.findById(userId).orElse(null);
-        if (user == null) return null;
+        // Cập nhật thông tin người dùng
+        userFromDb.setEnabled(enabled);
 
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
-        //encrypt password
-        userRepository.save(user);
-        return convertToUserDTO(user);
+
+        // Lưu người dùng đã cập nhật
+        User updatedUser = userRepository.save(userFromDb);
+
+        // Chuyển đổi entity sang DTO và trả về
+        return serviceMapper.convertToUserDTO(updatedUser);
     }
 
 
