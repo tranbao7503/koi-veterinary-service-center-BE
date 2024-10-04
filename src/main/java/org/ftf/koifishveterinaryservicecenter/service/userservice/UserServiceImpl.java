@@ -113,4 +113,23 @@ public class UserServiceImpl implements UserService {
         return veterinarian;
     }
 
+    public User createUser(String userName, String passWord, String firstName, String lastName, int roleId) {
+        User user = new User();
+
+        user.setUsername(userName);
+        user.setPassword(passWord);  // Bạn có thể thêm mã mã hóa mật khẩu tại đây nếu cần
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+
+        // Lấy role từ roleId và gán cho user
+        Role role = roleRepository.getReferenceById(roleId);
+        user.setRole(role);
+
+        // Lưu người dùng vào database
+        userRepository.save(user);
+
+        // Chuyển đổi entity sang DTO và trả về
+        return convertToUserDTO(user);
+    }
+
 }
