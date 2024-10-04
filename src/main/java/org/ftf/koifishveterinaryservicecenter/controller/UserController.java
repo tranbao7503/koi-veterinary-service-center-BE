@@ -23,18 +23,17 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/users")
-/*@RequiredArgsConstructor*/
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserController {
 
-    private final UserService userService;
-    private final AuthenticationService authenticationService;
 
+    private final AuthenticationService authenticationService;
+    private final UserService userService;
 
     @Autowired
-    public UserController(UserService userService, AuthenticationService authenticationService) {
-        this.userService = userService;
+    public UserController(AuthenticationService authenticationService, UserService userService) {
         this.authenticationService = authenticationService;
+        this.userService = userService;
     }
 
     @GetMapping("/profile")
@@ -120,6 +119,7 @@ public class UserController {
                 .result(result)
                 .build();
     }
+
 
     @PostMapping("/introspect")
     ApiResponse<IntrospectResponse> authenticate(@RequestBody IntrospectRequestDTO request)

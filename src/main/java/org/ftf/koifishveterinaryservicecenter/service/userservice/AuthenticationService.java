@@ -12,7 +12,6 @@ import org.ftf.koifishveterinaryservicecenter.dto.response.IntrospectResponse;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.ftf.koifishveterinaryservicecenter.exception.AuthenticationException;
 import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
-import org.ftf.koifishveterinaryservicecenter.repository.RoleRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,13 +27,18 @@ import java.util.logging.Logger;
 
 @Service
 public class AuthenticationService {
+
+
+    private final UserRepository userRepository;
+
     @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private RoleRepository roleRepository;
+    public AuthenticationService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @Value("${jwt.signer}")
     private String SIGNER_KEY;
+
 
     public IntrospectResponse introspect(IntrospectRequestDTO request) throws ParseException {
         var token = request.getToken();
