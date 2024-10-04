@@ -1,14 +1,13 @@
 package org.ftf.koifishveterinaryservicecenter.controller;
 
 
-import lombok.AccessLevel;
-import lombok.experimental.FieldDefaults;
-import org.ftf.koifishveterinaryservicecenter.dto.*;
+import org.ftf.koifishveterinaryservicecenter.dto.ApiResponse;
+import org.ftf.koifishveterinaryservicecenter.dto.AuthenticationRequestDTO;
+import org.ftf.koifishveterinaryservicecenter.dto.IntrospectRequestDTO;
+import org.ftf.koifishveterinaryservicecenter.dto.UserDTO;
 import org.ftf.koifishveterinaryservicecenter.dto.response.AuthenticationResponse;
 import org.ftf.koifishveterinaryservicecenter.dto.response.IntrospectResponse;
-import org.ftf.koifishveterinaryservicecenter.entity.Address;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
-import org.ftf.koifishveterinaryservicecenter.mapper.AddressMapper;
 import org.ftf.koifishveterinaryservicecenter.mapper.UserMapper;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
@@ -23,17 +22,16 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/users")
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserController {
 
-
-    private final AuthenticationService authenticationService;
     private final UserService userService;
+    private final AuthenticationService authenticationService;
+
 
     @Autowired
-    public UserController(AuthenticationService authenticationService, UserService userService) {
-        this.authenticationService = authenticationService;
+    public UserController(UserService userService, AuthenticationService authenticationService) {
         this.userService = userService;
+        this.authenticationService = authenticationService;
     }
 
     @GetMapping("/profile")
@@ -59,19 +57,7 @@ public class UserController {
         }
     }
 
-    @PutMapping("/address")
-    public ResponseEntity<?> updateAddressForCustomer(@RequestParam Integer userId, @RequestBody AddressDto addressFromRequest) {
 
-        Address convertedAddress = AddressMapper.INSTANCE.convertDtoToEntity(addressFromRequest);
-
-        Integer userIdFromToken = 1; // the userId takes from Authentication object in SecurityContext
-
-        // check(userIdFromToken, userId)
-
-        User updatedCustomer = userService.updateAddress(userId, convertedAddress);
-        UserDTO userDto = UserMapper.INSTANCE.convertEntityToDto(updatedCustomer);
-        return ResponseEntity.ok(userDto);
-    }
 
     @PutMapping("/profile")
     public ResponseEntity<?> updateUserProfile(@RequestParam Integer userId, @RequestBody UserDTO userFromRequest) {

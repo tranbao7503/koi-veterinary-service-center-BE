@@ -96,10 +96,23 @@ public class UserServiceImpl implements UserService {
         // update user's profile for User instance
         return userFromDb;
     }
+
     @Override
     public List<User> getAllCustomers() {
         Role role = roleRepository.findByRoleKey("CUS");
         List<User> customers = new ArrayList<>(role.getUsers());
         return customers;
     }
+
+    @Override
+    public User getVeterinarianById(Integer veterinarianId) {
+        User veterinarian = userRepository.findVeterinarianById(veterinarianId);
+        if (veterinarian == null) {
+            throw new UserNotFoundException("Veterinarian not found with Id: " + veterinarianId);
+        }
+        return veterinarian;
+    }
+
+
+
 }

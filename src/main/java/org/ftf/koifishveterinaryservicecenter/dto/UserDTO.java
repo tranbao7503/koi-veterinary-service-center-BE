@@ -2,7 +2,10 @@ package org.ftf.koifishveterinaryservicecenter.dto;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
@@ -33,6 +36,6 @@ public class UserDTO {
     public String avatar;
 
     @JsonProperty("address")
-    public AddressDto address;
+    public AddressDTO address;
 
 }

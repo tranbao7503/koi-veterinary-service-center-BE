@@ -14,4 +14,6 @@ public interface UserService {
     User updateUserProfile(Integer userId, User convertedCustomer);
 
     List<User> getAllCustomers();
+
+    User getVeterinarianById(Integer veterinarianId);
 }
