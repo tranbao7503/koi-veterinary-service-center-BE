@@ -137,17 +137,18 @@ public class UserController {
             String lastName = userDTOFromRequest.getLastName();
 
             userService.signUp(username, password, firstName, lastName);
-            return new ResponseEntity<>("Sign up successfully",HttpStatus.OK);
+            return new ResponseEntity<>("Sign up successfully", HttpStatus.OK);
         } catch (AuthenicationException ex) {
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
         }
+    }
 
     @GetMapping("/veterinarian/{veterinarianId}/feedbacks/{feedbackId}")
     public ResponseEntity<?> getFeedback(@PathVariable("feedbackId") Integer feedbackId
             , @PathVariable("veterinarianId") Integer veterinarianId) {
-        try{
+        try {
             Feedback feedback = feedbackService.getFeedbackById(feedbackId);
-            if(feedback.getVeterinarian().getUserId().equals(veterinarianId)) {
+            if (feedback.getVeterinarian().getUserId().equals(veterinarianId)) {
                 FeedbackDto feedbackDto = FeedbackMapper.INSTANCE.feedbackToFeedbackDto(feedback);
                 return new ResponseEntity<>(feedbackDto, HttpStatus.OK);
             } else {
