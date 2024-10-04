@@ -2,10 +2,17 @@ package org.ftf.koifishveterinaryservicecenter.entity;
 
 
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+@Getter
+@Setter
+@Builder
+
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "roles")
 public class Role {

@@ -1,32 +1,40 @@
 package org.ftf.koifishveterinaryservicecenter.controller;
 
 
-import org.ftf.koifishveterinaryservicecenter.dto.AddressDto;
-import org.ftf.koifishveterinaryservicecenter.dto.UserDTO;
+import lombok.extern.slf4j.Slf4j;
+import org.ftf.koifishveterinaryservicecenter.dto.*;
+import org.ftf.koifishveterinaryservicecenter.dto.response.AuthenticationResponse;
+import org.ftf.koifishveterinaryservicecenter.dto.response.IntrospectResponse;
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.ftf.koifishveterinaryservicecenter.mapper.AddressMapper;
 import org.ftf.koifishveterinaryservicecenter.mapper.UserMapper;
+import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.ParseException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/users")
 public class UserController {
 
     private final UserService userService;
     private final UserMapper userMapper;
+    private final AuthenticationService authenticationService;
 
     @Autowired
-    public UserController(UserService userService,UserMapper userMapper) {
+    public UserController(UserService userService, UserMapper userMapper, AuthenticationService authenticationService) {
         this.userService = userService;
         this.userMapper=userMapper;
+        this.authenticationService = authenticationService;
     }
 
     @GetMapping("/profile")
@@ -77,17 +85,42 @@ public class UserController {
 
 
     @GetMapping("customers")
-    public ResponseEntity<?> getAllCustomers(){
-        List<User> customers = userService.getAllCustomers();
+    public ResponseEntity<?> getAllCustomers() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if(customers.isEmpty()){
+        // Log thông tin về username và role
+        log.info("Userid: {}", authentication.getName()); // Đúng cú pháp cho log.info
+        authentication.getAuthorities().forEach(grantedAuthority -> log.info("role: {}", grantedAuthority.getAuthority()));
+
+        List<User> customers = userService.getAllCustomers();
+        if (customers.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }else{
+        } else {
             List<UserDTO> userDTOs = customers.stream()
                     .map(userMapper::convertEntityToDto)
                     .collect(Collectors.toList());
             return new ResponseEntity<>(userDTOs, HttpStatus.OK);
         }
+    }
+
+    @PostMapping("/token")
+    ApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequestDTO request) {
+        var result = authenticationService.authenticate(request);
+        return ApiResponse.<AuthenticationResponse>builder()
+                .result(result)
+                .build();
+    }
+
+    @PostMapping("/introspect")
+    ApiResponse<IntrospectResponse> authenticate(@RequestBody IntrospectRequestDTO request)
+            throws ParseException {
+        var result = authenticationService.introspect(request);
+        if (result == null) {
+            return ApiResponse.<IntrospectResponse>builder().code(404).build();
+        }
+        return ApiResponse.<IntrospectResponse>builder()
+                .result(result)
+                .build();
     }
 
 
