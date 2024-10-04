@@ -1,10 +1,11 @@
 package org.ftf.koifishveterinaryservicecenter.controller;
 
 import org.ftf.koifishveterinaryservicecenter.dto.ServiceDTO;
+import org.ftf.koifishveterinaryservicecenter.dto.UserDTO;
+import org.ftf.koifishveterinaryservicecenter.entity.Service;
 import org.ftf.koifishveterinaryservicecenter.exception.AppointmentServiceNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.ServiceMapper;
 import org.ftf.koifishveterinaryservicecenter.service.serviceservice.ServiceService;
-import org.ftf.koifishveterinaryservicecenter.entity.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -68,5 +69,16 @@ public class ServiceController {
         } catch (Exception e) { // Other exceptions
             return new ResponseEntity<>("Service Update Failed", HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @PostMapping("updateuser")
+    public ResponseEntity<UserDTO> updateVeterinarian(@RequestParam int userId, @RequestParam String password, @RequestParam String firstName, @RequestParam String lastName) {
+        UserDTO user = serviceServiceImpl.updateUser(userId, password, firstName, lastName);
+        if (user == null) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.ok(user);
+        }
+
     }
 }
