@@ -1,17 +1,13 @@
 package org.ftf.koifishveterinaryservicecenter.dto;
 
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
-
+@AllArgsConstructor
 public class UserDTO {
 
     @JsonProperty("user_id")
@@ -36,6 +32,8 @@ public class UserDTO {
     public String avatar;
 
     @JsonProperty("address")
-    public AddressDto address;
+    public AddressDTO address;
+
+
 
 }

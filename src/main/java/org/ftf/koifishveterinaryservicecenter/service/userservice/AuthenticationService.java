@@ -71,7 +71,7 @@ public class AuthenticationService {
                 .issuer("KoiFish.com")
                 .issueTime(Date.from(Instant.now()))
                 .claim("userId", user.getUserId())
-                .claim("role", user.getRole().getRoleKey())
+                .claim("scope", user.getRole().getRoleKey())
                 .expirationTime(Date.from(Instant.now().plus(3, ChronoUnit.HOURS)))
                 .build();
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());

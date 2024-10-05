@@ -15,16 +15,14 @@ import java.util.stream.Collectors;
 
 @RestController
 //@CrossOrigin
-@RequestMapping("/api/v1/Surcharges")
+@RequestMapping("/api/v1/surcharges")
 public class SurchargeController {
 
     private final SurchargeService surchargeService;
-    private final MovingSurchargeMapper movingSurchargeMapper;
 
     @Autowired
-    public SurchargeController(final SurchargeService surchargeService, MovingSurchargeMapper movingSurchargeMapper) {
+    public SurchargeController(final SurchargeService surchargeService) {
         this.surchargeService = surchargeService;
-        this.movingSurchargeMapper = movingSurchargeMapper;
     }
 
     /*
@@ -37,7 +35,7 @@ public class SurchargeController {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } else { // Data existed
             List<MovingSurchargeDTO> movingSurchargeDTOs = movingSurcharges.stream()
-                    .map(movingSurchargeMapper::convertToMovingSurchargeDTO)
+                    .map(MovingSurchargeMapper.INSTANCE::convertToMovingSurchargeDto)
                     .collect(Collectors.toList());
             return new ResponseEntity<>(movingSurchargeDTOs, HttpStatus.OK);
         }
@@ -51,7 +49,7 @@ public class SurchargeController {
             @PathVariable("surchargeID") Integer surchargeID) {
         try {
             MovingSurcharge movingSurcharge = surchargeService.getMovingSurchargeById(surchargeID);
-            MovingSurchargeDTO movingSurchargeDTO = movingSurchargeMapper.convertToMovingSurchargeDTO(movingSurcharge);
+            MovingSurchargeDTO movingSurchargeDTO = MovingSurchargeMapper.INSTANCE.convertToMovingSurchargeDto(movingSurcharge);
             return new ResponseEntity<>(movingSurchargeDTO, HttpStatus.OK);
         } catch (MovingSurchargeNotFoundException e) { // Moving surcharge not existed
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -66,7 +64,7 @@ public class SurchargeController {
             @PathVariable("surchargeID") Integer surchargeID,
             @RequestBody MovingSurchargeDTO movingSurchargeFromRequest) {
         try {
-            MovingSurcharge movingSurcharge = movingSurchargeMapper.convertToMovingSurcharge(movingSurchargeFromRequest);
+            MovingSurcharge movingSurcharge = MovingSurchargeMapper.INSTANCE.convertToMovingSurchargeEntity(movingSurchargeFromRequest);
             surchargeService.updateMovingSurcharge(surchargeID, movingSurcharge);
             return new ResponseEntity<>(movingSurchargeFromRequest, HttpStatus.OK);
         } catch (MovingSurchargeNotFoundException e) {

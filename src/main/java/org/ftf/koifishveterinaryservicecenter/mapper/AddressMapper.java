@@ -1,13 +1,13 @@
 package org.ftf.koifishveterinaryservicecenter.mapper;
 
-import org.ftf.koifishveterinaryservicecenter.dto.AddressDto;
+import org.ftf.koifishveterinaryservicecenter.dto.AddressDTO;
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.factory.Mappers;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface AddressMapper {
     AddressMapper INSTANCE = Mappers.getMapper(AddressMapper.class);
 
@@ -17,7 +17,7 @@ public interface AddressMapper {
             @Mapping(source = "ward", target = "ward"),
             @Mapping(source = "homeNumber", target = "homeNumber")
     })
-    AddressDto convertEntityToDto(Address address);
+    AddressDTO convertEntityToDto(Address address);
 
     @Mappings({
             @Mapping(source = "city", target = "city"),
@@ -25,5 +25,5 @@ public interface AddressMapper {
             @Mapping(source = "ward", target = "ward"),
             @Mapping(source = "homeNumber", target = "homeNumber")
     })
-    Address convertDtoToEntity(AddressDto address);
+    Address convertDtoToEntity(AddressDTO address);
 }

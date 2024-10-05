@@ -14,6 +14,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+
 @Table(name = "roles")
 public class Role {
 
@@ -32,7 +33,7 @@ public class Role {
     // Bidirectional, identifying relationship
     // owning side: User
     // inverse side: Role
-    @OneToMany(mappedBy = "role")
+    @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
     private Set<User> users = new LinkedHashSet<>();
 
 

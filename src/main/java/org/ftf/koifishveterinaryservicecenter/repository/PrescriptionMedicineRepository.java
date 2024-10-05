@@ -5,4 +5,5 @@ import org.ftf.koifishveterinaryservicecenter.entity.prescription_medicine.Presc
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface PrescriptionMedicineRepository extends JpaRepository<PrescriptionMedicine, PrescriptionMedicineId> {
-  }
+
+}

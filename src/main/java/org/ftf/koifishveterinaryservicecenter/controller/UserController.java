@@ -6,9 +6,13 @@ import org.ftf.koifishveterinaryservicecenter.dto.*;
 import org.ftf.koifishveterinaryservicecenter.dto.response.AuthenticationResponse;
 import org.ftf.koifishveterinaryservicecenter.dto.response.IntrospectResponse;
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
+import org.ftf.koifishveterinaryservicecenter.entity.Feedback;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
+import org.ftf.koifishveterinaryservicecenter.exception.FeedbackNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.AddressMapper;
+import org.ftf.koifishveterinaryservicecenter.mapper.FeedbackMapper;
 import org.ftf.koifishveterinaryservicecenter.mapper.UserMapper;
+import org.ftf.koifishveterinaryservicecenter.service.feedbackservice.FeedbackService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,12 +33,14 @@ public class UserController {
     private final UserService userService;
     private final UserMapper userMapper;
     private final AuthenticationService authenticationService;
+    private final FeedbackService feedbackService;
 
     @Autowired
-    public UserController(UserService userService, UserMapper userMapper, AuthenticationService authenticationService) {
+    public UserController(UserService userService, UserMapper userMapper, AuthenticationService authenticationService, FeedbackService feedbackService) {
         this.userService = userService;
         this.userMapper=userMapper;
         this.authenticationService = authenticationService;
+        this.feedbackService = feedbackService;
     }
 
     @GetMapping("/profile")
@@ -47,7 +53,7 @@ public class UserController {
     }
 
     @PutMapping("/address")
-    public ResponseEntity<?> updateAddressForCustomer(@RequestParam Integer userId, @RequestBody AddressDto addressFromRequest) {
+    public ResponseEntity<?> updateAddressForCustomer(@RequestParam Integer userId, @RequestBody AddressDTO addressFromRequest) {
 
         Address convertedAddress = AddressMapper.INSTANCE.convertDtoToEntity(addressFromRequest);
 
@@ -84,14 +90,13 @@ public class UserController {
     }
 
 
-    @GetMapping("customers")
+    @GetMapping("/customers")
     public ResponseEntity<?> getAllCustomers() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
 
         // Log thông tin về username và role
         log.info("Userid: {}", authentication.getName()); // Đúng cú pháp cho log.info
         authentication.getAuthorities().forEach(grantedAuthority -> log.info("role: {}", grantedAuthority.getAuthority()));
-
         List<User> customers = userService.getAllCustomers();
         if (customers.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -124,4 +129,19 @@ public class UserController {
     }
 
 
+    @GetMapping("/veterinarian/{veterinarianId}/feedbacks/{feedbackId}")
+    public ResponseEntity<?> getFeedback(@PathVariable("feedbackId") Integer feedbackId
+            , @PathVariable("veterinarianId") Integer veterinarianId) {
+        try {
+            Feedback feedback = feedbackService.getFeedbackById(feedbackId);
+            if (feedback.getVeterinarian().getUserId().equals(veterinarianId)) {
+                FeedbackDto feedbackDto = FeedbackMapper.INSTANCE.feedbackToFeedbackDto(feedback);
+                return new ResponseEntity<>(feedbackDto, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            }
+        } catch (FeedbackNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
+        }
+    }
 }
