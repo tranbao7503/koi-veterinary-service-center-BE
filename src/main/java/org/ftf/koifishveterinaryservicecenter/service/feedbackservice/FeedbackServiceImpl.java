@@ -1,4 +1,4 @@
-package org.ftf.koifishveterinaryservicecenter.service.feedback;
+package org.ftf.koifishveterinaryservicecenter.service.feedbackservice;
 
 import org.ftf.koifishveterinaryservicecenter.entity.Feedback;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
@@ -11,16 +11,22 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+
 @Service
 public class FeedbackServiceImpl implements FeedbackService {
 
-    private FeedbackRepository feedbackRepository;
+    private final FeedbackRepository feedbackRepository;
     private final UserService userService;
 
     @Autowired
     public FeedbackServiceImpl(FeedbackRepository feedbackRepository, UserService userService) {
         this.feedbackRepository = feedbackRepository;
         this.userService = userService;
+    }
+
+    @Override
+    public List<Feedback> getFeedbacksByRating() {
+        return feedbackRepository.findFeedbackByRating();
     }
 
     @Override
@@ -45,6 +51,5 @@ public class FeedbackServiceImpl implements FeedbackService {
                 () -> new FeedbackNotFoundException("Feedback not found with id: " + feedbackId));
         return feedback;
     }
-
 
 }

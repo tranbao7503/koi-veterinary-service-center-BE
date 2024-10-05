@@ -2,6 +2,7 @@ package org.ftf.koifishveterinaryservicecenter.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import org.ftf.koifishveterinaryservicecenter.enums.AppointmentStatus;
 
 import java.time.LocalDateTime;
 
@@ -29,4 +30,6 @@ public class AppointmentDto {
     @JsonProperty("time_slot")
     private TimeSlotDto timeSlot;
 
+    @JsonProperty("current_status")
+    private AppointmentStatus currentStatus;
 }

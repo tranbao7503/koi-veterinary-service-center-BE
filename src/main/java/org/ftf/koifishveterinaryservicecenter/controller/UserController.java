@@ -1,18 +1,19 @@
 package org.ftf.koifishveterinaryservicecenter.controller;
 
 
-import org.ftf.koifishveterinaryservicecenter.dto.AddressDto;
+import org.ftf.koifishveterinaryservicecenter.dto.AddressDTO;
 import org.ftf.koifishveterinaryservicecenter.dto.FeedbackDto;
 import org.ftf.koifishveterinaryservicecenter.dto.UserDTO;
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
 import org.ftf.koifishveterinaryservicecenter.entity.Feedback;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
+import org.ftf.koifishveterinaryservicecenter.exception.AuthenicationException;
 import org.ftf.koifishveterinaryservicecenter.exception.FeedbackNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.AddressMapper;
 import org.ftf.koifishveterinaryservicecenter.mapper.FeedbackMapper;
 import org.ftf.koifishveterinaryservicecenter.mapper.UserMapper;
-import org.ftf.koifishveterinaryservicecenter.service.feedback.FeedbackService;
+import org.ftf.koifishveterinaryservicecenter.service.feedbackservice.FeedbackService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,7 +30,6 @@ public class UserController {
     private final UserService userService;
     private final FeedbackService feedbackService;
 
-
     @Autowired
     public UserController(UserService userService, FeedbackService feedbackService) {
         this.userService = userService;
@@ -45,7 +45,6 @@ public class UserController {
         return ResponseEntity.ok(userDto);
     }
 
-
     @GetMapping("/veterinarians")
     public ResponseEntity<List<UserDTO>> getAllVeterianrians() {
         List<User> users = userService.getAllVeterinarians();
@@ -60,7 +59,7 @@ public class UserController {
     }
 
     @PutMapping("/address")
-    public ResponseEntity<?> updateAddressForCustomer(@RequestParam Integer userId, @RequestBody AddressDto addressFromRequest) {
+    public ResponseEntity<?> updateAddressForCustomer(@RequestParam Integer userId, @RequestBody AddressDTO addressFromRequest) {
 
         Address convertedAddress = AddressMapper.INSTANCE.convertDtoToEntity(addressFromRequest);
 
@@ -128,12 +127,28 @@ public class UserController {
         }
     }
 
+
+    @PostMapping("/signup")
+    public ResponseEntity<?> signUp(@RequestBody UserDTO userDTOFromRequest) {
+        try {
+            String username = userDTOFromRequest.getUsername();
+            String password = userDTOFromRequest.getPassword();
+            String firstName = userDTOFromRequest.getFirstName();
+            String lastName = userDTOFromRequest.getLastName();
+
+            userService.signUp(username, password, firstName, lastName);
+            return new ResponseEntity<>("Sign up successfully", HttpStatus.OK);
+        } catch (AuthenicationException ex) {
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
     @GetMapping("/veterinarian/{veterinarianId}/feedbacks/{feedbackId}")
     public ResponseEntity<?> getFeedback(@PathVariable("feedbackId") Integer feedbackId
             , @PathVariable("veterinarianId") Integer veterinarianId) {
-        try{
+        try {
             Feedback feedback = feedbackService.getFeedbackById(feedbackId);
-            if(feedback.getVeterinarian().getUserId().equals(veterinarianId)) {
+            if (feedback.getVeterinarian().getUserId().equals(veterinarianId)) {
                 FeedbackDto feedbackDto = FeedbackMapper.INSTANCE.feedbackToFeedbackDto(feedback);
                 return new ResponseEntity<>(feedbackDto, HttpStatus.OK);
             } else {
@@ -142,5 +157,6 @@ public class UserController {
         } catch (FeedbackNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
         }
+
     }
 }

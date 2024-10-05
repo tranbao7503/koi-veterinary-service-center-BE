@@ -1,4 +1,4 @@
-package org.ftf.koifishveterinaryservicecenter.services;
+package org.ftf.koifishveterinaryservicecenter.serviceservice;
 
 import org.assertj.core.api.Assertions;
 
@@ -23,7 +23,7 @@ public class ServiceRepositoryTests {
     private ServiceRepository serviceRepository;
 
     @Test
-    public void testGetAllServices200Ok() {
+    public void testGetAllServicesSuccess() {
         List<Service> serviceList = serviceRepository.findAll();
 
         Assertions.assertThat(serviceList).isNotEmpty();
@@ -32,7 +32,7 @@ public class ServiceRepositoryTests {
 
 
     @Test
-    public void testGetServiceById200Ok() {
+    public void testGetServiceByIdSuccess() {
         Integer serviceId = 1;
         Optional<Service> service = serviceRepository.findById(serviceId);
         Assertions.assertThat(service).isPresent();
