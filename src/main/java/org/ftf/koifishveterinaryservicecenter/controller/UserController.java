@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -158,5 +159,23 @@ public class UserController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
         }
 
+    }
+
+    /*
+    * Update avatar of user
+    * Actors: Customer, Manager
+    * */
+    @PutMapping("/avatar")
+    public ResponseEntity<?> updateUserAvatar(@RequestParam("user_id") Integer userId
+            , @RequestParam("image") MultipartFile image) {
+        try{
+            User user = userService.updateUserAvatar(userId, image);
+            UserDTO userDto = UserMapper.INSTANCE.convertEntityToDto(user);
+            return new ResponseEntity<>(userDto, HttpStatus.OK);
+        }catch (UserNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
