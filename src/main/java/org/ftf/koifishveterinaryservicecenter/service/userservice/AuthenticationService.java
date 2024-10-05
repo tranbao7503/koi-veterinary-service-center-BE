@@ -59,14 +59,21 @@ public class AuthenticationService {
 
     public AuthenticationResponse authenticate(AuthenticationRequestDTO request) {
         Logger.getAnonymousLogger().info(SIGNER_KEY);
+
+        // Tìm người dùng theo username
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        // Sử dụng PasswordEncoder để kiểm tra mật khẩu
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
 
+        // Nếu mật khẩu không đúng, ném ra ngoại lệ
         if (!authenticated) {
-            throw new AuthenticationException("Unauthenication");
+            throw new AuthenticationException("Invalid username or password");
         }
+
+        // Nếu đúng, tạo token và trả về thông tin
         String token = generateToken(user);
         return AuthenticationResponse.builder()
                 .token(token)
