@@ -1,27 +1,38 @@
 package org.ftf.koifishveterinaryservicecenter.dto;
 
-import lombok.*;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+
+@Data
 @Builder
-@Getter
-@Setter
-@NoArgsConstructor
 @AllArgsConstructor
 public class UserDTO {
 
-    private Integer userId;
+    @JsonProperty("user_id")
+    public Integer userId;
 
-    private String username;
+    @JsonProperty("first_name")
+    public String firstName;
 
-    private String email;
+    @JsonProperty("last_name")
+    public String lastName;
 
-    private String password;
+    @JsonProperty("username")
+    public String username;
 
-    private String firstName;
+    @JsonProperty("email")
+    public String email;
 
-    private String lastName;
+    @JsonProperty("phone_number")
+    public String phoneNumber;
 
-    private String phoneNumber;
+    @JsonProperty("avatar")
+    public String avatar;
 
-    private String avatar;
+    @JsonProperty("address")
+    public AddressDTO address;
+
 }

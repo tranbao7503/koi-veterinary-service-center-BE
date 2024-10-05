@@ -1,46 +1,39 @@
 package org.ftf.koifishveterinaryservicecenter.service.serviceservice;
 
-import org.ftf.koifishveterinaryservicecenter.dto.ServiceDTO;
-import org.ftf.koifishveterinaryservicecenter.exception.AppointmentServiceNotFoundException;
-import org.ftf.koifishveterinaryservicecenter.mapper.ServiceMapper;
 import org.ftf.koifishveterinaryservicecenter.entity.Service;
+import org.ftf.koifishveterinaryservicecenter.exception.AppointmentServiceNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.repository.ServiceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @org.springframework.stereotype.Service
 public class ServiceServiceImpl implements ServiceService {
 
 
-
     private final ServiceRepository serviceRepository;
-    private final ServiceMapper serviceMapper;
 
     @Autowired
-    public ServiceServiceImpl(ServiceRepository serviceRepository, ServiceMapper serviceMapper) {
+    public ServiceServiceImpl(ServiceRepository serviceRepository) {
         this.serviceRepository = serviceRepository;
-        this.serviceMapper = serviceMapper;
     }
 
     /*
      * Get all available services
      * */
-    public List<ServiceDTO> getAllServices() {
+    public List<Service> getAllServices() {
         List<Service> services = serviceRepository.findAll();
-        List<ServiceDTO> serviceDTOs = services.stream()
-                .map(serviceMapper::convertToServiceDTO)
-                .collect(Collectors.toList());
-        return serviceDTOs;
+        return services;
     }
 
 
     @Override
-    public Service getServiceById(Integer serviceId) {
+    public Service getServiceById(Integer serviceId) throws AppointmentServiceNotFoundException {
         Service service = serviceRepository.findById(serviceId).orElse(null);
-        if (service == null) throw new AppointmentServiceNotFoundException("Service not found with ID: " + serviceId);
+        if (service == null) {
+            throw new AppointmentServiceNotFoundException("Service not found with ID: " + serviceId);
+        }
         return service;
     }
 
@@ -49,18 +42,16 @@ public class ServiceServiceImpl implements ServiceService {
      * Update price of service
      * */
     @Override
-    public ServiceDTO updateService(Integer serviceId, ServiceDTO serviceFromRequest) throws AppointmentServiceNotFoundException {
-
-        // convert dto -> entity
-        Service convertedService = serviceMapper.convertToService(serviceFromRequest);
+    public Service updateService(Integer serviceId, Service serviceFromRequest) throws AppointmentServiceNotFoundException {
 
         // check service existed from db
         Service serviceFromDb = serviceRepository.findById(serviceId).orElse(null);
         if (serviceFromDb == null) {
             throw new AppointmentServiceNotFoundException("Service not found with ID: " + serviceId);
         }
-        ServiceDTO result = serviceMapper.convertToServiceDTO(serviceRepository.save(convertedService));
-        return result;
+        serviceFromDb = serviceRepository.save(serviceFromRequest);
+        return serviceFromDb;
+
     }
 
 }
