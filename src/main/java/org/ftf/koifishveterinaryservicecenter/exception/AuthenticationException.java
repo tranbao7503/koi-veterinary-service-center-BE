@@ -5,7 +5,6 @@ public class AuthenticationException extends RuntimeException {
         super(message, e);
     }
 
-
     public AuthenticationException() {
         super();
     }
