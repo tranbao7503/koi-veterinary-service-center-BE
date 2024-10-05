@@ -17,6 +17,6 @@ public interface VeterinarianSlotsMapper {
     VeterinarianSlotsDto convertToDto(VeterinarianSlots veterinarianSlots);
 
     @Mapping(target = "appointments", ignore = true)
-    @Mapping(target = "veterinarians", ignore = true)
+//    @Mapping(target = "veterinarians", ignore = true)
     TimeSlotDto convertToDto(TimeSlot timeSlot);
 }
