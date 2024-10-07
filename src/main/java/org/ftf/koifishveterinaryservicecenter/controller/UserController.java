@@ -1,6 +1,7 @@
 package org.ftf.koifishveterinaryservicecenter.controller;
 
 
+import com.nimbusds.jose.JOSEException;
 import org.ftf.koifishveterinaryservicecenter.dto.*;
 import org.ftf.koifishveterinaryservicecenter.dto.response.AuthenticationResponse;
 import org.ftf.koifishveterinaryservicecenter.dto.response.IntrospectResponse;
@@ -156,7 +157,7 @@ public class UserController {
 
     @PostMapping("/introspect")
     ApiResponse<IntrospectResponse> authenticate(@RequestBody IntrospectRequestDTO request)
-            throws ParseException {
+            throws ParseException, JOSEException {
         var result = authenticationService.introspect(request);
         if (result == null) {
             return ApiResponse.<IntrospectResponse>builder().code(404).build();
@@ -164,5 +165,11 @@ public class UserController {
         return ApiResponse.<IntrospectResponse>builder()
                 .result(result)
                 .build();
+    }
+
+    @PostMapping("/logout")
+    ApiResponse<Void> logout(@RequestBody LogoutRequest request) throws ParseException, JOSEException {
+        authenticationService.logout(request);
+        return ApiResponse.<Void>builder().build();
     }
 }

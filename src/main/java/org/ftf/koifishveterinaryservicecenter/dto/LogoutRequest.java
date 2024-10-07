@@ -1,4 +1,4 @@
-package org.ftf.koifishveterinaryservicecenter.dto.response;
+package org.ftf.koifishveterinaryservicecenter.dto;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -8,6 +8,6 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class IntrospectResponse {
-    boolean valid;
+public class LogoutRequest {
+    String token;
 }
