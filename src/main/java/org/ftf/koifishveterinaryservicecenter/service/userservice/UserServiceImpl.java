@@ -113,7 +113,7 @@ public class UserServiceImpl implements UserService {
         return veterinarian;
     }
 
-    public User createUser(String userName, String passWord, String firstName, String lastName, int roleId) {
+/*    public User createUser(String userName, String passWord, String firstName, String lastName, int roleId) {
         User user = new User();
 
         user.setUsername(userName);
@@ -130,6 +130,6 @@ public class UserServiceImpl implements UserService {
 
         // Chuyển đổi entity sang DTO và trả về
         return convertToUserDTO(user);
-    }
+    }*/
 
 }

@@ -1,9 +1,9 @@
 package org.ftf.koifishveterinaryservicecenter.controller;
 
 
-import org.ftf.koifishveterinaryservicecenter.dto.AddressDTO;
-import org.ftf.koifishveterinaryservicecenter.dto.FeedbackDto;
-import org.ftf.koifishveterinaryservicecenter.dto.UserDTO;
+import org.ftf.koifishveterinaryservicecenter.dto.*;
+import org.ftf.koifishveterinaryservicecenter.dto.response.AuthenticationResponse;
+import org.ftf.koifishveterinaryservicecenter.dto.response.IntrospectResponse;
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
 import org.ftf.koifishveterinaryservicecenter.entity.Feedback;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
@@ -13,12 +13,14 @@ import org.ftf.koifishveterinaryservicecenter.mapper.AddressMapper;
 import org.ftf.koifishveterinaryservicecenter.mapper.FeedbackMapper;
 import org.ftf.koifishveterinaryservicecenter.mapper.UserMapper;
 import org.ftf.koifishveterinaryservicecenter.service.feedbackservice.FeedbackService;
+import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.ParseException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,11 +30,13 @@ public class UserController {
 
     private final UserService userService;
     private final FeedbackService feedbackService;
+    private final AuthenticationService authenticationService;
 
     @Autowired
-    public UserController(UserService userService, FeedbackService feedbackService) {
+    public UserController(UserService userService, FeedbackService feedbackService, AuthenticationService authenticationService) {
         this.userService = userService;
         this.feedbackService = feedbackService;
+        this.authenticationService = authenticationService;
     }
 
     @GetMapping("/profile")
@@ -140,5 +144,25 @@ public class UserController {
         } catch (FeedbackNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
         }
+    }
+
+    @PostMapping("/token")
+    ApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequestDTO request) {
+        var result = authenticationService.authenticate(request);
+        return ApiResponse.<AuthenticationResponse>builder()
+                .result(result)
+                .build();
+    }
+
+    @PostMapping("/introspect")
+    ApiResponse<IntrospectResponse> authenticate(@RequestBody IntrospectRequestDTO request)
+            throws ParseException {
+        var result = authenticationService.introspect(request);
+        if (result == null) {
+            return ApiResponse.<IntrospectResponse>builder().code(404).build();
+        }
+        return ApiResponse.<IntrospectResponse>builder()
+                .result(result)
+                .build();
     }
 }
