@@ -6,6 +6,7 @@ import org.ftf.koifishveterinaryservicecenter.dto.*;
 import org.ftf.koifishveterinaryservicecenter.dto.response.AuthenticationResponse;
 import org.ftf.koifishveterinaryservicecenter.dto.response.IntrospectResponse;
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
+import org.ftf.koifishveterinaryservicecenter.entity.Certificate;
 import org.ftf.koifishveterinaryservicecenter.entity.Feedback;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.ftf.koifishveterinaryservicecenter.exception.AuthenticationException;
@@ -42,7 +43,7 @@ public class UserController {
     @Autowired
     public UserController(UserService userService, UserMapper userMapper, AuthenticationService authenticationService, FeedbackService feedbackService) {
         this.userService = userService;
-        this.userMapper=userMapper;
+        this.userMapper = userMapper;
         this.authenticationService = authenticationService;
         this.feedbackService = feedbackService;
     }
@@ -133,7 +134,6 @@ public class UserController {
     }
 
 
-
     @PostMapping("/signup")
     public ResponseEntity<?> signUp(@RequestBody UserDTO userDTOFromRequest) {
         try {
@@ -168,20 +168,35 @@ public class UserController {
     }
 
     /*
-    * Update avatar of user
-    * Actors: Customer, Manager
-    * */
+     * Update avatar of user
+     * Actors: Customer, Manager
+     * */
     @PreAuthorize("hasAuthority('CUS')")
     @PutMapping("/avatar")
     public ResponseEntity<?> updateUserAvatar(@RequestParam("user_id") Integer userId
             , @RequestParam("image") MultipartFile image) {
-        try{
+        try {
             User user = userService.updateUserAvatar(userId, image);
             UserDTO userDto = UserMapper.INSTANCE.convertEntityToDtoIgnoreAddress(user);
             return new ResponseEntity<>(userDto, HttpStatus.OK);
-        }catch (UserNotFoundException e) {
+        } catch (UserNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        }catch (Exception e) {
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/veterinarians/{veterinarianId}/certificate")
+    public ResponseEntity<?> addVeterinarianCertificate(
+            @PathVariable("veterinarianId") Integer veterinarianId
+            , @RequestParam("certificateName") String certificateName
+            , @RequestParam("file") MultipartFile file) {
+        try {
+            String path = userService.AddVeterinarianCertificate(veterinarianId, certificateName, file);
+            return new ResponseEntity<>(path, HttpStatus.OK);
+        } catch (UserNotFoundException ex) {
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
