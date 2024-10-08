@@ -8,6 +8,7 @@ import org.ftf.koifishveterinaryservicecenter.dto.response.IntrospectResponse;
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
 import org.ftf.koifishveterinaryservicecenter.entity.Feedback;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
+import org.ftf.koifishveterinaryservicecenter.exception.AuthenicationException;
 import org.ftf.koifishveterinaryservicecenter.exception.FeedbackNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.AddressMapper;
 import org.ftf.koifishveterinaryservicecenter.mapper.FeedbackMapper;
@@ -129,6 +130,23 @@ public class UserController {
     }
 
 
+
+    @PostMapping("/signup")
+    public ResponseEntity<?> signUp(@RequestBody UserDTO userDTOFromRequest) {
+        try {
+            String username = userDTOFromRequest.getUsername();
+            String password = userDTOFromRequest.getPassword();
+            String firstName = userDTOFromRequest.getFirstName();
+            String lastName = userDTOFromRequest.getLastName();
+
+            userService.signUp(username, password, firstName, lastName);
+            return new ResponseEntity<>("Sign up successfully", HttpStatus.OK);
+        } catch (AuthenicationException ex) {
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
     @GetMapping("/veterinarian/{veterinarianId}/feedbacks/{feedbackId}")
     public ResponseEntity<?> getFeedback(@PathVariable("feedbackId") Integer feedbackId
             , @PathVariable("veterinarianId") Integer veterinarianId) {
@@ -143,5 +161,6 @@ public class UserController {
         } catch (FeedbackNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
         }
+
     }
 }
