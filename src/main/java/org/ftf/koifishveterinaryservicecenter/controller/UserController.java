@@ -116,6 +116,7 @@ public class UserController {
                 .build();
     }
 
+
     @PostMapping("/introspect")
     ApiResponse<IntrospectResponse> authenticate(@RequestBody IntrospectRequestDTO request)
             throws ParseException {

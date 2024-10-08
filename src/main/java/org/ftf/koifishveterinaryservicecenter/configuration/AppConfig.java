@@ -43,7 +43,7 @@ public class AppConfig {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean
+    @Bean  // xoa prefix
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
         jwtGrantedAuthoritiesConverter.setAuthorityPrefix("");

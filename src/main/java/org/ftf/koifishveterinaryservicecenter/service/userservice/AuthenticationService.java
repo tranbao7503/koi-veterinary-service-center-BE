@@ -44,7 +44,7 @@ public class AuthenticationService {
         var claimsSet = signedJWT.getJWTClaimsSet();
         return IntrospectResponse.builder()
                 .userId(((Long) claimsSet.getClaim("userId")).intValue())
-                .roleId((String) claimsSet.getClaim("role"))
+                .roleId((String) claimsSet.getClaim("scope"))
                 .build();
     }
 
