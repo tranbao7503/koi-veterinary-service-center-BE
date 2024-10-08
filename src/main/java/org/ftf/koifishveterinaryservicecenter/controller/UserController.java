@@ -185,4 +185,19 @@ public class UserController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("/veterinarians")
+    public ResponseEntity<?> getAllVeterinarians() {
+        try{
+            List<User> veterinarians = userService.getAllVeterinarians();
+            List<UserDTO> userDTOs = veterinarians.stream()
+                    .map(UserMapper.INSTANCE::convertEntityToDtoIgnoreAddress)
+                    .collect(Collectors.toList());
+            return new ResponseEntity<>(userDTOs, HttpStatus.OK);
+        } catch (UserNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
