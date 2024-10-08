@@ -175,7 +175,7 @@ public class UserController {
             , @RequestParam("image") MultipartFile image) {
         try{
             User user = userService.updateUserAvatar(userId, image);
-            UserDTO userDto = UserMapper.INSTANCE.convertEntityToDto(user);
+            UserDTO userDto = UserMapper.INSTANCE.convertEntityToDtoIgnoreAddress(user);
             return new ResponseEntity<>(userDto, HttpStatus.OK);
         }catch (UserNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
