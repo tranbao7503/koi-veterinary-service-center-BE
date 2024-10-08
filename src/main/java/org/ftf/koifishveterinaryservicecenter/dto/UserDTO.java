@@ -23,6 +23,10 @@ public class UserDTO {
     @JsonProperty("last_name")
     public String lastName;
 
+    @JsonProperty("password")
+    public String password;
+
+
     @JsonProperty("username")
     public String username;
 
@@ -32,10 +36,18 @@ public class UserDTO {
     @JsonProperty("phone_number")
     public String phoneNumber;
 
-    @JsonProperty("avatar")
-    public String avatar;
+
+    @JsonProperty("enable")
+    public boolean enable;
 
     @JsonProperty("address")
     public AddressDTO address;
 
+    @JsonProperty("avatar")
+    public String avatar;
+
+
+    public boolean isEnabled() {
+        return enable;
+    }
 }
