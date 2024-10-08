@@ -142,7 +142,7 @@ public class UserController {
         }
     }
 
-    @PostMapping("createstaff")
+    @PostMapping("/staff")
     public ResponseEntity<UserDTO> createStaff(@RequestParam String username, @RequestParam String password, @RequestParam String firstName, @RequestParam String lastName) {
         UserDTO user = userService.createStaff(username, password, firstName, lastName);
         if (user == null) {
