@@ -9,6 +9,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface VeterinarianSlotsRepository extends JpaRepository<VeterinarianSlots, VeterinarianSlotId> {
-  @Query("SELECT vs FROM VeterinarianSlots vs WHERE vs.veterinarian.userId = :veterinarianId")
-  List<VeterinarianSlots> findByVeterinarianId(@Param("veterinarianId") Integer veterinarianId);
+    @Query("SELECT vs FROM VeterinarianSlots vs WHERE vs.veterinarian.userId = :veterinarianId")
+    List<VeterinarianSlots> findByVeterinarianId(@Param("veterinarianId") Integer veterinarianId);
   }

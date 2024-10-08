@@ -1,7 +1,9 @@
 package org.ftf.koifishveterinaryservicecenter.service.userservice;
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface UserService {
@@ -16,4 +18,6 @@ public interface UserService {
     List<User> getAllCustomers();
 
     User getVeterinarianById(Integer veterinarianId);
+
+    User updateUserAvatar(Integer userId, MultipartFile image) throws IOException;
 }

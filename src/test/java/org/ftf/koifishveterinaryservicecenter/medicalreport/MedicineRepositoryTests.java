@@ -20,7 +20,7 @@ public class MedicineRepositoryTests {
     private MedicineRepository medicineRepository;
 
     @Test
-    public void testGetAllMedicineSuccess(){
+    public void testGetAllMedicineSuccess() {
         List<Medicine> medicines = medicineRepository.findAll();
         Assertions.assertThat(medicines).isNotEmpty();
         medicines.forEach(System.out::println);

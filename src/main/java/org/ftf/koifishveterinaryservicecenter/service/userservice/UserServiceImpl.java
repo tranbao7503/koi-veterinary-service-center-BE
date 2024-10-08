@@ -7,10 +7,13 @@ import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.repository.AddressRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.RoleRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.UserRepository;
+import org.ftf.koifishveterinaryservicecenter.service.fileservice.FileUploadService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,12 +23,29 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final AddressRepository addressRepository;
     private final RoleRepository roleRepository;
+<<<<<<< HEAD
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository, AddressRepository addressRepository, RoleRepository roleRepository) {
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
         this.roleRepository = roleRepository;
+=======
+    private final PasswordEncoder passwordEncoder;
+    private final FileUploadService fileUploadService;
+
+    @Autowired
+    public UserServiceImpl(UserRepository userRepository
+            , AddressRepository addressRepository
+            , RoleRepository roleRepository
+            , PasswordEncoder passwordEncoder
+            , FileUploadService fileUploadService) {
+        this.userRepository = userRepository;
+        this.addressRepository = addressRepository;
+        this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.fileUploadService = fileUploadService;
+>>>>>>> 6dc07be6fd1a294ec1075a5198e06e35682c81e3
     }
 
     @Override
@@ -104,6 +124,51 @@ public class UserServiceImpl implements UserService {
         return customers;
     }
 
+<<<<<<< HEAD
+=======
+
+    @Override
+    public void signUp(String username, String password, String first_Name, String last_Name) {
+
+        if (username == null || username.isBlank()) {
+            throw new AuthenicationException("Username can not be empty");
+        }
+        if (username.contains(" ")) {
+            throw new AuthenicationException("Username can not contain white space");
+        }
+        if (password == null || password.isBlank()) {
+            throw new AuthenicationException("Password can not be empty");
+        }
+        if (password.length() < 8) {
+            throw new AuthenicationException("Password can not < 8 characters");
+        }
+        String passwordPattern = "^(?=.*[@#$%^&+=!{}]).{8,}$";
+        if (!password.matches(passwordPattern)) {
+            throw new AuthenicationException("Password must contain at least one special character and be at least 8 characters long");
+        }
+
+        if (first_Name == null || first_Name.isBlank()) {
+            throw new AuthenicationException("first_Name can not be empty");
+        }
+        if (last_Name == null || last_Name.isBlank()) {
+            throw new AuthenicationException("last_Name can not be empty");
+        }
+        if (userRepository.findUserByUsername(username) != null) {
+            throw new AuthenicationException("Username is existed");
+        }
+
+        User user = new User();
+        user.setUsername(username);
+        user.setPassword(passwordEncoder.encode(password));
+        Role role = roleRepository.findByRoleKey("CUS");
+        user.setRole(role);
+        user.setFirstName(first_Name);
+        user.setLastName(last_Name);
+        userRepository.save(user);
+    }
+
+
+>>>>>>> 6dc07be6fd1a294ec1075a5198e06e35682c81e3
     @Override
     public User getVeterinarianById(Integer veterinarianId) {
         User veterinarian = userRepository.findVeterinarianById(veterinarianId);
@@ -113,23 +178,18 @@ public class UserServiceImpl implements UserService {
         return veterinarian;
     }
 
-    public User createUser(String userName, String passWord, String firstName, String lastName, int roleId) {
-        User user = new User();
 
-        user.setUsername(userName);
-        user.setPassword(passWord);  // Bạn có thể thêm mã mã hóa mật khẩu tại đây nếu cần
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
-
-        // Lấy role từ roleId và gán cho user
-        Role role = roleRepository.getReferenceById(roleId);
-        user.setRole(role);
-
-        // Lưu người dùng vào database
+    @Override
+    public User updateUserAvatar(Integer userId, MultipartFile image) throws IOException {
+        User user = userRepository.findUsersByUserId(userId);
+        if (user == null) {
+            throw new UserNotFoundException("Not found user with Id: " + userId);
+        }
+        String path = fileUploadService.uploadFile(image);
+        user.setAvatar(path);
         userRepository.save(user);
-
-        // Chuyển đổi entity sang DTO và trả về
-        return convertToUserDTO(user);
+        return user;
     }
+
 
 }

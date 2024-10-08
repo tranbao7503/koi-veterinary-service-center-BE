@@ -1,15 +1,9 @@
 package org.ftf.koifishveterinaryservicecenter.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import org.ftf.koifishveterinaryservicecenter.entity.Appointment;
-import org.ftf.koifishveterinaryservicecenter.entity.User;
-
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 @Getter
 @Setter
