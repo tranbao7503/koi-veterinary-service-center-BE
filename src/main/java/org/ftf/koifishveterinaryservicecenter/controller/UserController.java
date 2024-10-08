@@ -10,6 +10,7 @@ import org.ftf.koifishveterinaryservicecenter.entity.Feedback;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.ftf.koifishveterinaryservicecenter.exception.AuthenicationException;
 import org.ftf.koifishveterinaryservicecenter.exception.FeedbackNotFoundException;
+import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.AddressMapper;
 import org.ftf.koifishveterinaryservicecenter.mapper.FeedbackMapper;
 import org.ftf.koifishveterinaryservicecenter.mapper.UserMapper;
@@ -21,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.text.ParseException;
 import java.util.List;
@@ -162,5 +164,23 @@ public class UserController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
         }
 
+    }
+
+    /*
+    * Update avatar of user
+    * Actors: Customer, Manager
+    * */
+    @PutMapping("/avatar")
+    public ResponseEntity<?> updateUserAvatar(@RequestParam("user_id") Integer userId
+            , @RequestParam("image") MultipartFile image) {
+        try{
+            User user = userService.updateUserAvatar(userId, image);
+            UserDTO userDto = UserMapper.INSTANCE.convertEntityToDto(user);
+            return new ResponseEntity<>(userDto, HttpStatus.OK);
+        }catch (UserNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
