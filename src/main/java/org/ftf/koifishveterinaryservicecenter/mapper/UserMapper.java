@@ -32,7 +32,6 @@ public interface UserMapper {
 
 
 
-
     @Mappings({
             @Mapping(source = "firstName", target = "firstName"),
             @Mapping(source = "lastName", target = "lastName"),

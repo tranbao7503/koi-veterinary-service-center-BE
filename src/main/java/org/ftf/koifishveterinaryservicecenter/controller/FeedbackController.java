@@ -3,13 +3,11 @@ package org.ftf.koifishveterinaryservicecenter.controller;
 
 import org.ftf.koifishveterinaryservicecenter.dto.FeedbackDto;
 import org.ftf.koifishveterinaryservicecenter.entity.Feedback;
-import org.ftf.koifishveterinaryservicecenter.exception.FeedbackNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.FeedbackMapper;
 import org.ftf.koifishveterinaryservicecenter.service.feedbackservice.FeedbackService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -48,17 +46,6 @@ public class FeedbackController {
                     .map(FeedbackMapper.INSTANCE::convertToFeedbackDto)
                     .collect(Collectors.toList());
             return new ResponseEntity<>(feedbackDtoList, HttpStatus.OK);
-        }
-    }
-
-    @GetMapping("/{feedbackId}")
-    public ResponseEntity<?> getFeedbackById(@PathVariable Integer feedbackId) {
-        try {
-            Feedback feedback = feedbackService.getFeedbackById(feedbackId);
-            FeedbackDto feedbackDto = FeedbackMapper.INSTANCE.convertToFeedbackDto(feedback);
-            return new ResponseEntity<>(feedbackDto, HttpStatus.OK);
-        } catch (FeedbackNotFoundException ex) {
-            return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 

@@ -1,5 +1,4 @@
 package org.ftf.koifishveterinaryservicecenter.service.userservice;
-import org.ftf.koifishveterinaryservicecenter.dto.UserDTO;
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,8 +17,8 @@ public interface UserService {
 
     List<User> getAllCustomers();
 
-    void signUp(String username,String password,String first_Name,String last_Name);
-  
+    void signUp(String username, String password, String first_Name, String last_Name);
+
     User getVeterinarianById(Integer veterinarianId);
 
     User updateUserAvatar(Integer userId, MultipartFile image) throws IOException;

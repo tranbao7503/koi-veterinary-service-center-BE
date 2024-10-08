@@ -1,5 +1,6 @@
 package org.ftf.koifishveterinaryservicecenter.dto;
 
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
@@ -37,6 +38,7 @@ public class UserDTO {
 
     @JsonProperty("address")
     public AddressDTO address;
+
 
 
     public UserDTO(String firstName, String lastName, String username, String password) {

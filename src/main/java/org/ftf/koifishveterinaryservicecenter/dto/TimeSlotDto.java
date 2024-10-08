@@ -1,7 +1,5 @@
 package org.ftf.koifishveterinaryservicecenter.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Getter;
@@ -30,7 +28,6 @@ public class TimeSlotDto {
     @JsonProperty("description")
     private String description;
 
-//    @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonProperty("appointment")
     private AppointmentDto appointment;
 }

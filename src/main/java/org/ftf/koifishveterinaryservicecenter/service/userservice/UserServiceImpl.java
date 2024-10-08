@@ -1,10 +1,9 @@
 package org.ftf.koifishveterinaryservicecenter.service.userservice;
 
-import org.ftf.koifishveterinaryservicecenter.dto.UserDTO;
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
 import org.ftf.koifishveterinaryservicecenter.entity.Role;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
-import org.ftf.koifishveterinaryservicecenter.exception.AuthenicationException;
+import org.ftf.koifishveterinaryservicecenter.exception.AuthenticationException;
 import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.repository.AddressRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.RoleRepository;
@@ -118,35 +117,34 @@ public class UserServiceImpl implements UserService {
         return customers;
     }
 
-
     @Override
     public void signUp(String username, String password, String first_Name, String last_Name) {
 
         if (username == null || username.isBlank()) {
-            throw new AuthenicationException("Username can not be empty");
+            throw new AuthenticationException("Username can not be empty");
         }
         if (username.contains(" ")) {
-            throw new AuthenicationException("Username can not contain white space");
+            throw new AuthenticationException("Username can not contain white space");
         }
         if (password == null || password.isBlank()) {
-            throw new AuthenicationException("Password can not be empty");
+            throw new AuthenticationException("Password can not be empty");
         }
         if (password.length() < 8) {
-            throw new AuthenicationException("Password can not < 8 characters");
+            throw new AuthenticationException("Password can not < 8 characters");
         }
         String passwordPattern = "^(?=.*[@#$%^&+=!{}]).{8,}$";
         if (!password.matches(passwordPattern)) {
-            throw new AuthenicationException("Password must contain at least one special character and be at least 8 characters long");
+            throw new AuthenticationException("Password must contain at least one special character and be at least 8 characters long");
         }
 
         if (first_Name == null || first_Name.isBlank()) {
-            throw new AuthenicationException("first_Name can not be empty");
+            throw new AuthenticationException("first_Name can not be empty");
         }
         if (last_Name == null || last_Name.isBlank()) {
-            throw new AuthenicationException("last_Name can not be empty");
+            throw new AuthenticationException("last_Name can not be empty");
         }
         if (userRepository.findUserByUsername(username) != null) {
-            throw new AuthenicationException("Username is existed");
+            throw new AuthenticationException("Username is existed");
         }
 
         User user = new User();
