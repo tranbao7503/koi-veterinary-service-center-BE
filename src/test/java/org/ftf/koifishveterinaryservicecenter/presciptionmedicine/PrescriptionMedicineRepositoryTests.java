@@ -1,6 +1,5 @@
 package org.ftf.koifishveterinaryservicecenter.presciptionmedicine;
 
-import org.assertj.core.api.Assertions;
 import org.ftf.koifishveterinaryservicecenter.entity.Medicine;
 import org.ftf.koifishveterinaryservicecenter.entity.Prescription;
 import org.ftf.koifishveterinaryservicecenter.entity.prescription_medicine.PrescriptionMedicine;

@@ -39,7 +39,7 @@ public class UsersRepositoryTests {
     }
 
     @Test
-    public void testCreateMedicalReportForAppointmentSuccess(){
+    public void testCreateMedicalReportForAppointmentSuccess() {
         int veterinarianId = 3;
         User veterinarian = userRepository.findUsersByUserId(veterinarianId);
 

@@ -33,7 +33,7 @@ public class AppointmentController {
         Integer veterinarianId = reportDto.getVeterinarianId();
         Integer prescriptionId = reportDto.getPrescriptionId();
 
-        if(veterinarianId == null || prescriptionId == null) {
+        if (veterinarianId == null || prescriptionId == null) {
             return ResponseEntity.badRequest().body("Veterinarian id or prescription id is required !!");
         }
 

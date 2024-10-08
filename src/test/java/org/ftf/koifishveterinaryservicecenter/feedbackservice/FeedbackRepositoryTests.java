@@ -20,7 +20,7 @@ public class FeedbackRepositoryTests {
     private FeedbackRepository feedbackRepository;
 
     @Test
-    public void testGetAllFeedbacksSuccess(){
+    public void testGetAllFeedbacksSuccess() {
         List<Feedback> feedbacks = feedbackRepository.findFeedbackByRating();
         Assertions.assertThat(feedbacks).isNotNull();
         feedbacks.forEach(System.out::println);

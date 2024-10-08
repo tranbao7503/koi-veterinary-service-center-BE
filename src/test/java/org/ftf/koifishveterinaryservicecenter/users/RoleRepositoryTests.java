@@ -18,7 +18,7 @@ public class RoleRepositoryTests {
     private RoleRepository roleRepository;
 
     @Test
-    public void testGetRoleSuccess(){
+    public void testGetRoleSuccess() {
 
         Role role = roleRepository.findByRoleKey("CUS");
         Assertions.assertThat(role.getUsers()).isNotNull();

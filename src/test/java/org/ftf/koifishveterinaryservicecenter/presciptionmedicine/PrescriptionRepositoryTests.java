@@ -33,7 +33,7 @@ public class PrescriptionRepositoryTests {
 
         Prescription prescription = new Prescription();
         prescription.setInstruction("Use antibiotic cream twice daily.");
-     //   prescription.setAllMedicine(medicines);
+        //   prescription.setAllMedicine(medicines);
 
         Prescription storedPrescription = prescriptionRepository.save(prescription);
         Assertions.assertThat(storedPrescription).isNotNull();
