@@ -1,9 +1,10 @@
 package org.ftf.koifishveterinaryservicecenter.controller;
 
 
-import org.ftf.koifishveterinaryservicecenter.dto.AddressDTO;
-import org.ftf.koifishveterinaryservicecenter.dto.FeedbackDto;
-import org.ftf.koifishveterinaryservicecenter.dto.UserDTO;
+import lombok.extern.slf4j.Slf4j;
+import org.ftf.koifishveterinaryservicecenter.dto.*;
+import org.ftf.koifishveterinaryservicecenter.dto.response.AuthenticationResponse;
+import org.ftf.koifishveterinaryservicecenter.dto.response.IntrospectResponse;
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
 import org.ftf.koifishveterinaryservicecenter.entity.Feedback;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
@@ -13,48 +14,42 @@ import org.ftf.koifishveterinaryservicecenter.mapper.AddressMapper;
 import org.ftf.koifishveterinaryservicecenter.mapper.FeedbackMapper;
 import org.ftf.koifishveterinaryservicecenter.mapper.UserMapper;
 import org.ftf.koifishveterinaryservicecenter.service.feedbackservice.FeedbackService;
+import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.ParseException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/users")
 public class UserController {
 
     private final UserService userService;
+    private final UserMapper userMapper;
+    private final AuthenticationService authenticationService;
     private final FeedbackService feedbackService;
 
     @Autowired
-    public UserController(UserService userService, FeedbackService feedbackService) {
+    public UserController(UserService userService, UserMapper userMapper, AuthenticationService authenticationService, FeedbackService feedbackService) {
         this.userService = userService;
+        this.userMapper = userMapper;
+        this.authenticationService = authenticationService;
         this.feedbackService = feedbackService;
     }
 
     @GetMapping("/profile")
     public ResponseEntity<?> getProfile(@RequestParam Integer userId) {
 
-        Integer userIdFromToken = 1;  // the userId takes from Authentication object in SecurityContext
+        Integer userIdFromToken = userId;  // the userId takes from Authentication object in SecurityContext
         User user = userService.getUserProfile(userId);
         UserDTO userDto = UserMapper.INSTANCE.convertEntityToDto(user);
         return ResponseEntity.ok(userDto);
-    }
-
-    @GetMapping("/veterinarians")
-    public ResponseEntity<List<UserDTO>> getAllVeterianrians() {
-        List<User> users = userService.getAllVeterinarians();
-        if (users.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } else {
-            List<UserDTO> userDtos = users.stream()
-                    .map(UserMapper.INSTANCE::convertEntityToDtoIgnoreAddress)
-                    .collect(Collectors.toList());
-            return new ResponseEntity<>(userDtos, HttpStatus.OK);
-        }
     }
 
     @PutMapping("/address")
@@ -143,13 +138,32 @@ public class UserController {
     }
 
     @PostMapping("/staff")
-    public ResponseEntity<UserDTO> createStaff(@RequestParam String username, @RequestParam String password, @RequestParam String firstName, @RequestParam String lastName) {
-        UserDTO user = userService.createStaff(username, password, firstName, lastName);
-        if (user == null) {
+    public ResponseEntity<UserDTO> createStaff(@RequestBody UserDTO userDTO) {
+        UserDTO createdUser = userService.createStaff(userDTO.getUsername(), userDTO.getPassword(), userDTO.getFirstName(), userDTO.getLastName());
+        if (createdUser == null) {
             return ResponseEntity.noContent().build();
         } else {
-            return ResponseEntity.ok(user);
+            return ResponseEntity.ok(createdUser);
         }
+    }
 
+    @PostMapping("/token")
+    ApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequestDTO request) {
+        var result = authenticationService.authenticate(request);
+        return ApiResponse.<AuthenticationResponse>builder()
+                .result(result)
+                .build();
+    }
+
+    @PostMapping("/introspect")
+    ApiResponse<IntrospectResponse> authenticate(@RequestBody IntrospectRequestDTO request)
+            throws ParseException {
+        var result = authenticationService.introspect(request);
+        if (result == null) {
+            return ApiResponse.<IntrospectResponse>builder().code(404).build();
+        }
+        return ApiResponse.<IntrospectResponse>builder()
+                .result(result)
+                .build();
     }
 }

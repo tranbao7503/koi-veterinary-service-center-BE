@@ -4,15 +4,20 @@ import org.ftf.koifishveterinaryservicecenter.dto.UserDTO;
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
 import org.ftf.koifishveterinaryservicecenter.entity.Role;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
+import org.ftf.koifishveterinaryservicecenter.exception.AuthenticationException;
 import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.UserMapper;
 import org.ftf.koifishveterinaryservicecenter.repository.AddressRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.RoleRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.UserRepository;
+import org.ftf.koifishveterinaryservicecenter.service.fileservice.FileUploadService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,13 +27,21 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final AddressRepository addressRepository;
     private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final FileUploadService fileUploadService;
     private final UserMapper userMapper;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, AddressRepository addressRepository, RoleRepository roleRepository, UserMapper userMapper) {
+    public UserServiceImpl(UserRepository userRepository
+            , AddressRepository addressRepository
+            , RoleRepository roleRepository
+            , PasswordEncoder passwordEncoder
+            , FileUploadService fileUploadService, UserMapper userMapper) {
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
         this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.fileUploadService = fileUploadService;
         this.userMapper = userMapper;
     }
 
@@ -109,6 +122,47 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void signUp(String username, String password, String first_Name, String last_Name) {
+
+        if (username == null || username.isBlank()) {
+            throw new AuthenticationException("Username can not be empty");
+        }
+        if (username.contains(" ")) {
+            throw new AuthenticationException("Username can not contain white space");
+        }
+        if (password == null || password.isBlank()) {
+            throw new AuthenticationException("Password can not be empty");
+        }
+        if (password.length() < 8) {
+            throw new AuthenticationException("Password can not < 8 characters");
+        }
+        String passwordPattern = "^(?=.*[@#$%^&+=!{}]).{8,}$";
+        if (!password.matches(passwordPattern)) {
+            throw new AuthenticationException("Password must contain at least one special character and be at least 8 characters long");
+        }
+
+        if (first_Name == null || first_Name.isBlank()) {
+            throw new AuthenticationException("first_Name can not be empty");
+        }
+        if (last_Name == null || last_Name.isBlank()) {
+            throw new AuthenticationException("last_Name can not be empty");
+        }
+        if (userRepository.findUserByUsername(username) != null) {
+            throw new AuthenticationException("Username is existed");
+        }
+
+        User user = new User();
+        user.setUsername(username);
+        user.setPassword(passwordEncoder.encode(password));
+        Role role = roleRepository.findByRoleKey("CUS");
+        user.setRole(role);
+        user.setFirstName(first_Name);
+        user.setLastName(last_Name);
+        userRepository.save(user);
+    }
+
+
+    @Override
     public User getVeterinarianById(Integer veterinarianId) {
         User veterinarian = userRepository.findVeterinarianById(veterinarianId);
         if (veterinarian == null) {
@@ -127,11 +181,23 @@ public class UserServiceImpl implements UserService {
         user.setLastName(lastName);
         user.setRole(roleRepository.findByRoleKey("STA")); // Set role trực tiếp tại đây
         // encrypt password
-
         userRepository.save(user);
 
         // Sử dụng MapStruct để chuyển đổi từ User sang UserDTO
         return userMapper.convertEntityToDto(user); // Giả sử userMapper là một instance của MapStruct
     }
+
+    @Override
+    public User updateUserAvatar(Integer userId, MultipartFile image) throws IOException {
+        User user = userRepository.findUsersByUserId(userId);
+        if (user == null) {
+            throw new UserNotFoundException("Not found user with Id: " + userId);
+        }
+        String path = fileUploadService.uploadFile(image);
+        user.setAvatar(path);
+        userRepository.save(user);
+        return user;
+    }
+
 
 }
