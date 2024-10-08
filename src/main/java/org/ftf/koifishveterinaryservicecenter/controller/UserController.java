@@ -8,7 +8,7 @@ import org.ftf.koifishveterinaryservicecenter.dto.response.IntrospectResponse;
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
 import org.ftf.koifishveterinaryservicecenter.entity.Feedback;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
-import org.ftf.koifishveterinaryservicecenter.exception.AuthenicationException;
+import org.ftf.koifishveterinaryservicecenter.exception.AuthenticationException;
 import org.ftf.koifishveterinaryservicecenter.exception.FeedbackNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.AddressMapper;
@@ -20,6 +20,7 @@ import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -143,7 +144,7 @@ public class UserController {
 
             userService.signUp(username, password, firstName, lastName);
             return new ResponseEntity<>("Sign up successfully", HttpStatus.OK);
-        } catch (AuthenicationException ex) {
+        } catch (AuthenticationException ex) {
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
@@ -170,12 +171,13 @@ public class UserController {
     * Update avatar of user
     * Actors: Customer, Manager
     * */
+    @PreAuthorize("hasAuthority('CUS')")
     @PutMapping("/avatar")
     public ResponseEntity<?> updateUserAvatar(@RequestParam("user_id") Integer userId
             , @RequestParam("image") MultipartFile image) {
         try{
             User user = userService.updateUserAvatar(userId, image);
-            UserDTO userDto = UserMapper.INSTANCE.convertEntityToDto(user);
+            UserDTO userDto = UserMapper.INSTANCE.convertEntityToDtoIgnoreAddress(user);
             return new ResponseEntity<>(userDto, HttpStatus.OK);
         }catch (UserNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);

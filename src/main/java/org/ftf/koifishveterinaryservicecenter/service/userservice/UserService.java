@@ -17,6 +17,8 @@ public interface UserService {
 
     List<User> getAllCustomers();
 
+    void signUp(String username, String password, String first_Name, String last_Name);
+
     User getVeterinarianById(Integer veterinarianId);
 
     User updateUserAvatar(Integer userId, MultipartFile image) throws IOException;
