@@ -50,7 +50,7 @@ public class UserController {
     @GetMapping("/profile")
     public ResponseEntity<?> getProfile(@RequestParam Integer userId) {
 
-        Integer userIdFromToken = 1;  // the userId takes from Authentication object in SecurityContext
+        Integer userIdFromToken = userId;  // the userId takes from Authentication object in SecurityContext
         User user = userService.getUserProfile(userId);
         UserDTO userDto = UserMapper.INSTANCE.convertEntityToDto(user);
         return ResponseEntity.ok(userDto);
