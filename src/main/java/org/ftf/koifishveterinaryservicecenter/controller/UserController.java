@@ -1,9 +1,10 @@
 package org.ftf.koifishveterinaryservicecenter.controller;
 
 
-import org.ftf.koifishveterinaryservicecenter.dto.AddressDTO;
-import org.ftf.koifishveterinaryservicecenter.dto.FeedbackDto;
-import org.ftf.koifishveterinaryservicecenter.dto.UserDTO;
+import lombok.extern.slf4j.Slf4j;
+import org.ftf.koifishveterinaryservicecenter.dto.*;
+import org.ftf.koifishveterinaryservicecenter.dto.response.AuthenticationResponse;
+import org.ftf.koifishveterinaryservicecenter.dto.response.IntrospectResponse;
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
 import org.ftf.koifishveterinaryservicecenter.entity.Feedback;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
@@ -14,26 +15,34 @@ import org.ftf.koifishveterinaryservicecenter.mapper.AddressMapper;
 import org.ftf.koifishveterinaryservicecenter.mapper.FeedbackMapper;
 import org.ftf.koifishveterinaryservicecenter.mapper.UserMapper;
 import org.ftf.koifishveterinaryservicecenter.service.feedbackservice.FeedbackService;
+import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.text.ParseException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/users")
 public class UserController {
 
     private final UserService userService;
+    private final UserMapper userMapper;
+    private final AuthenticationService authenticationService;
     private final FeedbackService feedbackService;
 
     @Autowired
-    public UserController(UserService userService, FeedbackService feedbackService) {
+    public UserController(UserService userService, UserMapper userMapper, AuthenticationService authenticationService, FeedbackService feedbackService) {
         this.userService = userService;
+        this.userMapper=userMapper;
+        this.authenticationService = authenticationService;
         this.feedbackService = feedbackService;
     }
 
@@ -44,19 +53,6 @@ public class UserController {
         User user = userService.getUserProfile(userId);
         UserDTO userDto = UserMapper.INSTANCE.convertEntityToDto(user);
         return ResponseEntity.ok(userDto);
-    }
-
-    @GetMapping("/veterinarians")
-    public ResponseEntity<List<UserDTO>> getAllVeterianrians() {
-        List<User> users = userService.getAllVeterinarians();
-        if (users.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } else {
-            List<UserDTO> userDtos = users.stream()
-                    .map(UserMapper.INSTANCE::convertEntityToDtoIgnoreAddress)
-                    .collect(Collectors.toList());
-            return new ResponseEntity<>(userDtos, HttpStatus.OK);
-        }
     }
 
     @PutMapping("/address")
@@ -99,34 +95,42 @@ public class UserController {
 
     @GetMapping("/customers")
     public ResponseEntity<?> getAllCustomers() {
-        List<User> customers = userService.getAllCustomers();
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
 
+        // Log thông tin về username và role
+        log.info("Userid: {}", authentication.getName()); // Đúng cú pháp cho log.info
+        authentication.getAuthorities().forEach(grantedAuthority -> log.info("role: {}", grantedAuthority.getAuthority()));
+        List<User> customers = userService.getAllCustomers();
         if (customers.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } else {
             List<UserDTO> userDTOs = customers.stream()
-                    .map(UserMapper.INSTANCE::convertEntityToDto)
+                    .map(userMapper::convertEntityToDto)
                     .collect(Collectors.toList());
             return new ResponseEntity<>(userDTOs, HttpStatus.OK);
         }
     }
 
-    @GetMapping("/veterinarian/{id}/feedbacks")
-    public ResponseEntity<?> getFeedbacks(@PathVariable("id") Integer id) {
-        try {
-            List<Feedback> feedbacks = feedbackService.getFeedbacksByVeterianrianId(id);
-            List<FeedbackDto> feedbackDtos = feedbacks.stream()
-                    .map(feedback -> FeedbackMapper.INSTANCE.convertToFeedbackDto(feedback))
-                    .collect(Collectors.toList());
-            return new ResponseEntity<>(feedbackDtos, HttpStatus.OK);
-        } catch (UserNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (FeedbackNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
-        } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    @PostMapping("/token")
+    ApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequestDTO request) {
+        var result = authenticationService.authenticate(request);
+        return ApiResponse.<AuthenticationResponse>builder()
+                .result(result)
+                .build();
     }
+
+    @PostMapping("/introspect")
+    ApiResponse<IntrospectResponse> authenticate(@RequestBody IntrospectRequestDTO request)
+            throws ParseException {
+        var result = authenticationService.introspect(request);
+        if (result == null) {
+            return ApiResponse.<IntrospectResponse>builder().code(404).build();
+        }
+        return ApiResponse.<IntrospectResponse>builder()
+                .result(result)
+                .build();
+    }
+
 
 
     @PostMapping("/signup")
@@ -143,6 +147,7 @@ public class UserController {
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
+
 
     @GetMapping("/veterinarian/{veterinarianId}/feedbacks/{feedbackId}")
     public ResponseEntity<?> getFeedback(@PathVariable("feedbackId") Integer feedbackId

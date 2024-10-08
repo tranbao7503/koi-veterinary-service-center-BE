@@ -8,6 +8,8 @@ import java.util.List;
 
 public interface MedicalReportService {
     List<Medicine> getAllMedicines();
+
     PrescriptionDto createPrescription(PrescriptionDto prescriptionDto);
+
     Prescription findPrescriptionById(Integer prescriptionId);
 }

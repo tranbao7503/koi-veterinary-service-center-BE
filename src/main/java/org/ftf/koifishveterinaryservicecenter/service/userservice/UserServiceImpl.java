@@ -169,6 +169,7 @@ public class UserServiceImpl implements UserService {
         return veterinarian;
     }
 
+
     @Override
     public User updateUserAvatar(Integer userId, MultipartFile image) throws IOException {
         User user = userRepository.findUsersByUserId(userId);
@@ -180,5 +181,6 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
         return user;
     }
+
 
 }

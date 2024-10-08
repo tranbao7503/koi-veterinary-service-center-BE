@@ -1,7 +1,6 @@
 package org.ftf.koifishveterinaryservicecenter.serviceservice;
 
 import org.assertj.core.api.Assertions;
-
 import org.ftf.koifishveterinaryservicecenter.entity.Service;
 import org.ftf.koifishveterinaryservicecenter.repository.ServiceRepository;
 import org.junit.jupiter.api.Test;
