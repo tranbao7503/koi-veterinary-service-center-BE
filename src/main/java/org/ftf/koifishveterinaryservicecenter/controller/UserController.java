@@ -166,9 +166,7 @@ public class UserController {
         } catch (FeedbackNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
         }
-
     }
-
     /*
      * Update avatar of user
      * Actors: Customer, Manager
