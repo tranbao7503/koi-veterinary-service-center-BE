@@ -26,9 +26,11 @@ public class FileUploadService {
         // Get extend of file
         String originalFileName = file.getOriginalFilename();
         String fileExtension = "";
+
         if (originalFileName != null && originalFileName.contains(".")) {
             fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
         }
+
 
         // Create random name for file
         String randomFileName = UUID.randomUUID().toString() + fileExtension;
