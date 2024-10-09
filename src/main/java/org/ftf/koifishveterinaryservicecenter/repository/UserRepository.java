@@ -6,22 +6,26 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-
 import java.util.List;
+import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Integer> {
 
-  User findUsersByUserId(int userId);
+    User findUsersByUserId(int userId);
 
-  @Query("SELECT u FROM User u WHERE u.userId = :veterinarianId AND u.role.roleKey = 'VET'")
-  User findVeterinarianById(@Param("veterinarianId") Integer veterinarianId);
+    @Query("SELECT u FROM User u WHERE u.userId = :veterinarianId AND u.role.roleKey = 'VET'")
+    User findVeterinarianById(@Param("veterinarianId") Integer veterinarianId);
 
-  boolean existsUserByPhoneNumber(String phoneNumber);
+    boolean existsUserByPhoneNumber(String phoneNumber);
 
-  List<User> findAllByRole (Role role);
+    List<User> findAllByRole(Role role);
 
-  List<User>findAllByRoleRoleId(int roleId);
+    List<User> findAllByRoleRoleId(int roleId);
 
-  User findUserByUsername(String username);
+
+    Optional<User> findByUsername(String username);
+
+    User findUserByUsername(String username);
 
   }
+

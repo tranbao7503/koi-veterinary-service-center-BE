@@ -1,17 +1,9 @@
 package org.ftf.koifishveterinaryservicecenter.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import org.ftf.koifishveterinaryservicecenter.entity.Appointment;
-import org.ftf.koifishveterinaryservicecenter.entity.User;
-
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -36,7 +28,6 @@ public class TimeSlotDto {
     @JsonProperty("description")
     private String description;
 
-//    @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonProperty("appointment")
     private AppointmentDto appointment;
 }

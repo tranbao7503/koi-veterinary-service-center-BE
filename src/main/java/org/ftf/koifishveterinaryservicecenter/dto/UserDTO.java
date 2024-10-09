@@ -5,11 +5,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
-@Data
+@Getter
+@Setter
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
-
+@AllArgsConstructor
 public class UserDTO {
 
     @JsonProperty("user_id")
@@ -38,6 +38,8 @@ public class UserDTO {
 
     @JsonProperty("address")
     public AddressDTO address;
+
+
 
     public UserDTO(String firstName, String lastName, String username, String password) {
         this.firstName = firstName;

@@ -12,14 +12,14 @@ public interface FeedbackMapper {
     FeedbackMapper INSTANCE = Mappers.getMapper(FeedbackMapper.class);
 
     /*
-    * Map all field of FeedbackDto
-    * */
+     * Map all field of FeedbackDto
+     * */
     @Mapping(target = "appointment", ignore = true)
     FeedbackDto convertToFeedbackDto(Feedback feedback);
 
     /*
-    * For Feedback DTO to view feedback details
-    * */
+     * For Feedback DTO to view feedback details
+     * */
     @Mapping(source = "appointment.service.serviceName", target = "appointment.serviceName")
     @Mapping(target = "appointment.timeSlot.appointment", ignore = true)
     FeedbackDto feedbackToFeedbackDto(Feedback feedback);

@@ -23,7 +23,7 @@ public interface MedicalReportMapper {
             @Mapping(source = "reportId", target = "reportId"),
             @Mapping(source = "conclusion", target = "conclusion"),
             @Mapping(source = "advise", target = "advise"),
-            @Mapping(source = "veterinarian.userId",target = "veterinarianId"),
+            @Mapping(source = "veterinarian.userId", target = "veterinarianId"),
             @Mapping(source = "prescription.prescriptionId", target = "prescriptionId")
     })
     MedicalReportDto convertToDto(MedicalReport medicalReport);
