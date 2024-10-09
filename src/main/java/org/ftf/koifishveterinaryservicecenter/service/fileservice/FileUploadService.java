@@ -12,19 +12,18 @@ import java.util.UUID;
 @Service
 public class FileUploadService {
 
-    // Đường dẫn thư mục lưu trữ ảnh
     private final String IMGAGE_DIR = "images/";
+    private final String CERTIFICATE_DIR = "certificates/";
 
     public String uploadFile(MultipartFile file) throws IOException {
-        // Tạo đường dẫn lưu file
+        // Create path
         Path uploadPath = Paths.get(IMGAGE_DIR);
 
-        // Kiểm tra thư mục nếu chưa tồn tại thì tạo
-        if (!Files.exists(uploadPath)) {
+        if (!Files.exists(uploadPath)) { // folder not existed -> create
             Files.createDirectories(uploadPath);
         }
 
-        // Lấy phần mở rộng của file
+        // Get extend of file
         String originalFileName = file.getOriginalFilename();
         String fileExtension = "";
 
@@ -32,14 +31,39 @@ public class FileUploadService {
             fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
         }
 
-        // Tạo tên file ngẫu nhiên bằng UUID
+
+        // Create random name for file
         String randomFileName = UUID.randomUUID().toString() + fileExtension;
 
-        // Lưu file vào thư mục
+        // Save
         Path filePath = uploadPath.resolve(randomFileName);
         Files.copy(file.getInputStream(), filePath);
 
-        // Trả về đường dẫn file ngẫu nhiên
+        return randomFileName;
+    }
+
+    public String uploadCertificate(MultipartFile file) throws IOException {
+        // Create path
+        Path uploadPath = Paths.get(CERTIFICATE_DIR);
+
+        if (!Files.exists(uploadPath)) { // folder not existed -> create
+            Files.createDirectories(uploadPath);
+        }
+
+        // Get extend of file
+        String originalFileName = file.getOriginalFilename();
+        String fileExtension = "";
+        if (originalFileName != null && originalFileName.contains(".")) {
+            fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
+        }
+
+        // Create random name for file
+        String randomFileName = UUID.randomUUID().toString() + fileExtension;
+
+        // Save
+        Path filePath = uploadPath.resolve(randomFileName);
+        Files.copy(file.getInputStream(), filePath);
+
         return randomFileName;
     }
 
