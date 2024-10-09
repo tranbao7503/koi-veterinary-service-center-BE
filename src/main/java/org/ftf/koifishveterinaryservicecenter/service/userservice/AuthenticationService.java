@@ -35,7 +35,7 @@ public class AuthenticationService {
     @Value("${jwt.signer}")
     private String SIGNER_KEY;
 
-    public IntrospectResponse introspect(IntrospectRequestDTO request) throws ParseException {
+    public IntrospectResponse getUserInfoFromToken(IntrospectRequestDTO request) throws ParseException {
         var token = request.getToken();
         if (!isSignatureValid(token)) {
             return null;
@@ -44,7 +44,7 @@ public class AuthenticationService {
         var claimsSet = signedJWT.getJWTClaimsSet();
         return IntrospectResponse.builder()
                 .userId(((Long) claimsSet.getClaim("userId")).intValue())
-                .roleId((String) claimsSet.getClaim("role"))
+                .roleId((String) claimsSet.getClaim("scope"))
                 .build();
     }
 
