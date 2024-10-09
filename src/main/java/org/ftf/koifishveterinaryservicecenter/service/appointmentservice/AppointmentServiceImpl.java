@@ -2,6 +2,7 @@ package org.ftf.koifishveterinaryservicecenter.service.appointmentservice;
 
 import org.ftf.koifishveterinaryservicecenter.entity.*;
 import org.ftf.koifishveterinaryservicecenter.exception.AppointmentServiceNotFoundException;
+import org.ftf.koifishveterinaryservicecenter.exception.MedicalReportNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.StatusNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.repository.*;
 import org.ftf.koifishveterinaryservicecenter.service.medicalreportservice.MedicalReportService;
@@ -64,7 +65,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         // Get status list
         List<Status> statuses = new ArrayList<>(appointment.getStatuses());
-        if(statuses.isEmpty()) {
+        if (statuses.isEmpty()) {
             throw new StatusNotFoundException("Not found status logs of Appointment with id: " + appointmentId);
         }
 
@@ -74,11 +75,22 @@ public class AppointmentServiceImpl implements AppointmentService {
         return statuses;
     }
 
-    private Appointment getAppointmentById(Integer appointmentId) {
+    @Override
+    public Appointment getAppointmentById(Integer appointmentId) {
         Optional<Appointment> appointmentOptional = appointmentRepository.findById(appointmentId);
         if (appointmentOptional.isEmpty())
             throw new AppointmentServiceNotFoundException("Not found Appointment with Id: " + appointmentId);
         return appointmentOptional.get();
+    }
+
+    @Override
+    public MedicalReport getMedicalReportByAppointmentId(Integer appointmentId) throws AppointmentServiceNotFoundException {
+        Appointment appointment = getAppointmentById(appointmentId);
+        MedicalReport medicalReport = medicalReportRepository.findByReportId(appointment.getMedicalReport().getReportId());
+        if(medicalReport == null){
+            throw new MedicalReportNotFoundException("Not found Medical Report with appointment id: " + appointmentId);
+        }
+        return medicalReport;
     }
 
 

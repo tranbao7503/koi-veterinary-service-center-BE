@@ -2,11 +2,10 @@ package org.ftf.koifishveterinaryservicecenter.controller;
 
 import org.ftf.koifishveterinaryservicecenter.dto.MedicalReportDto;
 import org.ftf.koifishveterinaryservicecenter.dto.StatusDto;
+import org.ftf.koifishveterinaryservicecenter.entity.Appointment;
 import org.ftf.koifishveterinaryservicecenter.entity.MedicalReport;
 import org.ftf.koifishveterinaryservicecenter.entity.Status;
-import org.ftf.koifishveterinaryservicecenter.exception.AppointmentServiceNotFoundException;
-import org.ftf.koifishveterinaryservicecenter.exception.PrescriptionNotFoundException;
-import org.ftf.koifishveterinaryservicecenter.exception.StatusNotFoundException;
+import org.ftf.koifishveterinaryservicecenter.exception.*;
 import org.ftf.koifishveterinaryservicecenter.mapper.MedicalReportMapper;
 import org.ftf.koifishveterinaryservicecenter.mapper.StatusMapper;
 import org.ftf.koifishveterinaryservicecenter.service.appointmentservice.AppointmentService;
@@ -72,6 +71,21 @@ public class AppointmentController {
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.NO_CONTENT);
         }
 
+    }
+
+    @GetMapping("/{appointmentId}/report")
+    public ResponseEntity<?> getAppointmentReport(@PathVariable("appointmentId") Integer appointmentId) {
+        try{
+            MedicalReport medicalReport = appointmentService.getMedicalReportByAppointmentId(appointmentId);
+            MedicalReportDto medicalReportDto = MedicalReportMapper.INSTANCE.convertToDto(medicalReport);
+            return new ResponseEntity<>(medicalReportDto, HttpStatus.OK);
+        }catch (AppointmentServiceNotFoundException ex) {
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+        }catch (MedicalReportNotFoundException ex) {
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.NO_CONTENT);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 }
