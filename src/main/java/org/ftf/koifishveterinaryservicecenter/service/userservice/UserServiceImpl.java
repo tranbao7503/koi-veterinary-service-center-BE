@@ -5,6 +5,7 @@ import org.ftf.koifishveterinaryservicecenter.entity.Certificate;
 import org.ftf.koifishveterinaryservicecenter.entity.Role;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.ftf.koifishveterinaryservicecenter.exception.AuthenticationException;
+import org.ftf.koifishveterinaryservicecenter.exception.CertificateNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.repository.AddressRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.CertificateRepository;
@@ -201,6 +202,16 @@ public class UserServiceImpl implements UserService {
 
         certificateRepository.save(certificate);
         return path;
+    }
+
+    @Override
+    public List<Certificate> getAllCertificatesByVeterinarianId(Integer veterinarianId) throws UserNotFoundException {
+        this.getVeterinarianById(veterinarianId);
+        List<Certificate> certificates = certificateRepository.findByVeterinarianId(veterinarianId);
+        if(certificates.isEmpty()){
+            throw new CertificateNotFoundException("Certificate not found for Veterinarian with Id: " + veterinarianId);
+        }
+        return certificates;
     }
 
 

@@ -10,9 +10,11 @@ import org.ftf.koifishveterinaryservicecenter.entity.Certificate;
 import org.ftf.koifishveterinaryservicecenter.entity.Feedback;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.ftf.koifishveterinaryservicecenter.exception.AuthenticationException;
+import org.ftf.koifishveterinaryservicecenter.exception.CertificateNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.FeedbackNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.AddressMapper;
+import org.ftf.koifishveterinaryservicecenter.mapper.CertificateMapper;
 import org.ftf.koifishveterinaryservicecenter.mapper.FeedbackMapper;
 import org.ftf.koifishveterinaryservicecenter.mapper.UserMapper;
 import org.ftf.koifishveterinaryservicecenter.service.feedbackservice.FeedbackService;
@@ -203,7 +205,7 @@ public class UserController {
 
     @GetMapping("/veterinarians")
     public ResponseEntity<?> getAllVeterinarians() {
-        try{
+        try {
             List<User> veterinarians = userService.getAllVeterinarians();
             List<UserDTO> userDTOs = veterinarians.stream()
                     .map(UserMapper.INSTANCE::convertEntityToDtoIgnoreAddress)
@@ -227,6 +229,23 @@ public class UserController {
         } catch (UserNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (FeedbackNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/veterinarians/{veterinarianId}/certificate")
+    public ResponseEntity<?> getCertificate(@PathVariable("veterinarianId") Integer veterinarianId) {
+        try {
+            List<Certificate> certificates = userService.getAllCertificatesByVeterinarianId(veterinarianId);
+            List<CertificateDto> certificateDtos = certificates.stream()
+                    .map(CertificateMapper.INSTANCE::convertToCertificateDto)
+                    .collect(Collectors.toList());
+            return new ResponseEntity<>(certificateDtos, HttpStatus.OK);
+        } catch (UserNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (CertificateNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
