@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.UUID;
 
 @Service
 public class FileUploadService {
@@ -23,13 +24,23 @@ public class FileUploadService {
             Files.createDirectories(uploadPath);
         }
 
+        // Lấy phần mở rộng của file
+        String originalFileName = file.getOriginalFilename();
+        String fileExtension = "";
+
+        if (originalFileName != null && originalFileName.contains(".")) {
+            fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
+        }
+
+        // Tạo tên file ngẫu nhiên bằng UUID
+        String randomFileName = UUID.randomUUID().toString() + fileExtension;
+
         // Lưu file vào thư mục
-        String fileName = file.getOriginalFilename();
-        Path filePath = uploadPath.resolve(fileName);
+        Path filePath = uploadPath.resolve(randomFileName);
         Files.copy(file.getInputStream(), filePath);
 
-        // Trả về đường dẫn file
-        return fileName;
+        // Trả về đường dẫn file ngẫu nhiên
+        return randomFileName;
     }
 
 }
