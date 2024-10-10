@@ -48,6 +48,20 @@ public class AuthenticationService {
                 .build();
     }
 
+    public User getUserFromToken(String token) throws ParseException {
+        if (!isSignatureValid(token)) {
+            return null; // Hoặc xử lý theo cách bạn muốn
+        }
+
+        SignedJWT signedJWT = SignedJWT.parse(token);
+        var claimsSet = signedJWT.getJWTClaimsSet();
+        Integer userId = ((Long) claimsSet.getClaim("userId")).intValue(); // Lấy userId từ token
+
+        // Tìm kiếm User bằng userId
+        return userRepository.findById(userId) // Giả sử bạn có userRepository để tìm kiếm
+                .orElse(null); // Trả về null nếu không tìm thấy user
+    }
+
     public AuthenticationResponse authenticate(AuthenticationRequestDTO request) {
         Logger.getAnonymousLogger().info(SIGNER_KEY);
         User user = userRepository.findByUsername(request.getUsername())
