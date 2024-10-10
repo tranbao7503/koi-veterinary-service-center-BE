@@ -47,4 +47,11 @@ public class SlotServiceImpl implements SlotService {
         }
         return veterinarianSlotsList;
     }
+
+    @Override
+    public TimeSlot createTimeSlot(TimeSlot timeSlot) {
+        return timeSlotRepository.save(timeSlot);
+    }
+
+
 }

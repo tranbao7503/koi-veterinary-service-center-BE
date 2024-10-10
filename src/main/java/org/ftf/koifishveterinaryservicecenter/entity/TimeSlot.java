@@ -36,7 +36,7 @@ public class TimeSlot {
     private Integer slotOrder;
 
     //    @Lob
-    @Column(name = "description", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "description", nullable = true, columnDefinition = "TEXT")
     private String description;
 
     // Bidirectional, identifying relationship

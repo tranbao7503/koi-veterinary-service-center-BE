@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface SlotService {
     List<TimeSlot> getVeterinarianSlots(Integer veterinarianId);
+    TimeSlot createTimeSlot(TimeSlot timeSlot);
 }
