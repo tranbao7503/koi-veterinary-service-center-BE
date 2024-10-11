@@ -110,8 +110,8 @@ public class AppointmentController {
     }
 
     /*
-    * Actors: Staff, Manager
-    * */
+     * Actors: Staff, Manager
+     * */
     @GetMapping("/{appointmentId}")
     public ResponseEntity<?> getAppointment(@PathVariable("appointmentId") Integer appointmentId) {
         try {
@@ -126,25 +126,25 @@ public class AppointmentController {
     }
 
     /*
-    * Actors: Veterinarian
-    * */
+     * Actors: Veterinarian
+     * */
     @GetMapping("/{appointmentId}/veterinarian/{veterinarianId}")
     public ResponseEntity<?> getAppointmentForVeterinarian(
             @PathVariable("veterinarianId") Integer veterinarianId
             , @PathVariable("appointmentId") Integer appointmentId) {
-        try{
+        try {
             User veterinarian = userService.getVeterinarianById(veterinarianId);
             Appointment appointment = appointmentService.getAppointmentById(appointmentId);
-            if(appointment.getVeterinarian().getUserId().equals(veterinarian.getUserId())) {
-               AppointmentDetailsDto appointmentDetailsDto = AppointmentMapper.INSTANCE.convertedToappointmentDetailsDtoForVet(appointment);
-               return new ResponseEntity<>(appointmentDetailsDto, HttpStatus.OK);
+            if (appointment.getVeterinarian().getUserId().equals(veterinarian.getUserId())) {
+                AppointmentDetailsDto appointmentDetailsDto = AppointmentMapper.INSTANCE.convertedToappointmentDetailsDtoForVet(appointment);
+                return new ResponseEntity<>(appointmentDetailsDto, HttpStatus.OK);
             }
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }catch (UserNotFoundException ex) {
+        } catch (UserNotFoundException ex) {
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
-        }catch (AppointmentServiceNotFoundException ex) {
+        } catch (AppointmentServiceNotFoundException ex) {
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
-        }catch (Exception ex) {
+        } catch (Exception ex) {
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -156,19 +156,19 @@ public class AppointmentController {
     public ResponseEntity<?> getAppointmentForCustomer(
             @PathVariable("customerId") Integer customerId
             , @PathVariable("appointmentId") Integer appointmentId) {
-        try{
+        try {
             User customer = userService.getCustomerById(customerId);
             Appointment appointment = appointmentService.getAppointmentById(appointmentId);
-            if(appointment.getCustomer().getUserId().equals(customer.getUserId())) {
+            if (appointment.getCustomer().getUserId().equals(customer.getUserId())) {
                 AppointmentDetailsDto appointmentDetailsDto = AppointmentMapper.INSTANCE.convertedToAppointmentDetailsDto(appointment);
                 return new ResponseEntity<>(appointmentDetailsDto, HttpStatus.OK);
             }
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }catch (UserNotFoundException ex) {
+        } catch (UserNotFoundException ex) {
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
-        }catch (AppointmentServiceNotFoundException ex) {
+        } catch (AppointmentServiceNotFoundException ex) {
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
-        }catch (Exception ex) {
+        } catch (Exception ex) {
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

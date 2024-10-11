@@ -159,27 +159,10 @@ public class UserController {
         }
     }
 
-
-    @GetMapping("/veterinarian/{veterinarianId}/feedbacks/{feedbackId}")
-    public ResponseEntity<?> getFeedback(@PathVariable("feedbackId") Integer feedbackId
-            , @PathVariable("veterinarianId") Integer veterinarianId) {
-        try {
-            Feedback feedback = feedbackService.getFeedbackById(feedbackId);
-            if (feedback.getVeterinarian().getUserId().equals(veterinarianId)) {
-                FeedbackDto feedbackDto = FeedbackMapper.INSTANCE.feedbackToFeedbackDto(feedback);
-                return new ResponseEntity<>(feedbackDto, HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-            }
-        } catch (FeedbackNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
-        }
-    }
     /*
      * Update avatar of user
      * Actors: Customer, Manager
      * */
-
     @PreAuthorize("hasAuthority('CUS')")
     @PutMapping("/avatar")
     public ResponseEntity<?> updateUserAvatar(@RequestParam("user_id") Integer userId
@@ -195,21 +178,9 @@ public class UserController {
         }
     }
 
-    @PostMapping("/veterinarians/{veterinarianId}/certificate")
-    public ResponseEntity<?> addVeterinarianCertificate(
-            @PathVariable("veterinarianId") Integer veterinarianId
-            , @RequestParam("certificateName") String certificateName
-            , @RequestParam("file") MultipartFile file) {
-        try {
-            String path = userService.AddVeterinarianCertificate(veterinarianId, certificateName, file);
-            return new ResponseEntity<>(path, HttpStatus.OK);
-        } catch (UserNotFoundException ex) {
-            return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
+    /*
+    * Actors: Manager
+    * */
     @GetMapping("/veterinarians")
     public ResponseEntity<?> getAllVeterinarians() {
         try {
@@ -224,40 +195,5 @@ public class UserController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-    @GetMapping("/veterinarian/{id}/feedbacks")
-    public ResponseEntity<?> getFeedbacks(@PathVariable("id") Integer id) {
-        try {
-            List<Feedback> feedbacks = feedbackService.getFeedbacksByVeterianrianId(id);
-            List<FeedbackDto> feedbackDtos = feedbacks.stream()
-                    .map(feedback -> FeedbackMapper.INSTANCE.convertToFeedbackDto(feedback))
-                    .collect(Collectors.toList());
-            return new ResponseEntity<>(feedbackDtos, HttpStatus.OK);
-        } catch (UserNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (FeedbackNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
-        } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @GetMapping("/veterinarians/{veterinarianId}/certificate")
-    public ResponseEntity<?> getCertificate(@PathVariable("veterinarianId") Integer veterinarianId) {
-        try {
-            List<Certificate> certificates = userService.getAllCertificatesByVeterinarianId(veterinarianId);
-            List<CertificateDto> certificateDtos = certificates.stream()
-                    .map(CertificateMapper.INSTANCE::convertToCertificateDto)
-                    .collect(Collectors.toList());
-            return new ResponseEntity<>(certificateDtos, HttpStatus.OK);
-        } catch (UserNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (CertificateNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
-        } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
 
 }
