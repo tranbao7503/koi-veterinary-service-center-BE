@@ -50,9 +50,13 @@ public class AuthenticationService {
         SignedJWT signedJWT = SignedJWT.parse(token);
         var claimsSet = signedJWT.getJWTClaimsSet();
 
+        // Lấy timeout từ claims (Giả sử trường timeout có trong JWT claims)
+        Integer timeout = claimsSet.getIntegerClaim("timeout"); // Hoặc trường hợp khác, điều chỉnh theo cách bạn lưu trữ timeout trong JWT
+
         return IntrospectResponse.builder()
                 .userId(((Long) claimsSet.getClaim("userId")).intValue())
                 .roleId((String) claimsSet.getClaim("role"))
+                .timeout(timeout) // Gán giá trị timeout
                 .build();
     }
 
@@ -85,14 +89,19 @@ public class AuthenticationService {
     private String generateToken(User user) {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
 
+        // Định nghĩa timeout (3 giờ)
+        int timeoutInSeconds = 3 * 60 * 60; // 3 giờ
+
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .subject("KoiFish")
                 .issuer("KoiFish.com")
                 .issueTime(Date.from(Instant.now()))
                 .claim("userId", user.getUserId())
                 .claim("role", user.getRole().getRoleKey())
+                .claim("timeout", timeoutInSeconds) // Thêm trường timeout
                 .expirationTime(Date.from(Instant.now().plus(3, ChronoUnit.HOURS)))
                 .build();
+
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
 
         JWSObject jwsObject = new JWSObject(header, payload);
