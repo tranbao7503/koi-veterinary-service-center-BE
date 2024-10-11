@@ -1,5 +1,6 @@
 package org.ftf.koifishveterinaryservicecenter.mapper;
 
+import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentDetailsDto;
 import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentDto;
 import org.ftf.koifishveterinaryservicecenter.entity.Appointment;
 import org.mapstruct.Mapper;
@@ -28,4 +29,20 @@ public interface AppointmentMapper {
     @Mapping(source = "payment", target = "payment")
     Appointment convertedToAppointment(AppointmentDto appointmentDto);
 
+    @Mapping(target = "service.description", ignore = true)
+    @Mapping(source = "currentStatus", target = "currentStatus")
+    @Mapping(target = "veterinarian.username", ignore = true)
+    @Mapping(target = "veterinarian.password", ignore = true)
+    @Mapping(target = "veterinarian.avatar", ignore = true)
+    @Mapping(target = "veterinarian.address", ignore = true)
+    @Mapping(target = "veterinarian.phoneNumber", ignore = true)
+    AppointmentDetailsDto convertedToAppointmentDetailsDto(Appointment appointment);
+
+    @Mapping(target = "service.description", ignore = true)
+    @Mapping(source = "currentStatus", target = "currentStatus")
+    @Mapping(target = "veterinarian", ignore = true)
+    @Mapping(target = "totalPrice", ignore = true)
+    @Mapping(target = "service.servicePrice", ignore = true)
+    @Mapping(target = "movingSurcharge", ignore = true)
+    AppointmentDetailsDto convertedToappointmentDetailsDtoForVet(Appointment appointment);
 }

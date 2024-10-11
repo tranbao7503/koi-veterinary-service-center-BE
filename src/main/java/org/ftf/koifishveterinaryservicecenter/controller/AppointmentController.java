@@ -2,9 +2,11 @@ package org.ftf.koifishveterinaryservicecenter.controller;
 
 import org.ftf.koifishveterinaryservicecenter.dto.MedicalReportDto;
 import org.ftf.koifishveterinaryservicecenter.dto.StatusDto;
+import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentDetailsDto;
 import org.ftf.koifishveterinaryservicecenter.entity.Appointment;
 import org.ftf.koifishveterinaryservicecenter.entity.MedicalReport;
 import org.ftf.koifishveterinaryservicecenter.entity.Status;
+import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.ftf.koifishveterinaryservicecenter.exception.*;
 import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentDto;
 import org.ftf.koifishveterinaryservicecenter.exception.AppointmentServiceNotFoundException;
@@ -16,6 +18,7 @@ import org.ftf.koifishveterinaryservicecenter.mapper.MedicalReportMapper;
 import org.ftf.koifishveterinaryservicecenter.mapper.StatusMapper;
 import org.ftf.koifishveterinaryservicecenter.service.appointmentservice.AppointmentService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
+import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,12 +34,14 @@ public class AppointmentController {
 
     private final AppointmentService appointmentService;
     private final AuthenticationService authenticationService;
+    private final UserService userService;
 
 
     @Autowired
-    public AppointmentController(AppointmentService appointmentService, AuthenticationService authenticationService) {
+    public AppointmentController(AppointmentService appointmentService, AuthenticationService authenticationService, UserService userService) {
         this.appointmentService = appointmentService;
         this.authenticationService = authenticationService;
+        this.userService = userService;
     }
 
     @PostMapping("/{appointmentId}/report")
@@ -79,13 +84,13 @@ public class AppointmentController {
 
     @GetMapping("/{appointmentId}/report")
     public ResponseEntity<?> getAppointmentReport(@PathVariable("appointmentId") Integer appointmentId) {
-        try{
+        try {
             MedicalReport medicalReport = appointmentService.getMedicalReportByAppointmentId(appointmentId);
             MedicalReportDto medicalReportDto = MedicalReportMapper.INSTANCE.convertToDto(medicalReport);
             return new ResponseEntity<>(medicalReportDto, HttpStatus.OK);
-        }catch (AppointmentServiceNotFoundException ex) {
+        } catch (AppointmentServiceNotFoundException ex) {
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
-        }catch (MedicalReportNotFoundException ex) {
+        } catch (MedicalReportNotFoundException ex) {
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.NO_CONTENT);
         } catch (Exception ex) {
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -101,6 +106,70 @@ public class AppointmentController {
             return new ResponseEntity<>("Booked an appointment successfully", HttpStatus.CREATED);
         } catch (UserNotFoundException exception) {
             return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
+
+    /*
+    * Actors: Staff, Manager
+    * */
+    @GetMapping("/{appointmentId}")
+    public ResponseEntity<?> getAppointment(@PathVariable("appointmentId") Integer appointmentId) {
+        try {
+            Appointment appointment = appointmentService.getAppointmentById(appointmentId);
+            AppointmentDetailsDto appointmentDetailsDto = AppointmentMapper.INSTANCE.convertedToAppointmentDetailsDto(appointment);
+            return new ResponseEntity<>(appointmentDetailsDto, HttpStatus.OK);
+        } catch (AppointmentServiceNotFoundException ex) {
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (UserNotFoundException ex) {
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.NO_CONTENT);
+        }
+    }
+
+    /*
+    * Actors: Veterinarian
+    * */
+    @GetMapping("/{appointmentId}/veterinarian/{veterinarianId}")
+    public ResponseEntity<?> getAppointmentForVeterinarian(
+            @PathVariable("veterinarianId") Integer veterinarianId
+            , @PathVariable("appointmentId") Integer appointmentId) {
+        try{
+            User veterinarian = userService.getVeterinarianById(veterinarianId);
+            Appointment appointment = appointmentService.getAppointmentById(appointmentId);
+            if(appointment.getVeterinarian().getUserId().equals(veterinarian.getUserId())) {
+               AppointmentDetailsDto appointmentDetailsDto = AppointmentMapper.INSTANCE.convertedToappointmentDetailsDtoForVet(appointment);
+               return new ResponseEntity<>(appointmentDetailsDto, HttpStatus.OK);
+            }
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }catch (UserNotFoundException ex) {
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+        }catch (AppointmentServiceNotFoundException ex) {
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+        }catch (Exception ex) {
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /*
+     * Actors: Customer
+     * */
+    @GetMapping("/{appointmentId}/customer/{customerId}")
+    public ResponseEntity<?> getAppointmentForCustomer(
+            @PathVariable("customerId") Integer customerId
+            , @PathVariable("appointmentId") Integer appointmentId) {
+        try{
+            User customer = userService.getCustomerById(customerId);
+            Appointment appointment = appointmentService.getAppointmentById(appointmentId);
+            if(appointment.getCustomer().getUserId().equals(customer.getUserId())) {
+                AppointmentDetailsDto appointmentDetailsDto = AppointmentMapper.INSTANCE.convertedToAppointmentDetailsDto(appointment);
+                return new ResponseEntity<>(appointmentDetailsDto, HttpStatus.OK);
+            }
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }catch (UserNotFoundException ex) {
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+        }catch (AppointmentServiceNotFoundException ex) {
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+        }catch (Exception ex) {
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
