@@ -6,12 +6,15 @@ import org.ftf.koifishveterinaryservicecenter.dto.*;
 import org.ftf.koifishveterinaryservicecenter.dto.response.AuthenticationResponse;
 import org.ftf.koifishveterinaryservicecenter.dto.response.IntrospectResponse;
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
+import org.ftf.koifishveterinaryservicecenter.entity.Certificate;
 import org.ftf.koifishveterinaryservicecenter.entity.Feedback;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.ftf.koifishveterinaryservicecenter.exception.AuthenticationException;
+import org.ftf.koifishveterinaryservicecenter.exception.CertificateNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.FeedbackNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.AddressMapper;
+import org.ftf.koifishveterinaryservicecenter.mapper.CertificateMapper;
 import org.ftf.koifishveterinaryservicecenter.mapper.FeedbackMapper;
 import org.ftf.koifishveterinaryservicecenter.mapper.UserMapper;
 import org.ftf.koifishveterinaryservicecenter.service.feedbackservice.FeedbackService;
@@ -21,12 +24,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.text.ParseException;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -42,7 +53,7 @@ public class UserController {
     @Autowired
     public UserController(UserService userService, UserMapper userMapper, AuthenticationService authenticationService, FeedbackService feedbackService) {
         this.userService = userService;
-        this.userMapper=userMapper;
+        this.userMapper = userMapper;
         this.authenticationService = authenticationService;
         this.feedbackService = feedbackService;
     }
@@ -133,7 +144,6 @@ public class UserController {
     }
 
 
-
     @PostMapping("/signup")
     public ResponseEntity<?> signUp(@RequestBody UserDTO userDTOFromRequest) {
         try {
@@ -164,31 +174,45 @@ public class UserController {
         } catch (FeedbackNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
         }
-
     }
-
     /*
-    * Update avatar of user
-    * Actors: Customer, Manager
-    * */
+     * Update avatar of user
+     * Actors: Customer, Manager
+     * */
+
     @PreAuthorize("hasAuthority('CUS')")
     @PutMapping("/avatar")
     public ResponseEntity<?> updateUserAvatar(@RequestParam("user_id") Integer userId
             , @RequestParam("image") MultipartFile image) {
-        try{
+        try {
             User user = userService.updateUserAvatar(userId, image);
             UserDTO userDto = UserMapper.INSTANCE.convertEntityToDtoIgnoreAddress(user);
             return new ResponseEntity<>(userDto, HttpStatus.OK);
-        }catch (UserNotFoundException e) {
+        } catch (UserNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        }catch (Exception e) {
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/veterinarians/{veterinarianId}/certificate")
+    public ResponseEntity<?> addVeterinarianCertificate(
+            @PathVariable("veterinarianId") Integer veterinarianId
+            , @RequestParam("certificateName") String certificateName
+            , @RequestParam("file") MultipartFile file) {
+        try {
+            String path = userService.AddVeterinarianCertificate(veterinarianId, certificateName, file);
+            return new ResponseEntity<>(path, HttpStatus.OK);
+        } catch (UserNotFoundException ex) {
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping("/veterinarians")
     public ResponseEntity<?> getAllVeterinarians() {
-        try{
+        try {
             List<User> veterinarians = userService.getAllVeterinarians();
             List<UserDTO> userDTOs = veterinarians.stream()
                     .map(UserMapper.INSTANCE::convertEntityToDtoIgnoreAddress)
@@ -217,4 +241,23 @@ public class UserController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("/veterinarians/{veterinarianId}/certificate")
+    public ResponseEntity<?> getCertificate(@PathVariable("veterinarianId") Integer veterinarianId) {
+        try {
+            List<Certificate> certificates = userService.getAllCertificatesByVeterinarianId(veterinarianId);
+            List<CertificateDto> certificateDtos = certificates.stream()
+                    .map(CertificateMapper.INSTANCE::convertToCertificateDto)
+                    .collect(Collectors.toList());
+            return new ResponseEntity<>(certificateDtos, HttpStatus.OK);
+        } catch (UserNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (CertificateNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
 }

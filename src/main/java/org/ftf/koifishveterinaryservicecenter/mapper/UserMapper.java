@@ -27,6 +27,7 @@ public interface UserMapper {
      * Convert User entity to DTO without Address field
      * */
     @Mapping(target = "address", ignore = true)
+    @Mapping(target = "password", ignore = true)
     UserDTO convertEntityToDtoIgnoreAddress(User user);
 
 

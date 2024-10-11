@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/v1/fish")
+@RequestMapping("/api/v1/fishes")
 public class FishController {
     private final FishService fishService;
     private final FishMapper fishMapper;
@@ -34,25 +34,8 @@ public class FishController {
         this.authenticationService = authenticationService;
     }
 
-   /* @GetMapping("/listfish")
-    public ResponseEntity<?> getListFishes(@RequestParam("userId") int userId) {
 
-        // Gọi service để lấy danh sách cá theo userId
-        List<Fish> fishes = fishService.getAllFishByUserId(userId);
-
-        // Kiểm tra nếu danh sách rỗng
-        if (fishes.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } else {
-            // Chuyển đổi danh sách Fish sang FishDTO
-            List<FishDTO> fishDTOs = fishes.stream()
-                    .map(fishMapper::convertEntityToDto)
-                    .collect(Collectors.toList());
-            return new ResponseEntity<>(fishDTOs, HttpStatus.OK);
-        }
-    }*/
-
-    @GetMapping("/listfish")
+    @GetMapping()
     public ResponseEntity<?> getListFishes(@RequestHeader("Authorization") String authorizationHeader) throws ParseException {
         // Loại bỏ tiền tố "Bearer " từ Authorization header
         String token = authorizationHeader.replace("Bearer ", "");

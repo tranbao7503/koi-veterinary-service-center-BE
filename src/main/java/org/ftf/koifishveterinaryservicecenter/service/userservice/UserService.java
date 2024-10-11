@@ -1,5 +1,6 @@
 package org.ftf.koifishveterinaryservicecenter.service.userservice;
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
+import org.ftf.koifishveterinaryservicecenter.entity.Certificate;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,5 +22,11 @@ public interface UserService {
 
     User getVeterinarianById(Integer veterinarianId);
 
+    User getCustomerById(Integer customerId);
+
     User updateUserAvatar(Integer userId, MultipartFile image) throws IOException;
+
+    String AddVeterinarianCertificate(Integer veterinarianId, String certificateName, MultipartFile certificate) throws IOException;
+
+    List<Certificate> getAllCertificatesByVeterinarianId(Integer veterinarianId);
 }
