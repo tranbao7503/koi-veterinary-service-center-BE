@@ -152,7 +152,7 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new AppointmentServiceNotFoundException("Not found appointments");
         }
         // Sort by created date
-        appointments.sort(Comparator.comparing(Appointment::getCreatedDate));
+        appointments.sort(Comparator.comparing(Appointment::getAppointmentId).reversed());
 
         return appointments;
     }
