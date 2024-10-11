@@ -8,4 +8,6 @@ import java.util.List;
 public interface FishRepository extends JpaRepository<Fish, Integer> {
 
     List<Fish> findAllFishByCustomer_UserId(int userId);
-}
+
+     Fish findByFishId(int fishId);
+  }
