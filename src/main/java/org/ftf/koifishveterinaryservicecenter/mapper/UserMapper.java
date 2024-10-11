@@ -8,7 +8,7 @@ import org.mapstruct.Mappings;
 import org.mapstruct.factory.Mappers;
 
 
-@Mapper(uses = AddressMapper.class)
+@Mapper(componentModel = "spring", uses = UserMapper.class)
 public interface UserMapper {
 
     UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
@@ -24,11 +24,11 @@ public interface UserMapper {
     UserDTO convertEntityToDto(User user);
 
     /*
-    * Convert User entity to DTO without Address field
-    * */
+     * Convert User entity to DTO without Address field
+     * */
     @Mapping(target = "address", ignore = true)
+    @Mapping(target = "password", ignore = true)
     UserDTO convertEntityToDtoIgnoreAddress(User user);
-
 
 
 

@@ -30,7 +30,7 @@ public class TimeSlotController {
 
     @GetMapping("/{veterinarianID}")
     public ResponseEntity<?> getVeterinarianSlots(@PathVariable("veterinarianID") final Integer veterinarianID) {
-        try{
+        try {
             List<TimeSlot> slots = slotService.getVeterinarianSlots(veterinarianID);
             List<TimeSlotDto> dtos = slots.stream()
                     .map(TimeSlotMapper.INSTANCE::convertToTimeSlotDto)

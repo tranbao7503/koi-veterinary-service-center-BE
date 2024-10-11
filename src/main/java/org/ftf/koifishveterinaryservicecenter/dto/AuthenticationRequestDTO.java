@@ -3,7 +3,6 @@ package org.ftf.koifishveterinaryservicecenter.dto;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -12,5 +11,4 @@ import lombok.experimental.FieldDefaults;
 public class AuthenticationRequestDTO {
     String username;
     String password;
-
 }
