@@ -2,7 +2,6 @@ package org.ftf.koifishveterinaryservicecenter.service.medicalreportservice;
 
 import org.ftf.koifishveterinaryservicecenter.dto.MedicineDto;
 import org.ftf.koifishveterinaryservicecenter.dto.PrescriptionDto;
-import org.ftf.koifishveterinaryservicecenter.entity.Appointment;
 import org.ftf.koifishveterinaryservicecenter.entity.MedicalReport;
 import org.ftf.koifishveterinaryservicecenter.entity.Medicine;
 import org.ftf.koifishveterinaryservicecenter.entity.Prescription;
@@ -91,5 +90,7 @@ public class MedicalReportServiceImpl implements MedicalReportService {
             throw new PrescriptionNotFoundException("Not found Prescription with id: " + prescriptionId);
         return prescription.get();
     }
+
+
 
 }
