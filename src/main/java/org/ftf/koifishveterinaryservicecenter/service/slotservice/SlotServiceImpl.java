@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,19 +39,17 @@ public class SlotServiceImpl implements SlotService {
 
         // Filter appointments to retain only the one with matching veterinarianId
         for (TimeSlot timeSlot : veterinarianSlotsList) {
-            timeSlot.setAppointments(
-                    timeSlot.getAppointments().stream()
-                            .filter(appointment -> appointment.getVeterinarian().getUserId().equals(veterinarianId))
-                            .limit(1)  // Keep only one appointment with the matching veterinarianId
-                            .collect(Collectors.toSet())
-            );
+            timeSlot.setAppointments(timeSlot.getAppointments().stream().filter(appointment -> appointment.getVeterinarian().getUserId().equals(veterinarianId)).limit(1)  // Keep only one appointment with the matching veterinarianId
+                    .collect(Collectors.toSet()));
         }
         return veterinarianSlotsList;
     }
 
     @Override
-    public TimeSlot createTimeSlot(TimeSlot timeSlot) {
-        return timeSlotRepository.save(timeSlot);
+    public TimeSlot getTimeSlotById(Integer timeSlotId) {
+        Optional<TimeSlot> timeSlot = timeSlotRepository.findById(timeSlotId);
+        if (timeSlot.isEmpty()) throw new TimeSlotNotFound("Time slot with ID: " + timeSlotId + " not found");
+        return timeSlot.get();
     }
 
 

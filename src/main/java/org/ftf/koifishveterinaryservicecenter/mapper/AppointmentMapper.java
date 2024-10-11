@@ -20,7 +20,7 @@ public interface AppointmentMapper {
     @Mapping(source = "serviceId", target = "service.serviceId")
     @Mapping(source = "veterinarianId", target = "veterinarian.userId", conditionExpression = "java(appointmentDto.getVeterinarianId() != null)")
     @Mapping(source = "address", target = "address", conditionExpression = "java(appointmentDto.getAddress() != null)")
-    @Mapping(source = "timeSlot", target = "timeSlot")
+    @Mapping(source = "slotId", target = "timeSlot.slotId")
     @Mapping(source = "customerName", target = "customerName")
     @Mapping(source = "phoneNumber", target = "phoneNumber")
     @Mapping(source = "email", target = "email")

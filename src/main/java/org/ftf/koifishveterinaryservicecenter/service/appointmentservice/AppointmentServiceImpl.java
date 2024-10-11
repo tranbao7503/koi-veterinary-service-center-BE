@@ -96,14 +96,17 @@ public class AppointmentServiceImpl implements AppointmentService {
         // service_id
         org.ftf.koifishveterinaryservicecenter.entity.Service bookedService = serviceService.getServiceById(appointment.getService().getServiceId());
         newAppointment.setService(bookedService);
-                                                     // address_id
-                                                     // moving_surcharge_id
+
+        // address_id
+        // moving_surcharge_id
+
         // slot_id
-        TimeSlot timeSlot = appointment.getTimeSlot();
-        TimeSlot savedTimeslot = slotService.createTimeSlot(timeSlot);
-        newAppointment.setTimeSlot(savedTimeslot);
-                                                     // feedback_id
-                                                     // report_id
+        TimeSlot timeSlot = slotService.getTimeSlotById(appointment.getTimeSlot().getSlotId());
+        newAppointment.setTimeSlot(timeSlot);
+
+        // feedback_id
+        // report_id
+
         // user_id
         User userFromDb = userService.getCustomerById(customerId);
         newAppointment.setCustomer(userFromDb);

@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class AppointmentDto extends AppointmentBaseDto{
+public class AppointmentDto extends AppointmentBaseDto {
 
     @JsonProperty("service_id")
     private Integer serviceId;
@@ -22,8 +22,8 @@ public class AppointmentDto extends AppointmentBaseDto{
     @JsonProperty("veterinarian_id")
     private Integer veterinarianId;
 
-    @JsonProperty("time_slot")
-    private TimeSlotDto timeSlot;
+    @JsonProperty("slot_id")
+    private Integer slotId;
 
     @JsonProperty("customer_name")
     private String customerName;
@@ -42,7 +42,6 @@ public class AppointmentDto extends AppointmentBaseDto{
 
     @JsonProperty("payment")
     private PaymentDto payment;
-
 
 
 }
