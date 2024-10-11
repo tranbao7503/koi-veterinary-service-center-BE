@@ -24,12 +24,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.text.ParseException;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -126,7 +134,7 @@ public class UserController {
     @PostMapping("/introspect")
     ApiResponse<IntrospectResponse> authenticate(@RequestBody IntrospectRequestDTO request)
             throws ParseException {
-        var result = authenticationService.introspect(request);
+        var result = authenticationService.getUserInfoFromToken(request);
         if (result == null) {
             return ApiResponse.<IntrospectResponse>builder().code(404).build();
         }
@@ -166,13 +174,12 @@ public class UserController {
         } catch (FeedbackNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
         }
-
     }
-
     /*
      * Update avatar of user
      * Actors: Customer, Manager
      * */
+
     @PreAuthorize("hasAuthority('CUS')")
     @PutMapping("/avatar")
     public ResponseEntity<?> updateUserAvatar(@RequestParam("user_id") Integer userId
@@ -251,4 +258,6 @@ public class UserController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+
 }

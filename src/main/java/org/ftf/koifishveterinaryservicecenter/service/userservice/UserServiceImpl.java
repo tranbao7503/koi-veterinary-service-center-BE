@@ -176,6 +176,15 @@ public class UserServiceImpl implements UserService {
         return veterinarian;
     }
 
+    @Override
+    public User getCustomerById(Integer customerId) {
+        User customer = userRepository.findCustomerById(customerId);
+        if (customer == null) {
+            throw new UserNotFoundException("Customer not found with Id: " + customerId);
+        }
+        return customer;
+    }
+
 
     @Override
     public User updateUserAvatar(Integer userId, MultipartFile image) throws IOException {
@@ -208,7 +217,7 @@ public class UserServiceImpl implements UserService {
     public List<Certificate> getAllCertificatesByVeterinarianId(Integer veterinarianId) throws UserNotFoundException {
         this.getVeterinarianById(veterinarianId);
         List<Certificate> certificates = certificateRepository.findByVeterinarianId(veterinarianId);
-        if(certificates.isEmpty()){
+        if (certificates.isEmpty()) {
             throw new CertificateNotFoundException("Certificate not found for Veterinarian with Id: " + veterinarianId);
         }
         return certificates;

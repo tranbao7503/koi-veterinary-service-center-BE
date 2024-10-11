@@ -6,6 +6,8 @@ import org.ftf.koifishveterinaryservicecenter.mapper.FishMapper;
 import org.ftf.koifishveterinaryservicecenter.repository.FishRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class FishServiceImp implements FishService {
     private final FishRepository fishRepository;
@@ -16,9 +18,15 @@ public class FishServiceImp implements FishService {
         this.fishMapper = fishMapper;
     }
 
+
     @Override
     public FishDTO getDetailFish(int fishId) {
         Fish fish = fishRepository.findByFishId(fishId);
         return fish != null ? fishMapper.convertEntityToDto(fish) : null;
+    }
+
+    @Override
+    public List<Fish> getAllFishByUserId(int Id) {
+        return fishRepository.findAllFishByCustomer_UserId(Id);
     }
 }
