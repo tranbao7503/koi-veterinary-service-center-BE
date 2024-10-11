@@ -4,17 +4,14 @@ import org.ftf.koifishveterinaryservicecenter.dto.FishDTO;
 import org.ftf.koifishveterinaryservicecenter.dto.IntrospectRequestDTO;
 import org.ftf.koifishveterinaryservicecenter.dto.response.IntrospectResponse;
 import org.ftf.koifishveterinaryservicecenter.entity.Fish;
+import org.ftf.koifishveterinaryservicecenter.entity.Image;
 import org.ftf.koifishveterinaryservicecenter.mapper.FishMapper;
 import org.ftf.koifishveterinaryservicecenter.service.fishservice.FishService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
 import java.util.List;
@@ -26,6 +23,7 @@ public class FishController {
     private final FishService fishService;
     private final FishMapper fishMapper;
     private final AuthenticationService authenticationService;
+
 
 
     @Autowired
@@ -74,6 +72,16 @@ public class FishController {
             return new ResponseEntity<>(fishDTOs, HttpStatus.OK);
         }
 
+    }
+
+    @PostMapping("/{fishId}")
+    public ResponseEntity<Image> addImageForFish(@PathVariable int fishId, @RequestParam String sourcePath) {
+        try {
+            Image newImage = fishService.addImageForFish(fishId, sourcePath);
+            return new ResponseEntity<>(newImage, HttpStatus.CREATED);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND); // Trả về 404 nếu cá không tìm thấy
+        }
     }
 
 }
