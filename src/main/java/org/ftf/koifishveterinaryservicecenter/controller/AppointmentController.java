@@ -2,6 +2,8 @@ package org.ftf.koifishveterinaryservicecenter.controller;
 
 import org.ftf.koifishveterinaryservicecenter.dto.MedicalReportDto;
 import org.ftf.koifishveterinaryservicecenter.dto.StatusDto;
+import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentFeedbackDto;
+import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentForListDto;
 import org.ftf.koifishveterinaryservicecenter.entity.Appointment;
 import org.ftf.koifishveterinaryservicecenter.entity.MedicalReport;
 import org.ftf.koifishveterinaryservicecenter.entity.Status;
@@ -101,6 +103,21 @@ public class AppointmentController {
             return new ResponseEntity<>("Booked an appointment successfully", HttpStatus.CREATED);
         } catch (UserNotFoundException exception) {
             return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<?> getAllAppointments() {
+        try{
+            List<Appointment> appointments = appointmentService.getAllAppointments();
+            List<AppointmentForListDto> appointmentDtoList = appointments.stream()
+                    .map(AppointmentMapper.INSTANCE::convertedToAppointmentDtoForList)
+                    .collect(Collectors.toList());
+            return new ResponseEntity<>(appointmentDtoList, HttpStatus.OK);
+        }catch (AppointmentServiceNotFoundException ex) {
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+        }catch (Exception ex) {
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
