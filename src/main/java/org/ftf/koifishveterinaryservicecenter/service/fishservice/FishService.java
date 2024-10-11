@@ -11,4 +11,6 @@ public interface FishService {
 
     FishDTO getDetailFish(int fishId);
 
+    public boolean removeFishFromList(int fishId);
+
 }

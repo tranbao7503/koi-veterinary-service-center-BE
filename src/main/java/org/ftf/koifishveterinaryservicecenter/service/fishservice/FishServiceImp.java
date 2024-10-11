@@ -25,8 +25,19 @@ public class FishServiceImp implements FishService {
         return fish != null ? fishMapper.convertEntityToDto(fish) : null;
     }
 
+
     @Override
     public List<Fish> getAllFishByUserId(int Id) {
         return fishRepository.findAllFishByCustomer_UserId(Id);
+    }
+
+    @Override
+    public boolean removeFishFromList(int fishId) {
+        Fish fish = fishRepository.findByFishId(fishId);
+        if (fish != null) {
+            fishRepository.delete(fish); // Xóa trực tiếp khỏi database
+            return true; // Xóa thành công
+        }
+        return false;
     }
 }

@@ -10,11 +10,7 @@ import org.ftf.koifishveterinaryservicecenter.service.userservice.Authentication
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
 import java.util.List;
@@ -74,6 +70,17 @@ public class FishController {
             return new ResponseEntity<>(fishDTOs, HttpStatus.OK);
         }
 
+    }
+
+    @DeleteMapping("/{fishId}")
+    public ResponseEntity<String> removeFish(@PathVariable int fishId) {
+        boolean isRemoved = fishService.removeFishFromList(fishId);
+
+        if (isRemoved) {
+            return ResponseEntity.ok("Fish with ID " + fishId + " was removed successfully.");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Fish with ID " + fishId + " not found.");
+        }
     }
 
 }
