@@ -3,6 +3,7 @@ package org.ftf.koifishveterinaryservicecenter.service.appointmentservice;
 import org.ftf.koifishveterinaryservicecenter.entity.*;
 import org.ftf.koifishveterinaryservicecenter.enums.AppointmentStatus;
 import org.ftf.koifishveterinaryservicecenter.exception.AppointmentServiceNotFoundException;
+import org.ftf.koifishveterinaryservicecenter.exception.MedicalReportNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.StatusNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.repository.*;
 import org.ftf.koifishveterinaryservicecenter.service.medicalreportservice.MedicalReportService;
@@ -83,7 +84,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         return statuses;
     }
 
-    @Override
+
     public void createAppointment(Appointment appointment, Integer customerId) {
         // 1. online booking
 
@@ -144,11 +145,22 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointmentRepository.save(newAppointment);
     }
 
-    private Appointment getAppointmentById(Integer appointmentId) {
+    @Override
+    public Appointment getAppointmentById(Integer appointmentId) {
         Optional<Appointment> appointmentOptional = appointmentRepository.findById(appointmentId);
         if (appointmentOptional.isEmpty())
             throw new AppointmentServiceNotFoundException("Not found Appointment with Id: " + appointmentId);
         return appointmentOptional.get();
+    }
+
+    @Override
+    public MedicalReport getMedicalReportByAppointmentId(Integer appointmentId) throws AppointmentServiceNotFoundException {
+        Appointment appointment = getAppointmentById(appointmentId);
+        MedicalReport medicalReport = medicalReportRepository.findByReportId(appointment.getMedicalReport().getReportId());
+        if(medicalReport == null){
+            throw new MedicalReportNotFoundException("Not found Medical Report with appointment id: " + appointmentId);
+        }
+        return medicalReport;
     }
 
     private BigDecimal calculatePrice(Appointment appointment) {

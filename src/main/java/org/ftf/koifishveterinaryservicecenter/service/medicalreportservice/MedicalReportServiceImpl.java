@@ -7,12 +7,16 @@ import org.ftf.koifishveterinaryservicecenter.entity.Medicine;
 import org.ftf.koifishveterinaryservicecenter.entity.Prescription;
 import org.ftf.koifishveterinaryservicecenter.entity.prescription_medicine.PrescriptionMedicine;
 import org.ftf.koifishveterinaryservicecenter.entity.prescription_medicine.PrescriptionMedicineId;
+import org.ftf.koifishveterinaryservicecenter.exception.AppointmentServiceNotFoundException;
+import org.ftf.koifishveterinaryservicecenter.exception.MedicalReportNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.MedicineNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.PrescriptionNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.MedicineMapper;
+import org.ftf.koifishveterinaryservicecenter.repository.MedicalReportRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.MedicineRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.PrescriptionMedicineRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.PrescriptionRepository;
+import org.ftf.koifishveterinaryservicecenter.service.appointmentservice.AppointmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +33,9 @@ public class MedicalReportServiceImpl implements MedicalReportService {
     private final PrescriptionMedicineRepository prescriptionMedicineRepository;
 
     @Autowired
-    public MedicalReportServiceImpl(MedicineRepository medicineRepository, PrescriptionRepository prescriptionRepository, PrescriptionMedicineRepository prescriptionMedicineRepository) {
+    public MedicalReportServiceImpl(MedicineRepository medicineRepository
+            , PrescriptionRepository prescriptionRepository
+            , PrescriptionMedicineRepository prescriptionMedicineRepository) {
         this.medicineRepository = medicineRepository;
         this.prescriptionRepository = prescriptionRepository;
         this.prescriptionMedicineRepository = prescriptionMedicineRepository;

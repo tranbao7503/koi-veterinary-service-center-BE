@@ -2,10 +2,11 @@ package org.ftf.koifishveterinaryservicecenter.controller;
 
 import org.ftf.koifishveterinaryservicecenter.dto.MedicalReportDto;
 import org.ftf.koifishveterinaryservicecenter.dto.StatusDto;
-import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentDto;
 import org.ftf.koifishveterinaryservicecenter.entity.Appointment;
 import org.ftf.koifishveterinaryservicecenter.entity.MedicalReport;
 import org.ftf.koifishveterinaryservicecenter.entity.Status;
+import org.ftf.koifishveterinaryservicecenter.exception.*;
+import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentDto;
 import org.ftf.koifishveterinaryservicecenter.exception.AppointmentServiceNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.PrescriptionNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.StatusNotFoundException;
@@ -73,6 +74,21 @@ public class AppointmentController {
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
         } catch (StatusNotFoundException ex) {
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.NO_CONTENT);
+        }
+    }
+
+    @GetMapping("/{appointmentId}/report")
+    public ResponseEntity<?> getAppointmentReport(@PathVariable("appointmentId") Integer appointmentId) {
+        try{
+            MedicalReport medicalReport = appointmentService.getMedicalReportByAppointmentId(appointmentId);
+            MedicalReportDto medicalReportDto = MedicalReportMapper.INSTANCE.convertToDto(medicalReport);
+            return new ResponseEntity<>(medicalReportDto, HttpStatus.OK);
+        }catch (AppointmentServiceNotFoundException ex) {
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+        }catch (MedicalReportNotFoundException ex) {
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.NO_CONTENT);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
