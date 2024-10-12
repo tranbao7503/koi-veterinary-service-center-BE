@@ -28,4 +28,6 @@ public interface UserService {
 
     List<Address> getAllAddresses(Integer customerId);
 
+    Address getAddressById(Integer addressId);
+
 }

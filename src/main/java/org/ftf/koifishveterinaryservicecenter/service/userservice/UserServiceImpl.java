@@ -200,4 +200,13 @@ public class UserServiceImpl implements UserService {
         return addresses;
     }
 
+    @Override
+    public Address getAddressById(Integer addressId) {
+        Address address = addressRepository.findById(addressId).orElse(null);
+        if (address == null) {
+            throw new AddressNotFoundException("Address not found with ID: " + addressId);
+        }
+        return address;
+    }
+
 }
