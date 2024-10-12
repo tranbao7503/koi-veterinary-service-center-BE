@@ -23,7 +23,7 @@ import javax.crypto.spec.SecretKeySpec;
 public class AppConfig {
 
     private final String[] PUBLIC_ENDPOINTS = {
-            "/api/v1/users/token", "/api/v1/users/introspect", "api/v1/users/customers", "api/v1/users/signup", "api/v1/users/updateuser",
+            "/api/v1/users/token", "/api/v1/users/introspect", "api/v1/users/customers", "api/v1/users/signup",
     };
 
     @Value("${jwt.signer}")
