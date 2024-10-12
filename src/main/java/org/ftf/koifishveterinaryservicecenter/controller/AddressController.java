@@ -10,10 +10,7 @@ import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -52,7 +49,7 @@ public class AddressController {
     }
 
     /*
-     * Get All address details of the customer
+     * Get address details of the customer
      * Actors: Customer
      * */
     @GetMapping("/{addressId}/customer/{customerId}")
@@ -64,6 +61,36 @@ public class AddressController {
             Address address = userService.getAddressById(addressId);
             if (address.getCustomer().getUserId().equals(customer.getUserId())) {
                 AddressDTO addressDto = AddressMapper.INSTANCE.convertEntityToDto(address);
+                return new ResponseEntity<>(addressDto, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            }
+        } catch (UserNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (AddressNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /*
+     * Update address details of the customer
+     * Actors: Customer
+     * */
+    @PutMapping("{addressId}/customer/{customerId}")
+    public ResponseEntity<?> updateAddressById(
+            @PathVariable("addressId") Integer addressId
+            , @PathVariable("customerId") Integer customerId
+            , @RequestBody AddressDTO addressDto) {
+        try {
+            User customer = userService.getCustomerById(customerId);
+            Address address = userService.getAddressById(addressId);
+
+            if(address.getCustomer().getUserId().equals(customer.getUserId())) {
+                Address newAddress = AddressMapper.INSTANCE.convertDtoToEntity(addressDto);
+                address = userService.updateAddressDetails(addressId, newAddress);
+                addressDto = AddressMapper.INSTANCE.convertEntityToDto(address);
                 return new ResponseEntity<>(addressDto, HttpStatus.OK);
             } else {
                 return new ResponseEntity<>(HttpStatus.FORBIDDEN);

@@ -30,4 +30,6 @@ public interface UserService {
 
     Address getAddressById(Integer addressId);
 
+    Address updateAddressDetails(Integer addressId, Address newAddress);
+
 }

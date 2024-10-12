@@ -209,4 +209,21 @@ public class UserServiceImpl implements UserService {
         return address;
     }
 
+    @Override
+    public Address updateAddressDetails(Integer addressId, Address newAddress) {
+        Address existedAddress = addressRepository.findById(addressId).orElse(null);
+        if (existedAddress == null) {
+            throw new AddressNotFoundException("Address not found with ID: " + addressId);
+        } else {
+            existedAddress.setCity(newAddress.getCity());
+            existedAddress.setWard(newAddress.getWard());
+            existedAddress.setDistrict(newAddress.getDistrict());
+            existedAddress.setHomeNumber(newAddress.getHomeNumber());
+
+            newAddress = addressRepository.save(existedAddress);
+
+            return newAddress;
+        }
+    }
+
 }
