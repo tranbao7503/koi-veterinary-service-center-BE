@@ -1,7 +1,6 @@
 package org.ftf.koifishveterinaryservicecenter.mapper;
 
 import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentDto;
-import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentFeedbackDto;
 import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentForListDto;
 import org.ftf.koifishveterinaryservicecenter.entity.Appointment;
 import org.mapstruct.Mapper;
