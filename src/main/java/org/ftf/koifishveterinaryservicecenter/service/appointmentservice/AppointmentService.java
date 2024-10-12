@@ -20,4 +20,6 @@ public interface AppointmentService {
 
     void createAppointment(Appointment appointment, Integer customerId);
 
+    List<Appointment> getAllAppointments();
+
 }
