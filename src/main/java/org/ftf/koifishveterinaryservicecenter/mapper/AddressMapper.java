@@ -15,7 +15,8 @@ public interface AddressMapper {
             @Mapping(source = "city", target = "city"),
             @Mapping(source = "district", target = "district"),
             @Mapping(source = "ward", target = "ward"),
-            @Mapping(source = "homeNumber", target = "homeNumber")
+            @Mapping(source = "homeNumber", target = "homeNumber"),
+            @Mapping(source = "enabled", target = "status")
     })
     AddressDTO convertEntityToDto(Address address);
 
