@@ -226,4 +226,17 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Override
+    public Address setCurrentAddress(Integer customerId, Integer addressId) throws UserNotFoundException {
+        User customer = this.getCustomerById(customerId);
+        Address address = addressRepository.findById(addressId).orElse(null);
+        if (address == null) {
+            throw new AddressNotFoundException("Address not found with ID: " + addressId);
+        } else {
+            customer.setCurrentAddress(address);
+            userRepository.save(customer);
+            return address;
+        }
+    }
+
 }

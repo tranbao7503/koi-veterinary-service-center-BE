@@ -32,4 +32,6 @@ public interface UserService {
 
     Address updateAddressDetails(Integer addressId, Address newAddress);
 
+    Address setCurrentAddress(Integer customerId, Integer addressId);
+
 }
