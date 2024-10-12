@@ -189,5 +189,23 @@ public class AppointmentController {
         }
     }
 
+    @GetMapping("/customer/{customerId}")
+    public ResponseEntity<?> getAppointments(@PathVariable("customerId") Integer customerId) {
+        try{
+            User customer = userService.getCustomerById(customerId); // Check whether customer existed
+            List<Appointment> appointments = appointmentService.getAppointmentsByCustomerId(customer.getUserId());
+            List<AppointmentForListDto> appointmentForListDtos = appointments.stream()
+                    .map(AppointmentMapper.INSTANCE::convertedToAppointmentDtoForList)
+                    .collect(Collectors.toList());
+            return new ResponseEntity<>(appointmentForListDtos, HttpStatus.OK);
+        } catch (AppointmentServiceNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
+        } catch (UserNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
 }

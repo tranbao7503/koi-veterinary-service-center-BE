@@ -191,21 +191,4 @@ public class UserController {
         }
     }
 
-    @GetMapping("/veterinarian/{id}/feedbacks")
-    public ResponseEntity<?> getFeedbacks(@PathVariable("id") Integer id) {
-        try {
-            List<Feedback> feedbacks = feedbackService.getFeedbacksByVeterianrianId(id);
-            List<FeedbackDto> feedbackDtos = feedbacks.stream()
-                    .map(feedback -> FeedbackMapper.INSTANCE.convertToFeedbackDto(feedback))
-                    .collect(Collectors.toList());
-            return new ResponseEntity<>(feedbackDtos, HttpStatus.OK);
-        } catch (UserNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (FeedbackNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
-        } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
 }
