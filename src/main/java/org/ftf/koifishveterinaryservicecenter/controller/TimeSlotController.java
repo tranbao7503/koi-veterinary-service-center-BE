@@ -43,4 +43,23 @@ public class TimeSlotController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
+
+    /*
+    * Get all available slots since current day for customer for choosing in case not specifying veterinarian
+    * Actors: Customer
+    * */
+    @GetMapping("/available")
+    public ResponseEntity<?> getAvailableSlots() {
+        try {
+            List<TimeSlot> slots = slotService.getAvailableSlots();
+            List<TimeSlotDto> slotDtos = slots.stream()
+                    .map(TimeSlotMapper.INSTANCE::convertToAvailableTimeSlotDto)
+                    .collect(Collectors.toList());
+            return new ResponseEntity<>(slotDtos, HttpStatus.OK);
+        } catch (TimeSlotNotFound e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

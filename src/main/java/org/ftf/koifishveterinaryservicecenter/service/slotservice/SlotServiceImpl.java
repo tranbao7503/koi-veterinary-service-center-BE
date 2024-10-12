@@ -9,6 +9,7 @@ import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -50,6 +51,27 @@ public class SlotServiceImpl implements SlotService {
         Optional<TimeSlot> timeSlot = timeSlotRepository.findById(timeSlotId);
         if (timeSlot.isEmpty()) throw new TimeSlotNotFound("Time slot with ID: " + timeSlotId + " not found");
         return timeSlot.get();
+    }
+
+    @Override
+    public List<TimeSlot> getAvailableSlots() {
+
+        LocalDate currentDate = LocalDate.now();
+        LocalDate endDate = currentDate.plusDays(30);
+
+        Integer currentYear = currentDate.getYear();
+        Integer currentMonth = currentDate.getMonthValue();
+        Integer currentDay = currentDate.getDayOfMonth();
+
+        Integer endYear = endDate.getYear();
+        Integer endMonth = endDate.getMonthValue();
+        Integer endDay = endDate.getDayOfMonth();
+
+        List<TimeSlot> timeSlots = timeSlotRepository.findAvailableTimeSlot(currentYear, currentMonth, currentDay, endYear, endMonth, endDay);
+        if (timeSlots.isEmpty()) {
+            throw new TimeSlotNotFound("There are no available slots");
+        }
+        return timeSlots;
     }
 
 
