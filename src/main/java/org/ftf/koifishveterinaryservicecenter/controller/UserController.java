@@ -129,7 +129,7 @@ public class UserController {
     @PostMapping("/introspect")
     ApiResponse<IntrospectResponse> authenticate(@RequestBody IntrospectRequestDTO request)
             throws ParseException {
-        var result = authenticationService.introspect(request);
+        var result = authenticationService.getUserInfoFromToken(request);
         if (result == null) {
             return ApiResponse.<IntrospectResponse>builder().code(404).build();
         }

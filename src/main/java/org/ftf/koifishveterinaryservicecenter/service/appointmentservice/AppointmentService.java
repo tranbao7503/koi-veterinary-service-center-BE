@@ -22,4 +22,6 @@ public interface AppointmentService {
 
     List<Appointment> getAppointmentsByCustomerId(Integer customerId);
 
+    List<Appointment> getAllAppointments();
+
 }

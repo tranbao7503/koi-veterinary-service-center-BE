@@ -23,4 +23,5 @@ public class AppointmentForListDto extends AppointmentBaseDto {
 
     @JsonProperty("payment_status")
     private PaymentStatus paymentStatus;
+
 }
