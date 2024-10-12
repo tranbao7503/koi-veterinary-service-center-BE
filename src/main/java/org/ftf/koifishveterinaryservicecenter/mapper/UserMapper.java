@@ -19,7 +19,7 @@ public interface UserMapper {
             @Mapping(source = "email", target = "email"),
             @Mapping(source = "phoneNumber", target = "phoneNumber"),
             @Mapping(source = "avatar", target = "avatar"),
-            @Mapping(source = "address", target = "address")
+            @Mapping(source = "currentAddress", target = "address")
     })
     UserDTO convertEntityToDto(User user);
 
@@ -38,7 +38,7 @@ public interface UserMapper {
             @Mapping(source = "email", target = "email"),
             @Mapping(source = "phoneNumber", target = "phoneNumber"),
             @Mapping(source = "avatar", target = "avatar"),
-            @Mapping(source = "address", target = "address")
+            @Mapping(source = "address", target = "currentAddress")
     })
     User convertDtoToEntity(UserDTO userDto);
 

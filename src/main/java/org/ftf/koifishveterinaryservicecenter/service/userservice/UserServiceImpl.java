@@ -63,12 +63,12 @@ public class UserServiceImpl implements UserService {
         }
 
         // set addressId for Address input
-        Integer addressId = userFromDb.getAddress().getAddressId();
+        Integer addressId = userFromDb.getCurrentAddress().getAddressId();
         convertedAddress.setAddressId(addressId);
 
         // update Address property for User instance
         Address updatedAddress = addressRepository.save(convertedAddress);
-        userFromDb.setAddress(updatedAddress);
+        userFromDb.setCurrentAddress(updatedAddress);
         return userFromDb;
     }
 

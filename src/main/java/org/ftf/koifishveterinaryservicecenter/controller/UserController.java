@@ -3,20 +3,13 @@ package org.ftf.koifishveterinaryservicecenter.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.ftf.koifishveterinaryservicecenter.dto.*;
+import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentForListDto;
 import org.ftf.koifishveterinaryservicecenter.dto.response.AuthenticationResponse;
 import org.ftf.koifishveterinaryservicecenter.dto.response.IntrospectResponse;
-import org.ftf.koifishveterinaryservicecenter.entity.Address;
-import org.ftf.koifishveterinaryservicecenter.entity.Certificate;
-import org.ftf.koifishveterinaryservicecenter.entity.Feedback;
-import org.ftf.koifishveterinaryservicecenter.entity.User;
-import org.ftf.koifishveterinaryservicecenter.exception.AuthenticationException;
-import org.ftf.koifishveterinaryservicecenter.exception.CertificateNotFoundException;
-import org.ftf.koifishveterinaryservicecenter.exception.FeedbackNotFoundException;
-import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
-import org.ftf.koifishveterinaryservicecenter.mapper.AddressMapper;
-import org.ftf.koifishveterinaryservicecenter.mapper.CertificateMapper;
-import org.ftf.koifishveterinaryservicecenter.mapper.FeedbackMapper;
-import org.ftf.koifishveterinaryservicecenter.mapper.UserMapper;
+import org.ftf.koifishveterinaryservicecenter.entity.*;
+import org.ftf.koifishveterinaryservicecenter.exception.*;
+import org.ftf.koifishveterinaryservicecenter.mapper.*;
+import org.ftf.koifishveterinaryservicecenter.service.appointmentservice.AppointmentService;
 import org.ftf.koifishveterinaryservicecenter.service.feedbackservice.FeedbackService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
@@ -49,13 +42,15 @@ public class UserController {
     private final UserMapper userMapper;
     private final AuthenticationService authenticationService;
     private final FeedbackService feedbackService;
+    private final AppointmentService appointmentService;
 
     @Autowired
-    public UserController(UserService userService, UserMapper userMapper, AuthenticationService authenticationService, FeedbackService feedbackService) {
+    public UserController(UserService userService, UserMapper userMapper, AuthenticationService authenticationService, FeedbackService feedbackService, AppointmentService appointmentService) {
         this.userService = userService;
         this.userMapper = userMapper;
         this.authenticationService = authenticationService;
         this.feedbackService = feedbackService;
+        this.appointmentService = appointmentService;
     }
 
     @GetMapping("/profile")
@@ -134,7 +129,7 @@ public class UserController {
     @PostMapping("/introspect")
     ApiResponse<IntrospectResponse> authenticate(@RequestBody IntrospectRequestDTO request)
             throws ParseException {
-        var result = authenticationService.introspect(request);
+        var result = authenticationService.getUserInfoFromToken(request);
         if (result == null) {
             return ApiResponse.<IntrospectResponse>builder().code(404).build();
         }
@@ -191,6 +186,23 @@ public class UserController {
             return new ResponseEntity<>(userDTOs, HttpStatus.OK);
         } catch (UserNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/veterinarian/{id}/feedbacks")
+    public ResponseEntity<?> getFeedbacks(@PathVariable("id") Integer id) {
+        try {
+            List<Feedback> feedbacks = feedbackService.getFeedbacksByVeterianrianId(id);
+            List<FeedbackDto> feedbackDtos = feedbacks.stream()
+                    .map(feedback -> FeedbackMapper.INSTANCE.convertToFeedbackDto(feedback))
+                    .collect(Collectors.toList());
+            return new ResponseEntity<>(feedbackDtos, HttpStatus.OK);
+        } catch (UserNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (FeedbackNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
