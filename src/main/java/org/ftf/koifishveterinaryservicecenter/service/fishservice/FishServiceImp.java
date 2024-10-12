@@ -2,11 +2,13 @@ package org.ftf.koifishveterinaryservicecenter.service.fishservice;
 
 import org.ftf.koifishveterinaryservicecenter.dto.FishDTO;
 import org.ftf.koifishveterinaryservicecenter.entity.Fish;
+import org.ftf.koifishveterinaryservicecenter.exception.FishNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.FishMapper;
 import org.ftf.koifishveterinaryservicecenter.repository.FishRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class FishServiceImp implements FishService {
@@ -23,6 +25,13 @@ public class FishServiceImp implements FishService {
     public FishDTO getDetailFish(int fishId) {
         Fish fish = fishRepository.findByFishId(fishId);
         return fish != null ? fishMapper.convertEntityToDto(fish) : null;
+    }
+
+    @Override
+    public Fish getFishById(Integer fishId) {
+        Optional<Fish> fish = fishRepository.findById(fishId);
+        if (fish.isEmpty()) throw new FishNotFoundException("Fish not found with id " + fishId);
+        return fish.get();
     }
 
     @Override

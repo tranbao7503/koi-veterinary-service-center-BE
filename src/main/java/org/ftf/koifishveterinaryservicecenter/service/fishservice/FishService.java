@@ -11,4 +11,5 @@ public interface FishService {
 
     FishDTO getDetailFish(int fishId);
 
+    Fish getFishById(Integer fishId);
 }
