@@ -23,7 +23,7 @@ import javax.crypto.spec.SecretKeySpec;
 public class AppConfig {
 
     private final String[] PUBLIC_ENDPOINTS = {
-            "/api/v1/users/token", "/api/v1/users/introspect", "api/v1/users/customers", "api/v1/users/signup", "api/v1/users/signup"
+            "/api/v1/users/token", "/api/v1/users/introspect", "api/v1/users/customers", "api/v1/users/signup",
     };
 
     @Value("${jwt.signer}")
@@ -71,6 +71,7 @@ public class AppConfig {
                         .requestMatchers("/api/v1/users").hasAnyAuthority("MAN", "STA", "VET")
                         // Các yêu cầu còn lại phải được xác thực
                         .requestMatchers("/api/v1/users/signup").hasAnyAuthority("MAN")
+                        .requestMatchers("/api/v1/users/staff").hasAnyAuthority("MAN")
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer ->
                         jwtConfigurer.decoder(jwtDecoder()).jwtAuthenticationConverter(jwtAuthenticationConverter())
