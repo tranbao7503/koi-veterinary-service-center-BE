@@ -18,7 +18,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class AppConfig {
 
     private final String[] PUBLIC_ENDPOINTS = {
-            "/api/v1/users/token", "/api/v1/users/introspect", "api/v1/users/customers"
+            "/api/v1/users/token", "/api/v1/users/introspect", "api/v1/users/customers", "/api/v1/users/refresh"
     };
 
 
@@ -52,7 +52,7 @@ public class AppConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
-                .csrf(csrfConfig -> csrfConfig.ignoringRequestMatchers("/api/v1/users/token", "/api/v1/users/introspect", "api/v1/users/customers", "api/v1/users/logout"))
+                .csrf(csrfConfig -> csrfConfig.ignoringRequestMatchers("/api/v1/users/token", "/api/v1/users/introspect", "api/v1/users/customers", "api/v1/users/logout", "api/v1/users/refresh"))
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(Customizer.withDefaults())
 
@@ -62,6 +62,7 @@ public class AppConfig {
                         // Chỉ cho phép các vai trò "STA", "VET", "MAN" truy cập /api/v1/users/customers
                         .requestMatchers("/api/v1/users/customers").hasAnyAuthority("MAN")
                         .requestMatchers("/api/v1/users/logout").permitAll()
+
                         // Các quyền khác cho /api/v1/users
                         .requestMatchers("/api/v1/users").hasAnyAuthority("MAN", "STA", "VET")
                         // Các yêu cầu còn lại phải được xác thực
