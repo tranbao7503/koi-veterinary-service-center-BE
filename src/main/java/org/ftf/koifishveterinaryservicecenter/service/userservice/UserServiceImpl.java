@@ -1,14 +1,11 @@
 package org.ftf.koifishveterinaryservicecenter.service.userservice;
 
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
-import org.ftf.koifishveterinaryservicecenter.entity.Certificate;
 import org.ftf.koifishveterinaryservicecenter.entity.Role;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.ftf.koifishveterinaryservicecenter.exception.AuthenticationException;
-import org.ftf.koifishveterinaryservicecenter.exception.CertificateNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.repository.AddressRepository;
-import org.ftf.koifishveterinaryservicecenter.repository.CertificateRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.RoleRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.UserRepository;
 import org.ftf.koifishveterinaryservicecenter.service.fileservice.FileUploadService;
@@ -19,9 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.sql.Date;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,21 +27,18 @@ public class UserServiceImpl implements UserService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final FileUploadService fileUploadService;
-    private final CertificateRepository certificateRepository;
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository
             , AddressRepository addressRepository
             , RoleRepository roleRepository
             , PasswordEncoder passwordEncoder
-            , FileUploadService fileUploadService
-            , CertificateRepository certificateRepository) {
+            , FileUploadService fileUploadService) {
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.fileUploadService = fileUploadService;
-        this.certificateRepository = certificateRepository;
     }
 
     @Override
@@ -72,12 +63,12 @@ public class UserServiceImpl implements UserService {
         }
 
         // set addressId for Address input
-        Integer addressId = userFromDb.getAddress().getAddressId();
+        Integer addressId = userFromDb.getCurrentAddress().getAddressId();
         convertedAddress.setAddressId(addressId);
 
         // update Address property for User instance
         Address updatedAddress = addressRepository.save(convertedAddress);
-        userFromDb.setAddress(updatedAddress);
+        userFromDb.setCurrentAddress(updatedAddress);
         return userFromDb;
     }
 
@@ -197,31 +188,5 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
         return user;
     }
-
-    @Override
-    public String AddVeterinarianCertificate(Integer veterinarianId, String certificateName, MultipartFile certificateFromRequest) throws IOException, UserNotFoundException {
-        User veterinarian = this.getVeterinarianById(veterinarianId);
-        String path = fileUploadService.uploadCertificate(certificateFromRequest);
-
-        Certificate certificate = new Certificate();
-        certificate.setCertificateName(certificateName);
-        certificate.setFilePath(path);
-        certificate.setUploadDate(LocalDateTime.now());
-        certificate.setVeterinarian(veterinarian);
-
-        certificateRepository.save(certificate);
-        return path;
-    }
-
-    @Override
-    public List<Certificate> getAllCertificatesByVeterinarianId(Integer veterinarianId) throws UserNotFoundException {
-        this.getVeterinarianById(veterinarianId);
-        List<Certificate> certificates = certificateRepository.findByVeterinarianId(veterinarianId);
-        if (certificates.isEmpty()) {
-            throw new CertificateNotFoundException("Certificate not found for Veterinarian with Id: " + veterinarianId);
-        }
-        return certificates;
-    }
-
 
 }
