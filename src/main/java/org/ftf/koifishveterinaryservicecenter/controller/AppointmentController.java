@@ -106,7 +106,7 @@ public class AppointmentController {
         }
     }
 
-    @GetMapping("/all")
+    @GetMapping()
     public ResponseEntity<?> getAllAppointments() {
         try{
             List<Appointment> appointments = appointmentService.getAllAppointments();
