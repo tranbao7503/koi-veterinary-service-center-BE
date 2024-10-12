@@ -4,6 +4,7 @@ import org.ftf.koifishveterinaryservicecenter.dto.FishDTO;
 import org.ftf.koifishveterinaryservicecenter.dto.IntrospectRequestDTO;
 import org.ftf.koifishveterinaryservicecenter.dto.response.IntrospectResponse;
 import org.ftf.koifishveterinaryservicecenter.entity.Fish;
+import org.ftf.koifishveterinaryservicecenter.exception.FishNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.FishMapper;
 import org.ftf.koifishveterinaryservicecenter.service.fishservice.FishService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
@@ -72,14 +73,18 @@ public class FishController {
 
     }
 
-    @DeleteMapping("/{fishId}")
-    public ResponseEntity<String> removeFish(@PathVariable int fishId) {
-        boolean isRemoved = fishService.removeFishFromList(fishId);
+    @PutMapping("/deletefish")
+    public ResponseEntity<FishDTO> updateUser(@RequestBody FishDTO fishDTO) {
+        try {
+            // Gọi phương thức updateUser từ service với dữ liệu từ UserDTO
+            FishDTO updatedFish = fishService.removeFish(fishDTO.getFishId(), fishDTO.isEnabled());
 
-        if (isRemoved) {
-            return ResponseEntity.ok("Fish with ID " + fishId + " was removed successfully.");
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Fish with ID " + fishId + " not found.");
+            // Trả về kết quả thành công với đối tượng UserDTO đã cập nhật
+            return ResponseEntity.ok(updatedFish);
+        } catch (FishNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(null);
         }
     }
 

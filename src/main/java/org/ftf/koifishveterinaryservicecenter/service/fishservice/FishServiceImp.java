@@ -2,6 +2,7 @@ package org.ftf.koifishveterinaryservicecenter.service.fishservice;
 
 import org.ftf.koifishveterinaryservicecenter.dto.FishDTO;
 import org.ftf.koifishveterinaryservicecenter.entity.Fish;
+import org.ftf.koifishveterinaryservicecenter.exception.FishNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.FishMapper;
 import org.ftf.koifishveterinaryservicecenter.repository.FishRepository;
 import org.springframework.stereotype.Service;
@@ -31,13 +32,24 @@ public class FishServiceImp implements FishService {
         return fishRepository.findAllFishByCustomer_UserId(Id);
     }
 
+    //Xoa ca khoi list
     @Override
-    public boolean removeFishFromList(int fishId) {
-        Fish fish = fishRepository.findByFishId(fishId);
-        if (fish != null) {
-            fishRepository.delete(fish); // Xóa trực tiếp khỏi database
-            return true; // Xóa thành công
+    public FishDTO removeFish(int fishId, boolean enabled) {
+        // Lấy thông tin người dùng từ database
+        Fish fishFromDb = fishRepository.findById(fishId).orElse(null);
+
+
+        if (fishFromDb == null) {
+            throw new FishNotFoundException("User not found with ID: " + fishId);
         }
-        return false;
+
+        // Cập nhật enable/disable cho fish
+        fishFromDb.setEnabled(enabled);
+
+        // Lưu người dùng đã cập nhật
+        Fish updatedFish = fishRepository.save(fishFromDb);
+
+        // Sử dụng mapper để chuyển đổi entity sang DTO
+        return fishMapper.convertEntityToDto(updatedFish);
     }
 }
