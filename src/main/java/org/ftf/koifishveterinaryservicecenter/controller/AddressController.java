@@ -87,7 +87,7 @@ public class AddressController {
             User customer = userService.getCustomerById(customerId);
             Address address = userService.getAddressById(addressId);
 
-            if(address.getCustomer().getUserId().equals(customer.getUserId())) {
+            if (address.getCustomer().getUserId().equals(customer.getUserId())) {
                 Address newAddress = AddressMapper.INSTANCE.convertDtoToEntity(addressDto);
                 address = userService.updateAddressDetails(addressId, newAddress);
                 addressDto = AddressMapper.INSTANCE.convertEntityToDto(address);
@@ -99,6 +99,26 @@ public class AddressController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (AddressNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /*
+     * Add new address into list and set as main current address of customer
+     * Actors: Customer
+     * */
+    @PostMapping("/customer/{customerId}")
+    public ResponseEntity<?> createAddress(
+            @PathVariable("customerId") Integer customerId
+            , @RequestBody AddressDTO addressDto) {
+        try {
+            Address address = AddressMapper.INSTANCE.convertDtoToEntity(addressDto);
+            Address newAddress = userService.addAddress(customerId, address);
+            AddressDTO addressDTO = AddressMapper.INSTANCE.convertEntityToDto(newAddress);
+            return new ResponseEntity<>(addressDTO, HttpStatus.CREATED);
+        } catch (UserNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }

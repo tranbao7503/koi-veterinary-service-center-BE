@@ -34,4 +34,6 @@ public interface UserService {
 
     Address setCurrentAddress(Integer customerId, Integer addressId);
 
+    Address addAddress(Integer customerId, Address address);
+
 }
