@@ -34,7 +34,8 @@ public class AddressController {
     public ResponseEntity<?> getAllAddresses(
             @PathVariable("customerId") Integer customerId) {
         try {
-            List<Address> addresses = userService.getAllAddresses(customerId);
+            User customer = userService.getCustomerById(customerId);
+            List<Address> addresses = userService.getAllAddresses(customer.getUserId());
             List<AddressDTO> addressDtoList = addresses.stream()
                     .map(AddressMapper.INSTANCE::convertEntityToDto)
                     .collect(Collectors.toList());
@@ -119,6 +120,32 @@ public class AddressController {
             return new ResponseEntity<>(addressDTO, HttpStatus.CREATED);
         } catch (UserNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DeleteMapping("/customer/{customerId}")
+    public ResponseEntity<?> deleteAddress(
+            @PathVariable("customerId") Integer customerId
+            , @RequestParam Integer addressId) {
+        try {
+            User customer = userService.getCustomerById(customerId);
+            Address address = userService.getAddressById(addressId);
+            if (address.getCustomer().getUserId().equals(customer.getUserId())) {
+                if (customer.getCurrentAddress().getAddressId().equals(addressId)) {
+                    return new ResponseEntity<>("The address with cannot be deleted as it is currently in use.", HttpStatus.CONFLICT);
+                } else {
+                    Address deletedAddress = userService.disableAddress(addressId);
+                    return new ResponseEntity<>(deletedAddress, HttpStatus.OK);
+                }
+            } else {
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            }
+        } catch (UserNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (AddressNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }

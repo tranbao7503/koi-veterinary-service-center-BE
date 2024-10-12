@@ -36,4 +36,6 @@ public interface UserService {
 
     Address addAddress(Integer customerId, Address address);
 
+    Address disableAddress(Integer addressId);
+
 }

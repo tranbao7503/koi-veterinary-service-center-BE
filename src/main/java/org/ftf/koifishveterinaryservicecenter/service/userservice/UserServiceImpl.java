@@ -191,10 +191,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<Address> getAllAddresses(Integer customerId) throws UserNotFoundException {
-        User customer = this.getCustomerById(customerId);
-        List<Address> addresses = new ArrayList<>(customer.getAddresses());
-        if(addresses.isEmpty()){
+    public List<Address> getAllAddresses(Integer customerId) {
+        List<Address> addresses = addressRepository.findByCustomerId(customerId);
+        if (addresses.isEmpty()) {
             throw new AddressNotFoundException("Address not found with customer ID: " + customerId);
         }
         return addresses;
@@ -251,6 +250,17 @@ public class UserServiceImpl implements UserService {
         // Set new address as main current address
         this.setCurrentAddress(customerId, address.getAddressId());
 
+        return address;
+    }
+
+    @Override
+    public Address disableAddress(Integer addressId) {
+        Address address = addressRepository.findById(addressId).orElse(null);
+        if (address == null) {
+            throw new AddressNotFoundException("Address not found with ID: " + addressId);
+        }
+        address.setEnabled(false);
+        address = addressRepository.save(address);
         return address;
     }
 
