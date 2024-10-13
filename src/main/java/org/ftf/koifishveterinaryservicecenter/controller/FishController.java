@@ -1,20 +1,18 @@
 package org.ftf.koifishveterinaryservicecenter.controller;
 
 import org.ftf.koifishveterinaryservicecenter.dto.FishDTO;
+import org.ftf.koifishveterinaryservicecenter.dto.ImageDTO;
 import org.ftf.koifishveterinaryservicecenter.dto.IntrospectRequestDTO;
 import org.ftf.koifishveterinaryservicecenter.dto.response.IntrospectResponse;
 import org.ftf.koifishveterinaryservicecenter.entity.Fish;
+import org.ftf.koifishveterinaryservicecenter.exception.ImageNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.FishMapper;
 import org.ftf.koifishveterinaryservicecenter.service.fishservice.FishService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
 import java.util.List;
@@ -74,6 +72,21 @@ public class FishController {
             return new ResponseEntity<>(fishDTOs, HttpStatus.OK);
         }
 
+    }
+
+    @PutMapping("/deleteimage")
+    public ResponseEntity<ImageDTO> updateImage(@RequestBody ImageDTO imageDTO) {
+        try {
+            // Gọi phương thức updateUser từ service với dữ liệu từ UserDTO
+            ImageDTO updatedImage = fishService.removeImage(imageDTO.getImageId(), imageDTO.isEnabled());
+
+            // Trả về kết quả thành công với đối tượng UserDTO đã cập nhật
+            return ResponseEntity.ok(updatedImage);
+        } catch (ImageNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(null);
+        }
     }
 
 }
