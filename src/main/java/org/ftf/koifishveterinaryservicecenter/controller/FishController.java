@@ -1,10 +1,10 @@
 package org.ftf.koifishveterinaryservicecenter.controller;
 
 import org.ftf.koifishveterinaryservicecenter.dto.FishDTO;
+import org.ftf.koifishveterinaryservicecenter.dto.ImageDTO;
 import org.ftf.koifishveterinaryservicecenter.dto.IntrospectRequestDTO;
 import org.ftf.koifishveterinaryservicecenter.dto.response.IntrospectResponse;
 import org.ftf.koifishveterinaryservicecenter.entity.Fish;
-import org.ftf.koifishveterinaryservicecenter.entity.Image;
 import org.ftf.koifishveterinaryservicecenter.mapper.FishMapper;
 import org.ftf.koifishveterinaryservicecenter.service.fishservice.FishService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
@@ -74,13 +74,13 @@ public class FishController {
 
     }
 
-    @PostMapping("/{fishId}")
-    public ResponseEntity<Image> addImageForFish(@PathVariable int fishId, @RequestParam String sourcePath) {
+    @PostMapping("/add_image")
+    public ResponseEntity<ImageDTO> addImageForFish(@RequestBody ImageDTO imageDTO) {
         try {
-            Image newImage = fishService.addImageForFish(fishId, sourcePath);
+            ImageDTO newImage = fishService.addImageForFish(imageDTO.getFishId(), imageDTO.getSourcePath());
             return new ResponseEntity<>(newImage, HttpStatus.CREATED);
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND); // Trả về 404 nếu cá không tìm thấy
+            return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
         }
     }
 
