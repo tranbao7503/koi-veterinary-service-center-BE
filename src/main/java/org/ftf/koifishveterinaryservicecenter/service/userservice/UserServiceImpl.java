@@ -118,35 +118,56 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void signUp(String username, String password, String first_Name, String last_Name) {
+    public void signUp(String username, String password, String email, String first_Name, String last_Name) {
 
+        // Kiểm tra username
         if (username == null || username.isBlank()) {
             throw new AuthenticationException("Username can not be empty");
         }
         if (username.contains(" ")) {
             throw new AuthenticationException("Username can not contain white space");
         }
+
+        // Kiểm tra password
         if (password == null || password.isBlank()) {
             throw new AuthenticationException("Password can not be empty");
         }
         if (password.length() < 8) {
-            throw new AuthenticationException("Password can not < 8 characters");
+            throw new AuthenticationException("Password can not be less than 8 characters");
         }
         String passwordPattern = "^(?=.*[@#$%^&+=!{}]).{8,}$";
         if (!password.matches(passwordPattern)) {
             throw new AuthenticationException("Password must contain at least one special character and be at least 8 characters long");
         }
 
+        // Kiểm tra email
+        if (email == null || email.isBlank()) {
+            throw new AuthenticationException("Email can not be empty");
+        }
+        String emailPattern = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
+        if (!email.matches(emailPattern)) {
+            throw new AuthenticationException("Email is not valid");
+        }
+        if (userRepository.findUserByEmail(email) != null) {
+            throw new AuthenticationException("Email is already registered");
+        }
+
+        // Kiểm tra first_name
         if (first_Name == null || first_Name.isBlank()) {
             throw new AuthenticationException("first_Name can not be empty");
         }
+
+        // Kiểm tra last_name
         if (last_Name == null || last_Name.isBlank()) {
             throw new AuthenticationException("last_Name can not be empty");
         }
+
+        // Kiểm tra username có tồn tại không
         if (userRepository.findUserByUsername(username) != null) {
             throw new AuthenticationException("Username is existed");
         }
 
+        // Tạo user mới và lưu vào database
         User user = new User();
         user.setUsername(username);
         user.setPassword(passwordEncoder.encode(password));
@@ -154,6 +175,7 @@ public class UserServiceImpl implements UserService {
         user.setRole(role);
         user.setFirstName(first_Name);
         user.setLastName(last_Name);
+        user.setEmail(email); // Gán email cho user
         userRepository.save(user);
     }
 
