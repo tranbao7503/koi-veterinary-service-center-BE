@@ -22,10 +22,13 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/v1/slots")
 public class TimeSlotController {
     private final SlotService slotService;
+    private final TimeSlotMapper timeSlotMapper;
 
     @Autowired
-    public TimeSlotController(final SlotService slotService) {
+    public TimeSlotController(final SlotService slotService,
+                              TimeSlotMapper timeSlotMapper) {
         this.slotService = slotService;
+        this.timeSlotMapper = timeSlotMapper;
     }
 
     @GetMapping("/{veterinarianID}")
@@ -36,11 +39,18 @@ public class TimeSlotController {
                     .map(TimeSlotMapper.INSTANCE::convertToTimeSlotDto)
                     .collect(Collectors.toList());
             return new ResponseEntity<>(dtos, HttpStatus.OK);
-//            return new ResponseEntity<>(slots, HttpStatus.OK);
         } catch (UserNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (TimeSlotNotFound e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
+    }
+
+    // get all available slot id > current hour + 3h
+    @GetMapping("/available")
+    public ResponseEntity<?> getAvailableSlots() {
+        List<TimeSlot> timeSlots = slotService.getListAvailableTimeSlots();
+        List<TimeSlotDto> dtos = timeSlots.stream().map(timeSlotMapper::convertToTimeSlotDtoAvailable).toList();
+        return new ResponseEntity<>(dtos, HttpStatus.OK);
     }
 }

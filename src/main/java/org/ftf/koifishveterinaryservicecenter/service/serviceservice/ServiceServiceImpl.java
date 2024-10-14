@@ -1,7 +1,7 @@
 package org.ftf.koifishveterinaryservicecenter.service.serviceservice;
 
 import org.ftf.koifishveterinaryservicecenter.entity.Service;
-import org.ftf.koifishveterinaryservicecenter.exception.AppointmentServiceNotFoundException;
+import org.ftf.koifishveterinaryservicecenter.exception.AppointmentNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.repository.ServiceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -29,10 +29,10 @@ public class ServiceServiceImpl implements ServiceService {
 
 
     @Override
-    public Service getServiceById(Integer serviceId) throws AppointmentServiceNotFoundException {
+    public Service getServiceById(Integer serviceId) throws AppointmentNotFoundException {
         Service service = serviceRepository.findById(serviceId).orElse(null);
         if (service == null){
-            throw new AppointmentServiceNotFoundException("Service not found with ID: " + serviceId);
+            throw new AppointmentNotFoundException("Service not found with ID: " + serviceId);
         }
         return service;
     }
@@ -42,12 +42,12 @@ public class ServiceServiceImpl implements ServiceService {
      * Update price of service
      * */
     @Override
-    public Service updateService(Integer serviceId, Service serviceFromRequest) throws AppointmentServiceNotFoundException {
+    public Service updateService(Integer serviceId, Service serviceFromRequest) throws AppointmentNotFoundException {
 
         // check service existed from db
         Service serviceFromDb = serviceRepository.findById(serviceId).orElse(null);
         if (serviceFromDb == null) {
-            throw new AppointmentServiceNotFoundException("Service not found with ID: " + serviceId);
+            throw new AppointmentNotFoundException("Service not found with ID: " + serviceId);
         }
         serviceFromDb = serviceRepository.save(serviceFromRequest);
         return serviceFromDb;

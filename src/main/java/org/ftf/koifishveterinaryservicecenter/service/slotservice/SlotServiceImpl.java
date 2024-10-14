@@ -9,6 +9,7 @@ import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -17,13 +18,11 @@ import java.util.stream.Collectors;
 public class SlotServiceImpl implements SlotService {
 
     private final TimeSlotRepository timeSlotRepository;
-    private final VeterinarianSlotsRepository veterinarianSlotsRepository;
     private final UserService userService;
 
     @Autowired
-    public SlotServiceImpl(TimeSlotRepository timeSlotRepository, VeterinarianSlotsRepository veterinarianSlotsRepository, UserService userService) {
+    public SlotServiceImpl(TimeSlotRepository timeSlotRepository, UserService userService) {
         this.timeSlotRepository = timeSlotRepository;
-        this.veterinarianSlotsRepository = veterinarianSlotsRepository;
         this.userService = userService;
     }
 
@@ -50,6 +49,16 @@ public class SlotServiceImpl implements SlotService {
         Optional<TimeSlot> timeSlot = timeSlotRepository.findById(timeSlotId);
         if (timeSlot.isEmpty()) throw new TimeSlotNotFound("Time slot with ID: " + timeSlotId + " not found");
         return timeSlot.get();
+    }
+
+    @Override
+    public List<TimeSlot> getListAvailableTimeSlots() {
+
+        LocalDateTime threeHoursFromNow = LocalDateTime.now().plusHours(3);
+        LocalDateTime threeMonthsFromNow = LocalDateTime.now().plusMonths(3);
+
+        List<TimeSlot> availableTimeSlot = timeSlotRepository.getAvailableTimeSlot();
+        return availableTimeSlot.stream().filter(timeSlot -> timeSlot.getDateTimeBasedOnSlot().isAfter(threeHoursFromNow) && timeSlot.getDateTimeBasedOnSlot().isBefore(threeMonthsFromNow)).toList();
     }
 
 

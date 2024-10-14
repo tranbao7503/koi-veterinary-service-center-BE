@@ -1,8 +1,10 @@
 package org.ftf.koifishveterinaryservicecenter.service.appointmentservice;
 
+import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentUpdateDto;
 import org.ftf.koifishveterinaryservicecenter.entity.*;
 import org.ftf.koifishveterinaryservicecenter.enums.AppointmentStatus;
-import org.ftf.koifishveterinaryservicecenter.exception.AppointmentServiceNotFoundException;
+import org.ftf.koifishveterinaryservicecenter.exception.AppointmentNotFoundException;
+import org.ftf.koifishveterinaryservicecenter.exception.AppointmentUpdatedException;
 import org.ftf.koifishveterinaryservicecenter.exception.MedicalReportNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.StatusNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.repository.*;
@@ -10,8 +12,10 @@ import org.ftf.koifishveterinaryservicecenter.service.medicalreportservice.Medic
 import org.ftf.koifishveterinaryservicecenter.service.paymentservice.PaymentService;
 import org.ftf.koifishveterinaryservicecenter.service.serviceservice.ServiceService;
 import org.ftf.koifishveterinaryservicecenter.service.slotservice.SlotService;
+import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -28,6 +32,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final ServiceService serviceService;
     private final SlotService slotService;
     private final PaymentService paymentService;
+    private final AuthenticationService authenticationService;
 
     @Autowired
     public AppointmentServiceImpl(AppointmentRepository appointmentRepository
@@ -35,7 +40,8 @@ public class AppointmentServiceImpl implements AppointmentService {
             , UserService userService
             , MedicalReportRepository medicalReportRepository
             , ServiceService serviceService
-            , SlotService slotService, PaymentService paymentService) {
+            , SlotService slotService, PaymentService paymentService
+            , AuthenticationService authenticationService) {
         this.appointmentRepository = appointmentRepository;
         this.medicalReportService = medicalReportService;
         this.userService = userService;
@@ -43,6 +49,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         this.serviceService = serviceService;
         this.slotService = slotService;
         this.paymentService = paymentService;
+        this.authenticationService = authenticationService;
     }
 
 
@@ -67,7 +74,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public List<Status> findStatusByAppointmentId(Integer appointmentId) throws AppointmentServiceNotFoundException {
+    public List<Status> findStatusByAppointmentId(Integer appointmentId) throws AppointmentNotFoundException {
 
         // Get appointment by Appointment Id - Not found => exception
         Appointment appointment = this.getAppointmentById(appointmentId);
@@ -148,8 +155,8 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public List<Appointment> getAppointmentsByCustomerId(Integer customerId) {
         List<Appointment> appointments = appointmentRepository.findAppointmentByCustomerId(customerId);
-        if(appointments.isEmpty()) {
-            throw  new AppointmentServiceNotFoundException("Appointment not found!");
+        if (appointments.isEmpty()) {
+            throw new AppointmentNotFoundException("Appointment not found!");
         }
         // Sort by newest appointment
         appointments.sort(Comparator.comparing(Appointment::getAppointmentId).reversed());
@@ -160,8 +167,8 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public List<Appointment> getAllAppointments() {
         List<Appointment> appointments = appointmentRepository.findAll();
-        if(appointments.isEmpty()) {
-            throw new AppointmentServiceNotFoundException("Not found appointments");
+        if (appointments.isEmpty()) {
+            throw new AppointmentNotFoundException("Not found appointments");
         }
         // Sort by created date
         appointments.sort(Comparator.comparing(Appointment::getAppointmentId).reversed());
@@ -169,19 +176,64 @@ public class AppointmentServiceImpl implements AppointmentService {
         return appointments;
     }
 
+
+    @Override
+    public Appointment updateAppointment(AppointmentUpdateDto appointmentDto, Integer appointmentId) throws AppointmentUpdatedException {
+
+        Integer authenticatedUserId = authenticationService.getAuthenticatedUserId();
+        Integer ownerId = getAppointmentOwnerId(appointmentId);
+
+        if (authenticatedUserId.equals(ownerId)) {
+            Appointment bookedAppointment = getAppointmentById(appointmentId);
+
+            if (isAbleToUpdateAppointment(bookedAppointment, appointmentDto)) {
+                // update slot Id
+                if (appointmentDto.getSlotId() != null) {
+                    TimeSlot newTimeSlot = slotService.getTimeSlotById(appointmentDto.getSlotId());
+                    bookedAppointment.setTimeSlot(newTimeSlot);
+                }
+
+                // update email
+                if (appointmentDto.getEmail() != null) {
+                    bookedAppointment.setEmail(appointmentDto.getEmail());
+                }
+
+                // update phone number
+                if (appointmentDto.getPhoneNumber() != null) {
+                    bookedAppointment.setPhoneNumber(appointmentDto.getPhoneNumber());
+                }
+
+                return appointmentRepository.save(bookedAppointment);
+            }
+            throw new AppointmentUpdatedException("Cannot update this appointment. The appointment is upcoming soon");
+        }
+        throw new AccessDeniedException("Access denied");   // bad practice handler exception
+    }
+
+    @Override
+    public void cancelAppointment(Integer appointmentId) {
+        Optional<Appointment> appointment = appointmentRepository.findById(appointmentId);
+        if (appointment.isEmpty()) throw new AppointmentNotFoundException("Appointment not found with id: " + appointmentId);
+
+        appointment.get().setCurrentStatus(AppointmentStatus.CANCELED);
+        appointmentRepository.save(appointment.get());
+
+        // send email
+    }
+
     @Override
     public Appointment getAppointmentById(Integer appointmentId) {
         Optional<Appointment> appointmentOptional = appointmentRepository.findById(appointmentId);
         if (appointmentOptional.isEmpty())
-            throw new AppointmentServiceNotFoundException("Not found Appointment with Id: " + appointmentId);
+            throw new AppointmentNotFoundException("Not found Appointment with Id: " + appointmentId);
         return appointmentOptional.get();
     }
 
     @Override
-    public MedicalReport getMedicalReportByAppointmentId(Integer appointmentId) throws AppointmentServiceNotFoundException {
+    public MedicalReport getMedicalReportByAppointmentId(Integer appointmentId) throws AppointmentNotFoundException {
         Appointment appointment = getAppointmentById(appointmentId);
         MedicalReport medicalReport = medicalReportRepository.findByReportId(appointment.getMedicalReport().getReportId());
-        if(medicalReport == null){
+        if (medicalReport == null) {
             throw new MedicalReportNotFoundException("Not found Medical Report with appointment id: " + appointmentId);
         }
         return medicalReport;
@@ -190,6 +242,25 @@ public class AppointmentServiceImpl implements AppointmentService {
     private BigDecimal calculatePrice(Appointment appointment) {
         BigDecimal servicePrice = appointment.getService().getServicePrice();
         return appointment.getMovingSurcharge() == null ? servicePrice : servicePrice.add(appointment.getMovingSurcharge().getPrice());
+    }
+
+    public Integer getAppointmentOwnerId(Integer appointmentId) {
+        Appointment appointment = getAppointmentById(appointmentId);
+        return appointment.getCustomer().getUserId();
+    }
+
+    private boolean isAbleToUpdateAppointment(Appointment appointment, AppointmentUpdateDto appointmentUpdateDto) throws AppointmentUpdatedException {
+        LocalDateTime openingTime = appointment.getTimeSlot().getDateTimeBasedOnSlot();
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime threeHoursFromNow = now.plusHours(3);
+
+        TimeSlot timeSlot = slotService.getTimeSlotById(appointmentUpdateDto.getSlotId());
+        List<TimeSlot> availableTimeSlot = slotService.getListAvailableTimeSlots();
+
+        return openingTime.isAfter(threeHoursFromNow)
+                && availableTimeSlot.contains(timeSlot)
+                && (appointment.getCurrentStatus().equals(AppointmentStatus.PENDING)
+                || appointment.getCurrentStatus().equals(AppointmentStatus.CONFIRMED));
     }
 
 }

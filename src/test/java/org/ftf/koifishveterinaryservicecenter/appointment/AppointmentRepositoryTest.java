@@ -111,5 +111,13 @@ public class AppointmentRepositoryTest {
         Assertions.assertThat(fromDb).isNotNull();
     }
 
+    @Test
+    public void testGetAppointmentById(){
+        Integer appointmentId = 23;
+        Optional<Appointment> appointment = appointmentRepository.findById(appointmentId);
+        Assertions.assertThat(appointment).isPresent();
+        System.out.println(appointment.get().getTimeSlot().toString());
+    }
+
 
 }

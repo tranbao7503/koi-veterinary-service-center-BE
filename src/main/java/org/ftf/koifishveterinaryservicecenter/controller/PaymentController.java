@@ -3,7 +3,7 @@ package org.ftf.koifishveterinaryservicecenter.controller;
 import org.ftf.koifishveterinaryservicecenter.dto.PaymentDto;
 import org.ftf.koifishveterinaryservicecenter.entity.Appointment;
 import org.ftf.koifishveterinaryservicecenter.entity.Payment;
-import org.ftf.koifishveterinaryservicecenter.exception.AppointmentServiceNotFoundException;
+import org.ftf.koifishveterinaryservicecenter.exception.AppointmentNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.PaymentNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.PaymentMapper;
 import org.ftf.koifishveterinaryservicecenter.service.appointmentservice.AppointmentService;
@@ -36,7 +36,7 @@ public class PaymentController {
             Payment payment = paymentService.findPaymentByAppointmentId(appointment.getAppointmentId());
             PaymentDto paymentDto = PaymentMapper.INSTANCE.convertToDto(payment);
             return new ResponseEntity<>(paymentDto, HttpStatus.OK);
-        } catch (AppointmentServiceNotFoundException e) {
+        } catch (AppointmentNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (PaymentNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
