@@ -18,7 +18,7 @@ import org.ftf.koifishveterinaryservicecenter.mapper.CertificateMapper;
 import org.ftf.koifishveterinaryservicecenter.mapper.FeedbackMapper;
 import org.ftf.koifishveterinaryservicecenter.mapper.UserMapper;
 import org.ftf.koifishveterinaryservicecenter.service.feedbackservice.FeedbackService;
-import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
+import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationServiceImpl;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -39,11 +39,11 @@ public class UserController {
 
     private final UserService userService;
     private final UserMapper userMapper;
-    private final AuthenticationService authenticationService;
+    private final AuthenticationServiceImpl authenticationService;
     private final FeedbackService feedbackService;
 
     @Autowired
-    public UserController(UserService userService, UserMapper userMapper, AuthenticationService authenticationService, FeedbackService feedbackService) {
+    public UserController(UserService userService, UserMapper userMapper, AuthenticationServiceImpl authenticationService, FeedbackService feedbackService) {
         this.userService = userService;
         this.userMapper = userMapper;
         this.authenticationService = authenticationService;
