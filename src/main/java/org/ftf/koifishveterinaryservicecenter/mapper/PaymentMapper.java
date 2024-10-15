@@ -19,4 +19,6 @@ public interface PaymentMapper {
     @Mapping(target = "status", defaultValue = "NOT_PAID")
     Payment convertToEntity(PaymentDto paymentDto);
 
+    PaymentDto convertToDto(Payment payment);
+
 }

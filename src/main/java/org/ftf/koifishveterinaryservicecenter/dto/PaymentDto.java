@@ -12,6 +12,9 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class PaymentDto {
 
+    @JsonProperty("payment_id")
+    private Integer paymentId;
+
     @JsonProperty("payment_method")
     private String paymentMethod;
 

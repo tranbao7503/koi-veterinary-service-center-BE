@@ -26,7 +26,4 @@ public interface UserService {
 
     User updateUserAvatar(Integer userId, MultipartFile image) throws IOException;
 
-    String AddVeterinarianCertificate(Integer veterinarianId, String certificateName, MultipartFile certificate) throws IOException;
-
-    List<Certificate> getAllCertificatesByVeterinarianId(Integer veterinarianId);
 }

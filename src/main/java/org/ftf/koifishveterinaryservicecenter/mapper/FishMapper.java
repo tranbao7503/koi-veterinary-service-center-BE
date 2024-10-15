@@ -1,6 +1,5 @@
 package org.ftf.koifishveterinaryservicecenter.mapper;
 
-
 import org.ftf.koifishveterinaryservicecenter.dto.FishDTO;
 import org.ftf.koifishveterinaryservicecenter.entity.Fish;
 import org.mapstruct.Mapper;
@@ -10,7 +9,6 @@ import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring", uses = FishMapper.class)
 public interface FishMapper {
-
     FishMapper INSTANCE = Mappers.getMapper(FishMapper.class);
 
     @Mappings({
