@@ -65,7 +65,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         return IntrospectResponse.builder()
                 .userId(((Long) claimsSet.getClaim("userId")).intValue())
-                .roleId((String) claimsSet.getClaim("role"))
+                .roleId((String) claimsSet.getClaim("scope"))
                 .timeout(timeout) // Gán giá trị timeout
                 .build();
     }
@@ -85,6 +85,20 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
 
+    public IntrospectResponse getUserInfoFromToken(IntrospectRequestDTO request) throws AuthenticationException, ParseException {
+        var token = request.getToken();
+        if (!isSignatureValid(token)) {
+            return null;
+        }
+        SignedJWT signedJWT = SignedJWT.parse(token);
+        var claimsSet = signedJWT.getJWTClaimsSet();
+        return IntrospectResponse.builder()
+                .userId(((Long) claimsSet.getClaim("userId")).intValue())
+                .roleId((String) claimsSet.getClaim("scope"))
+                .build();
+    }
+
+
     private String generateToken(User user) {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
 
@@ -96,7 +110,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .issuer("KoiFish.com")
                 .issueTime(Date.from(Instant.now()))
                 .claim("userId", user.getUserId())
-                .claim("scope", user.getRole().getRoleKey())
+                .claim("role", user.getRole().getRoleKey())
                 .claim("timeout", timeoutInSeconds) // Thêm trường timeout
                 .expirationTime(Date.from(Instant.now().plus(3, ChronoUnit.HOURS)))
                 .build();
@@ -124,19 +138,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         } catch (ParseException | JOSEException e) {
             return false;
         }
-    }
-
-    public IntrospectResponse getUserInfoFromToken(IntrospectRequestDTO request) throws AuthenticationException, ParseException {
-        var token = request.getToken();
-        if (!isSignatureValid(token)) {
-            return null;
-        }
-        SignedJWT signedJWT = SignedJWT.parse(token);
-        var claimsSet = signedJWT.getJWTClaimsSet();
-        return IntrospectResponse.builder()
-                .userId(((Long) claimsSet.getClaim("userId")).intValue())
-                .roleId((String) claimsSet.getClaim("scope"))
-                .build();
     }
 
 
