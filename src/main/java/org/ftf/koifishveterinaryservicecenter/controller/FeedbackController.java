@@ -68,7 +68,7 @@ public class FeedbackController {
     public ResponseEntity<?> getFeedbackById(@PathVariable Integer feedbackId) {
         try {
             Feedback feedback = feedbackService.getFeedbackById(feedbackId);
-            FeedbackDto feedbackDto = FeedbackMapper.INSTANCE.convertToFeedbackDto(feedback);
+            FeedbackDto feedbackDto = FeedbackMapper.INSTANCE.feedbackToFeedbackDto(feedback);
             return new ResponseEntity<>(feedbackDto, HttpStatus.OK);
         } catch (FeedbackNotFoundException ex) {
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
