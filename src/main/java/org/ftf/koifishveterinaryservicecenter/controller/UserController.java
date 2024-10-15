@@ -7,6 +7,7 @@ import org.ftf.koifishveterinaryservicecenter.dto.response.AuthenticationRespons
 import org.ftf.koifishveterinaryservicecenter.dto.response.IntrospectResponse;
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
+import org.ftf.koifishveterinaryservicecenter.exception.AddressNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.AuthenticationException;
 import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.AddressMapper;
@@ -169,8 +170,8 @@ public class UserController {
     }
 
     /*
-    * Actors: Manager
-    * */
+     * Actors: Manager
+     * */
     @GetMapping("/veterinarians")
     public ResponseEntity<?> getAllVeterinarians() {
         try {
@@ -180,6 +181,28 @@ public class UserController {
                     .collect(Collectors.toList());
             return new ResponseEntity<>(userDTOs, HttpStatus.OK);
         } catch (UserNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping("/{customerId}/address")
+    public ResponseEntity<?> updateAddress(
+            @PathVariable Integer customerId
+            , @RequestParam Integer addressId) {
+        try {
+            Address address = userService.getAddressById(addressId);
+            if (address.getCustomer().getUserId().equals(customerId)) {
+                address = userService.setCurrentAddress(customerId, addressId);
+                AddressDTO addressDto = AddressMapper.INSTANCE.convertEntityToDto(address);
+                return new ResponseEntity<>(addressDto, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            }
+        } catch (UserNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (AddressNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);

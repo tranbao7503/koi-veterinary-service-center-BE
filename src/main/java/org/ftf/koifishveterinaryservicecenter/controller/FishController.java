@@ -4,17 +4,14 @@ import org.ftf.koifishveterinaryservicecenter.dto.FishDTO;
 import org.ftf.koifishveterinaryservicecenter.dto.IntrospectRequestDTO;
 import org.ftf.koifishveterinaryservicecenter.dto.response.IntrospectResponse;
 import org.ftf.koifishveterinaryservicecenter.entity.Fish;
+import org.ftf.koifishveterinaryservicecenter.exception.FishNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.FishMapper;
 import org.ftf.koifishveterinaryservicecenter.service.fishservice.FishService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
 import java.util.List;
@@ -75,6 +72,26 @@ public class FishController {
         }
 
     }
+
+    @PutMapping("update/{fishId}")
+    public ResponseEntity<FishDTO> updateFish(
+            @PathVariable Integer fishId,
+            @RequestBody FishDTO fishDTO) {
+        try {
+            // Gọi phương thức updateFish từ service
+            FishDTO updatedFish = fishService.updateFish(fishId, fishDTO);
+
+            // Trả về kết quả thành công
+            return ResponseEntity.ok(updatedFish);
+        } catch (FishNotFoundException e) {
+            // Trả về mã 404 nếu không tìm thấy cá
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (Exception e) {
+            // Xử lý các lỗi khác
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(null);
+        }
+    }
+
 
 }
 

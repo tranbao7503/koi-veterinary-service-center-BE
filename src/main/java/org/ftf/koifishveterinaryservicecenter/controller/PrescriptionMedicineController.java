@@ -44,7 +44,7 @@ public class PrescriptionMedicineController {
 
     @GetMapping("/{prescriptionId}")
     public ResponseEntity<?> getMedicineById(@PathVariable Integer prescriptionId) {
-        try{
+        try {
             Prescription prescription = medicalReportService.findPrescriptionById(prescriptionId);
             PrescriptionDto prescriptionDto = PrescriptionMapper.INSTANCE.convertToPrescriptionDto(prescription);
             return new ResponseEntity<>(prescriptionDto, HttpStatus.OK);

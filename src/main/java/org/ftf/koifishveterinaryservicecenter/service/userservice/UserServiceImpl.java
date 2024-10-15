@@ -3,6 +3,7 @@ package org.ftf.koifishveterinaryservicecenter.service.userservice;
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
 import org.ftf.koifishveterinaryservicecenter.entity.Role;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
+import org.ftf.koifishveterinaryservicecenter.exception.AddressNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.AuthenticationException;
 import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.repository.AddressRepository;
@@ -131,6 +132,7 @@ public class UserServiceImpl implements UserService {
             throw new AuthenticationException("Username is existed");
         }
 
+
         // Kiểm tra password
         if (password == null || password.isBlank()) {
             throw new AuthenticationException("Password can not be empty");
@@ -164,7 +166,6 @@ public class UserServiceImpl implements UserService {
         if (last_Name == null || last_Name.isBlank()) {
             throw new AuthenticationException("last_Name can not be empty");
         }
-
 
         // Tạo user mới và lưu vào database
         User user = new User();
@@ -208,6 +209,80 @@ public class UserServiceImpl implements UserService {
         user.setAvatar(path);
         userRepository.save(user);
         return user;
+    }
+
+    @Override
+    public List<Address> getAllAddresses(Integer customerId) {
+        List<Address> addresses = addressRepository.findByCustomerId(customerId);
+        if (addresses.isEmpty()) {
+            throw new AddressNotFoundException("Address not found with customer ID: " + customerId);
+        }
+        return addresses;
+    }
+
+    @Override
+    public Address getAddressById(Integer addressId) {
+        Address address = addressRepository.findById(addressId).orElse(null);
+        if (address == null) {
+            throw new AddressNotFoundException("Address not found with ID: " + addressId);
+        }
+        return address;
+    }
+
+    @Override
+    public Address updateAddressDetails(Integer addressId, Address newAddress) {
+        Address existedAddress = addressRepository.findById(addressId).orElse(null);
+        if (existedAddress == null) {
+            throw new AddressNotFoundException("Address not found with ID: " + addressId);
+        } else {
+            existedAddress.setCity(newAddress.getCity());
+            existedAddress.setWard(newAddress.getWard());
+            existedAddress.setDistrict(newAddress.getDistrict());
+            existedAddress.setHomeNumber(newAddress.getHomeNumber());
+
+            newAddress = addressRepository.save(existedAddress);
+
+            return newAddress;
+        }
+    }
+
+    @Override
+    public Address setCurrentAddress(Integer customerId, Integer addressId) throws UserNotFoundException {
+        User customer = this.getCustomerById(customerId);
+        Address address = addressRepository.findById(addressId).orElse(null);
+        if (address == null) {
+            throw new AddressNotFoundException("Address not found with ID: " + addressId);
+        } else {
+            customer.setCurrentAddress(address);
+            userRepository.save(customer);
+            return address;
+        }
+    }
+
+    @Override
+    public Address addAddress(Integer customerId, Address address) throws UserNotFoundException {
+        User customer = this.getCustomerById(customerId);
+
+        // Save address into database
+        address.setEnabled(true);
+        address.setCustomer(customer);
+        address = addressRepository.save(address);
+
+        // Set new address as main current address
+        this.setCurrentAddress(customerId, address.getAddressId());
+
+        return address;
+    }
+
+    @Override
+    public Address disableAddress(Integer addressId) {
+        Address address = addressRepository.findById(addressId).orElse(null);
+        if (address == null) {
+            throw new AddressNotFoundException("Address not found with ID: " + addressId);
+        }
+        address.setEnabled(false);
+        address = addressRepository.save(address);
+        return address;
     }
 
 }
