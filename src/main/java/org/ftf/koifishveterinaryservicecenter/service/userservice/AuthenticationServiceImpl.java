@@ -96,7 +96,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .issuer("KoiFish.com")
                 .issueTime(Date.from(Instant.now()))
                 .claim("userId", user.getUserId())
-                .claim("role", user.getRole().getRoleKey())
+                .claim("scope", user.getRole().getRoleKey())
                 .claim("timeout", timeoutInSeconds) // Thêm trường timeout
                 .expirationTime(Date.from(Instant.now().plus(3, ChronoUnit.HOURS)))
                 .build();

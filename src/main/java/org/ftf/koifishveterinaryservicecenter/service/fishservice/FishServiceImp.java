@@ -7,6 +7,7 @@ import org.ftf.koifishveterinaryservicecenter.repository.FishRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class FishServiceImp implements FishService {
@@ -20,13 +21,19 @@ public class FishServiceImp implements FishService {
 
 
     @Override
+
+    public List<Fish> getAllFishByUserId(int id) {
+        // Lấy danh sách tất cả các con cá thuộc về customer có ID tương ứng
+        List<Fish> allFish = fishRepository.findAllFishByCustomer_UserId(id);
+
+        // Lọc danh sách cá, chỉ giữ lại những con có enabled = true
+        return allFish.stream()
+                .filter(fish -> fish.isEnabled())  // Sử dụng phương thức getEnabled() để lọc
+                .collect(Collectors.toList());
+    }
+
     public FishDTO getDetailFish(int fishId) {
         Fish fish = fishRepository.findByFishId(fishId);
         return fish != null ? fishMapper.convertEntityToDto(fish) : null;
-    }
-
-    @Override
-    public List<Fish> getAllFishByUserId(int Id) {
-        return fishRepository.findAllFishByCustomer_UserId(Id);
     }
 }
