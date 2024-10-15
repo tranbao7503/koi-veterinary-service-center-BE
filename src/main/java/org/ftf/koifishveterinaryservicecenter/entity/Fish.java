@@ -46,9 +46,6 @@ public class Fish {
     @Column(name = "enable", nullable = false)
     private boolean enabled = true;
 
-    @ColumnDefault("b'1'")
-    @Column(name = "enable", nullable = false)
-    private boolean enabled = true;
 
     // Bidirectional, identifying relationship
     // Owning side: Fish
