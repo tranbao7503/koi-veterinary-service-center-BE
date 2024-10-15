@@ -66,6 +66,9 @@ public class AppointmentController {
         }
     }
 
+    /*
+     * Actors: Manager
+     * */
     @GetMapping("/{appointmentId}/logs")
     public ResponseEntity<?> getAppointmentLogs(@PathVariable("appointmentId") Integer appointmentId) {
         try {
@@ -79,10 +82,30 @@ public class AppointmentController {
         }
     }
 
+    /*
+     * Actors: Customer, Veterinarian, Manager
+     * */
     @GetMapping("/{appointmentId}/report")
     public ResponseEntity<?> getAppointmentReport(@PathVariable("appointmentId") Integer appointmentId) {
         try {
+            User user = userService.getUserProfile(authenticationService.getAuthenticatedUserId());
+
+            Appointment appointment = appointmentService.getAppointmentById(appointmentId);
+
             MedicalReport medicalReport = appointmentService.getMedicalReportByAppointmentId(appointmentId);
+
+            if (user.getRole().getRoleKey().equals("CUS")) { // Validate customer
+                if(!appointment.getCustomer().getUserId().equals(user.getUserId())) {
+                    return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+                }
+            }
+
+            if (user.getRole().getRoleKey().equals("VET")) { // validate veterinarian
+                if(!medicalReport.getVeterinarian().getUserId().equals(user.getUserId())) {
+                    return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+                }
+            }
+
             MedicalReportDto medicalReportDto = MedicalReportMapper.INSTANCE.convertToDto(medicalReport);
             return new ResponseEntity<>(medicalReportDto, HttpStatus.OK);
         } catch (AppointmentServiceNotFoundException ex) {
@@ -125,12 +148,11 @@ public class AppointmentController {
     /*
      * Actors: Veterinarian
      * */
-    @GetMapping("/{appointmentId}/veterinarian/{veterinarianId}")
+    @GetMapping("/{appointmentId}/veterinarian")
     public ResponseEntity<?> getAppointmentForVeterinarian(
-            @PathVariable("veterinarianId") Integer veterinarianId
-            , @PathVariable("appointmentId") Integer appointmentId) {
+            @PathVariable("appointmentId") Integer appointmentId) {
         try {
-            User veterinarian = userService.getVeterinarianById(veterinarianId);
+            User veterinarian = userService.getVeterinarianById(authenticationService.getAuthenticatedUserId());
             Appointment appointment = appointmentService.getAppointmentById(appointmentId);
             if (appointment.getVeterinarian().getUserId().equals(veterinarian.getUserId())) {
                 AppointmentDetailsDto appointmentDetailsDto = AppointmentMapper.INSTANCE.convertedToAppointmentDetailsDtoForVet(appointment);
@@ -140,7 +162,7 @@ public class AppointmentController {
         } catch (UserNotFoundException ex) {
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
         } catch (AppointmentServiceNotFoundException ex) {
-            return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.NO_CONTENT);
         } catch (Exception ex) {
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -149,12 +171,11 @@ public class AppointmentController {
     /*
      * Actors: Customer
      * */
-    @GetMapping("/{appointmentId}/customer/{customerId}")
+    @GetMapping("/{appointmentId}/customer")
     public ResponseEntity<?> getAppointmentForCustomer(
-            @PathVariable("customerId") Integer customerId
-            , @PathVariable("appointmentId") Integer appointmentId) {
+            @PathVariable("appointmentId") Integer appointmentId) {
         try {
-            User customer = userService.getCustomerById(customerId);
+            User customer = userService.getCustomerById(authenticationService.getAuthenticatedUserId());
             Appointment appointment = appointmentService.getAppointmentById(appointmentId);
             if (appointment.getCustomer().getUserId().equals(customer.getUserId())) {
                 AppointmentDetailsDto appointmentDetailsDto = AppointmentMapper.INSTANCE.convertedToAppointmentDetailsDto(appointment);
@@ -170,6 +191,9 @@ public class AppointmentController {
         }
     }
 
+    /*
+     * Actors: Manager, Staff
+     * */
     @GetMapping()
     public ResponseEntity<?> getAllAppointments() {
         try {
@@ -185,10 +209,10 @@ public class AppointmentController {
         }
     }
 
-    @GetMapping("/customer/{customerId}")
-    public ResponseEntity<?> getAppointments(@PathVariable("customerId") Integer customerId) {
+    @GetMapping("/customer")
+    public ResponseEntity<?> getAppointments() {
         try {
-            User customer = userService.getCustomerById(customerId); // Check whether customer existed
+            User customer = userService.getCustomerById(authenticationService.getAuthenticatedUserId()); // Check whether customer existed
             List<Appointment> appointments = appointmentService.getAppointmentsByCustomerId(customer.getUserId());
             List<AppointmentForListDto> appointmentForListDtos = appointments.stream()
                     .map(AppointmentMapper.INSTANCE::convertedToAppointmentDtoForList)

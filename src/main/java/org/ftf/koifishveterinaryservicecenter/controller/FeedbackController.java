@@ -8,6 +8,7 @@ import org.ftf.koifishveterinaryservicecenter.exception.FeedbackNotFoundExceptio
 import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.FeedbackMapper;
 import org.ftf.koifishveterinaryservicecenter.service.feedbackservice.FeedbackService;
+import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,12 +26,15 @@ public class FeedbackController {
 
     private final FeedbackService feedbackService;
     private final UserService userService;
+    private final AuthenticationService authenticationService;
 
     public FeedbackController(
             FeedbackService feedbackService
-            , UserService userService) {
+            , UserService userService
+    , AuthenticationService authenticationService) {
         this.feedbackService = feedbackService;
         this.userService = userService;
+        this.authenticationService = authenticationService;
     }
 
     @GetMapping("/limited")
@@ -78,10 +82,10 @@ public class FeedbackController {
     /*
      * Actors: Veterinarian
      * */
-    @GetMapping("/veterinarian/{veterinarianId}")
-    public ResponseEntity<?> getFeedbacks(@PathVariable("veterinarianId") Integer id) {
+    @GetMapping("/veterinarian")
+    public ResponseEntity<?> getFeedbacks() {
         try {
-            List<Feedback> feedbacks = feedbackService.getFeedbacksByVeterianrianId(id);
+            List<Feedback> feedbacks = feedbackService.getFeedbacksByVeterianrianId(authenticationService.getAuthenticatedUserId());
             List<FeedbackDto> feedbackDtos = feedbacks.stream()
                     .map(feedback -> FeedbackMapper.INSTANCE.convertToFeedbackDto(feedback))
                     .collect(Collectors.toList());
@@ -98,11 +102,10 @@ public class FeedbackController {
     /*
      * Actors: Veterinarian
      * */
-    @GetMapping("/{feedbackId}/veterinarian/{veterinarianId}")
-    public ResponseEntity<?> getFeedback(@PathVariable("feedbackId") Integer feedbackId
-            , @PathVariable("veterinarianId") Integer veterinarianId) {
+    @GetMapping("/{feedbackId}/veterinarian")
+    public ResponseEntity<?> getFeedback(@PathVariable("feedbackId") Integer feedbackId) {
         try {
-            User veterinarian = userService.getVeterinarianById(veterinarianId);
+            User veterinarian = userService.getVeterinarianById(authenticationService.getAuthenticatedUserId());
             Feedback feedback = feedbackService.getFeedbackById(feedbackId);
             if (feedback.getVeterinarian().getUserId().equals(veterinarian.getUserId())) {
                 FeedbackDto feedbackDto = FeedbackMapper.INSTANCE.feedbackToFeedbackDto(feedback);

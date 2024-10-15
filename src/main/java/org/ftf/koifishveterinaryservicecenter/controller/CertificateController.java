@@ -6,6 +6,7 @@ import org.ftf.koifishveterinaryservicecenter.exception.CertificateNotFoundExcep
 import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.CertificateMapper;
 import org.ftf.koifishveterinaryservicecenter.service.certificateservice.CertificateService;
+import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

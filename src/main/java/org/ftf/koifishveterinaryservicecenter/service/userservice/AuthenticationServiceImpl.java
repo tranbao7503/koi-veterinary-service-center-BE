@@ -140,5 +140,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
     }
 
+    @Override
+    public String getAuthenticatedUserRoleKey() {
+        Integer userId = getAuthenticatedUserId();  // Lấy userId từ phương thức có sẵn
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found"));
+        return user.getRole().getRoleKey();  // Lấy roleKey từ Role của User
+    }
+
 
 }

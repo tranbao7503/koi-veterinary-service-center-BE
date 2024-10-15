@@ -6,6 +6,7 @@ import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.ftf.koifishveterinaryservicecenter.exception.AddressNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.AddressMapper;
+import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,21 +21,23 @@ import java.util.stream.Collectors;
 public class AddressController {
 
     private final UserService userService;
+    private final AuthenticationService authenticationService;
 
     @Autowired
-    public AddressController(UserService userService) {
+    public AddressController(UserService userService
+            , AuthenticationService authenticationService) {
         this.userService = userService;
+        this.authenticationService = authenticationService;
     }
 
     /*
      * Get All address of the customer
      * Actors: Customer
      * */
-    @GetMapping("/customer/{customerId}")
-    public ResponseEntity<?> getAllAddresses(
-            @PathVariable("customerId") Integer customerId) {
+    @GetMapping()
+    public ResponseEntity<?> getAllAddresses() {
         try {
-            User customer = userService.getCustomerById(customerId);
+            User customer = userService.getCustomerById(authenticationService.getAuthenticatedUserId());
             List<Address> addresses = userService.getAllAddresses(customer.getUserId());
             List<AddressDTO> addressDtoList = addresses.stream()
                     .map(AddressMapper.INSTANCE::convertEntityToDto)
@@ -53,12 +56,11 @@ public class AddressController {
      * Get address details of the customer
      * Actors: Customer
      * */
-    @GetMapping("/{addressId}/customer/{customerId}")
+    @GetMapping("/{addressId}")
     public ResponseEntity<?> getAddressById(
-            @PathVariable("addressId") Integer addressId
-            , @PathVariable("customerId") Integer customerId) {
+            @PathVariable("addressId") Integer addressId) {
         try {
-            User customer = userService.getCustomerById(customerId);
+            User customer = userService.getCustomerById(authenticationService.getAuthenticatedUserId());
             Address address = userService.getAddressById(addressId);
             if (address.getCustomer().getUserId().equals(customer.getUserId())) {
                 AddressDTO addressDto = AddressMapper.INSTANCE.convertEntityToDto(address);
@@ -79,13 +81,12 @@ public class AddressController {
      * Update address details of the customer
      * Actors: Customer
      * */
-    @PutMapping("{addressId}/customer/{customerId}")
+    @PutMapping("{addressId}")
     public ResponseEntity<?> updateAddressById(
             @PathVariable("addressId") Integer addressId
-            , @PathVariable("customerId") Integer customerId
             , @RequestBody AddressDTO addressDto) {
         try {
-            User customer = userService.getCustomerById(customerId);
+            User customer = userService.getCustomerById(authenticationService.getAuthenticatedUserId());
             Address address = userService.getAddressById(addressId);
 
             if (address.getCustomer().getUserId().equals(customer.getUserId())) {
@@ -109,13 +110,12 @@ public class AddressController {
      * Add new address into list and set as main current address of customer
      * Actors: Customer
      * */
-    @PostMapping("/customer/{customerId}")
+    @PostMapping()
     public ResponseEntity<?> createAddress(
-            @PathVariable("customerId") Integer customerId
-            , @RequestBody AddressDTO addressDto) {
+            @RequestBody AddressDTO addressDto) {
         try {
             Address address = AddressMapper.INSTANCE.convertDtoToEntity(addressDto);
-            Address newAddress = userService.addAddress(customerId, address);
+            Address newAddress = userService.addAddress(authenticationService.getAuthenticatedUserId(), address);
             AddressDTO addressDTO = AddressMapper.INSTANCE.convertEntityToDto(newAddress);
             return new ResponseEntity<>(addressDTO, HttpStatus.CREATED);
         } catch (UserNotFoundException e) {
@@ -125,12 +125,11 @@ public class AddressController {
         }
     }
 
-    @DeleteMapping("/customer/{customerId}")
+    @DeleteMapping()
     public ResponseEntity<?> deleteAddress(
-            @PathVariable("customerId") Integer customerId
-            , @RequestParam Integer addressId) {
+            @RequestParam Integer addressId) {
         try {
-            User customer = userService.getCustomerById(customerId);
+            User customer = userService.getCustomerById(authenticationService.getAuthenticatedUserId());
             Address address = userService.getAddressById(addressId);
             if (address.getCustomer().getUserId().equals(customer.getUserId())) {
                 if (customer.getCurrentAddress().getAddressId().equals(addressId)) {

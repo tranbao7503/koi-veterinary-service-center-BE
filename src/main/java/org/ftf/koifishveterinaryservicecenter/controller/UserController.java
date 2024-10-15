@@ -179,9 +179,10 @@ public class UserController {
         }
     }
 
-    @PutMapping("/{customerId}/address")
-    public ResponseEntity<?> updateAddress(@PathVariable Integer customerId, @RequestParam Integer addressId) {
+    @PutMapping("/address")
+    public ResponseEntity<?> updateAddress(@RequestParam Integer addressId) {
         try {
+            Integer customerId = authenticationService.getAuthenticatedUserId();
             Address address = userService.getAddressById(addressId);
             if (address.getCustomer().getUserId().equals(customerId)) {
                 address = userService.setCurrentAddress(customerId, addressId);
