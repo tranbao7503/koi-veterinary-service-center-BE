@@ -65,7 +65,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         return IntrospectResponse.builder()
                 .userId(((Long) claimsSet.getClaim("userId")).intValue())
-                .roleId((String) claimsSet.getClaim("scope"))
+                .roleId((String) claimsSet.getClaim("role"))
                 .timeout(timeout) // Gán giá trị timeout
                 .build();
     }
