@@ -125,7 +125,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             return false;
         }
     }
-    public IntrospectResponse getUserInfoFromToken(IntrospectRequestDTO request) throws AuthenticationException,ParseException {
+
+    public IntrospectResponse getUserInfoFromToken(IntrospectRequestDTO request) throws AuthenticationException, ParseException {
         var token = request.getToken();
         if (!isSignatureValid(token)) {
             return null;
