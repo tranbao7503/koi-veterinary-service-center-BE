@@ -42,4 +42,7 @@ public interface TimeSlotMapper {
     })
     TimeSlot convertToTimeSlot(TimeSlotDto timeSlotDto);
 
+    @Mapping(target = "appointment", ignore = true)
+    TimeSlotDto convertToAvailableTimeSlotDto(TimeSlot timeSlot);
+
 }

@@ -20,15 +20,15 @@ public class ServiceDTO {
     private Integer serviceId;
 
     @JsonProperty("service_name")
-    @NotBlank(message = "service name cannot be blank")
+    //@NotBlank(message = "service name cannot be blank")
     private String serviceName;
 
     @JsonProperty("description")
-    @NotBlank(message = "description cannot be blank")
+    //@NotBlank(message = "description cannot be blank")
     private String description;
 
     @JsonProperty("service_price")
-    @NotNull(message = "service price cannot be null")
+    //@NotNull(message = "service price cannot be null")
     @DecimalMin(value = "0") // Service price must be at least 0
     private BigDecimal servicePrice;
 }
