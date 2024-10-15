@@ -41,8 +41,11 @@ public class AppointmentServiceImpl implements AppointmentService {
             , UserService userService
             , MedicalReportRepository medicalReportRepository
             , ServiceService serviceService
-            , SlotService slotService, PaymentService paymentService
-            , AddressService addressService, SurchargeService surchargeService, FishService fishService) {
+            , SlotService slotService
+            , PaymentService paymentService
+            , AddressService addressService
+            , SurchargeService surchargeService
+            , FishService fishService) {
         this.appointmentRepository = appointmentRepository;
         this.medicalReportService = medicalReportService;
         this.userService = userService;
@@ -93,6 +96,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         return statuses;
     }
+
 
     public void createAppointment(Appointment appointment, Integer customerId) {
         // 1. online booking
@@ -175,7 +179,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     public List<Appointment> getAppointmentsByCustomerId(Integer customerId) {
         List<Appointment> appointments = appointmentRepository.findAppointmentByCustomerId(customerId);
         if(appointments.isEmpty()) {
-            throw  new AppointmentServiceNotFoundException("Appointment not found!");
+            throw new AppointmentServiceNotFoundException("Appointment not found!");
         }
         // Sort by newest appointment
         appointments.sort(Comparator.comparing(Appointment::getAppointmentId).reversed());
@@ -186,7 +190,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public List<Appointment> getAllAppointments() {
         List<Appointment> appointments = appointmentRepository.findAll();
-        if(appointments.isEmpty()) {
+        if (appointments.isEmpty()) {
             throw new AppointmentServiceNotFoundException("Not found appointments");
         }
         // Sort by created date
@@ -207,7 +211,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     public MedicalReport getMedicalReportByAppointmentId(Integer appointmentId) throws AppointmentServiceNotFoundException {
         Appointment appointment = getAppointmentById(appointmentId);
         MedicalReport medicalReport = medicalReportRepository.findByReportId(appointment.getMedicalReport().getReportId());
-        if(medicalReport == null){
+        if (medicalReport == null) {
             throw new MedicalReportNotFoundException("Not found Medical Report with appointment id: " + appointmentId);
         }
         return medicalReport;

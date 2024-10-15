@@ -23,4 +23,17 @@ public interface FishMapper {
             @Mapping(source = "customer.userId", target = "customerId")  // Ánh xạ từ userId của customer
     })
     FishDTO convertEntityToDto(Fish fish);
+
+    @Mappings({
+            @Mapping(source = "fishId", target = "fishId"),
+            @Mapping(source = "gender", target = "gender"),
+            @Mapping(source = "age", target = "age"),
+            @Mapping(source = "species", target = "species"),
+            @Mapping(source = "size", target = "size"),
+            @Mapping(source = "weight", target = "weight"),
+            @Mapping(source = "color", target = "color"),
+            @Mapping(source = "origin", target = "origin"),
+            @Mapping(target = "customer.userId", source = "customerId")  // Ánh xạ từ customerId sang đối tượng Customer
+    })
+    Fish convertDtoToEntity(FishDTO fishDTO);
 }
