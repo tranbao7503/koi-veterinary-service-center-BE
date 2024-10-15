@@ -23,7 +23,8 @@ import javax.crypto.spec.SecretKeySpec;
 public class AppConfig {
 
     private final String[] PUBLIC_ENDPOINTS = {
-            "/api/v1/users/token", "/api/v1/users/introspect", "api/v1/users/customers", "api/v1/users/signup", "/api/v1/fishes/deletefish"
+            "/api/v1/users/token", "/api/v1/users/introspect", "api/v1/users/customers", "api/v1/users/signup", "/api/v1/fishes/deletefish", "api/v1/users/**"
+
     };
 
     @Value("${jwt.signer}")
@@ -63,8 +64,9 @@ public class AppConfig {
                 .authorizeHttpRequests(request -> request
                         // Cho phép truy cập công khai đối với các endpoint được chỉ định
                         .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/fish/update/**").permitAll()
                         // Chỉ cho phép role CUS truy cập PUT /api/v1/fishes/deletefish
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/fishes/deletefish").hasAuthority("CUS")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/fishes/deletefish").hasAuthority("CUS")
                         // Các yêu cầu còn lại phải được xác thực
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2

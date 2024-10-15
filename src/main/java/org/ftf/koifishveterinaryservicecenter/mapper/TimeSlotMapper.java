@@ -1,7 +1,7 @@
 package org.ftf.koifishveterinaryservicecenter.mapper;
 
-import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentFeedbackDto;
 import org.ftf.koifishveterinaryservicecenter.dto.TimeSlotDto;
+import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentFeedbackDto;
 import org.ftf.koifishveterinaryservicecenter.entity.Appointment;
 import org.ftf.koifishveterinaryservicecenter.entity.TimeSlot;
 import org.mapstruct.Mapper;
@@ -41,5 +41,8 @@ public interface TimeSlotMapper {
             @Mapping(target = "description", ignore = true)
     })
     TimeSlot convertToTimeSlot(TimeSlotDto timeSlotDto);
+
+    @Mapping(target = "appointment", ignore = true)
+    TimeSlotDto convertToAvailableTimeSlotDto(TimeSlot timeSlot);
 
 }

@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.text.ParseException;
 import java.util.List;
@@ -73,20 +74,39 @@ public class FishController {
 
     }
 
-    @PutMapping("/deletefish")
-    public ResponseEntity<FishDTO> updateUser(@RequestBody FishDTO fishDTO) {
+    @DeleteMapping("/deletefish")
+    public void deleteFish(@RequestBody FishDTO fishDTO) {
         try {
-            // Gọi phương thức updateUser từ service với dữ liệu từ UserDTO
-            FishDTO updatedFish = fishService.removeFish(fishDTO.getFishId(), fishDTO.isEnabled());
+            // Gọi phương thức removeFish từ service với dữ liệu từ FishDTO
+            fishService.removeFish(fishDTO.getFishId(), fishDTO.isEnabled());
+        } catch (FishNotFoundException e) {
+            // Xử lý khi không tìm thấy cá
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Fish not found");
+        } catch (Exception e) {
+            // Xử lý các lỗi khác
+            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Unable to delete fish");
+        }
+    }
 
-            // Trả về kết quả thành công với đối tượng UserDTO đã cập nhật
+    @PutMapping("update/{fishId}")
+    public ResponseEntity<FishDTO> updateFish(
+            @PathVariable Integer fishId,
+            @RequestBody FishDTO fishDTO) {
+        try {
+            // Gọi phương thức updateFish từ service
+            FishDTO updatedFish = fishService.updateFish(fishId, fishDTO);
+
+            // Trả về kết quả thành công
             return ResponseEntity.ok(updatedFish);
         } catch (FishNotFoundException e) {
+            // Trả về mã 404 nếu không tìm thấy cá
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         } catch (Exception e) {
+            // Xử lý các lỗi khác
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(null);
         }
     }
+
 
 }
 
