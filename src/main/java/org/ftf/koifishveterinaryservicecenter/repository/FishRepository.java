@@ -11,5 +11,6 @@ public interface FishRepository extends JpaRepository<Fish, Integer> {
     List<Fish> findAllFishByCustomer_UserId(int userId);
 
     Fish findByFishId(int fishId);
-  Optional<Fish> findByFishId(Integer fishId);
+
+    Optional<Fish> findByFishId(Integer fishId);
   }

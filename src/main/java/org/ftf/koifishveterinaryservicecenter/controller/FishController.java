@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.text.ParseException;
 import java.util.List;
@@ -71,6 +72,20 @@ public class FishController {
             return new ResponseEntity<>(fishDTOs, HttpStatus.OK);
         }
 
+    }
+
+    @DeleteMapping("/deletefish")
+    public void deleteFish(@RequestBody FishDTO fishDTO) {
+        try {
+            // Gọi phương thức removeFish từ service với dữ liệu từ FishDTO
+            fishService.removeFish(fishDTO.getFishId(), fishDTO.isEnabled());
+        } catch (FishNotFoundException e) {
+            // Xử lý khi không tìm thấy cá
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Fish not found");
+        } catch (Exception e) {
+            // Xử lý các lỗi khác
+            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Unable to delete fish");
+        }
     }
 
     @PutMapping("update/{fishId}")

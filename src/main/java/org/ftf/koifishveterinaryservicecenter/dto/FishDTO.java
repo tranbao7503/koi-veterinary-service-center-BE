@@ -39,6 +39,12 @@ public class FishDTO {
     @JsonProperty("customer_id")
     private Integer customerId;
 
+    @JsonProperty("enable")
+    private boolean enabled;
+
+
+
+
 }
 
 
