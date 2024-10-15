@@ -3,17 +3,13 @@ package org.ftf.koifishveterinaryservicecenter.controller;
 import org.ftf.koifishveterinaryservicecenter.dto.MedicalReportDto;
 import org.ftf.koifishveterinaryservicecenter.dto.StatusDto;
 import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentDetailsDto;
+import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentDto;
 import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentForListDto;
 import org.ftf.koifishveterinaryservicecenter.entity.Appointment;
 import org.ftf.koifishveterinaryservicecenter.entity.MedicalReport;
 import org.ftf.koifishveterinaryservicecenter.entity.Status;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.ftf.koifishveterinaryservicecenter.exception.*;
-import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentDto;
-import org.ftf.koifishveterinaryservicecenter.exception.AppointmentServiceNotFoundException;
-import org.ftf.koifishveterinaryservicecenter.exception.PrescriptionNotFoundException;
-import org.ftf.koifishveterinaryservicecenter.exception.StatusNotFoundException;
-import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.AppointmentMapper;
 import org.ftf.koifishveterinaryservicecenter.mapper.MedicalReportMapper;
 import org.ftf.koifishveterinaryservicecenter.mapper.StatusMapper;
@@ -176,22 +172,22 @@ public class AppointmentController {
 
     @GetMapping()
     public ResponseEntity<?> getAllAppointments() {
-        try{
+        try {
             List<Appointment> appointments = appointmentService.getAllAppointments();
             List<AppointmentForListDto> appointmentDtoList = appointments.stream()
                     .map(AppointmentMapper.INSTANCE::convertedToAppointmentDtoForList)
                     .collect(Collectors.toList());
             return new ResponseEntity<>(appointmentDtoList, HttpStatus.OK);
-        }catch (AppointmentServiceNotFoundException ex) {
+        } catch (AppointmentServiceNotFoundException ex) {
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
-        }catch (Exception ex) {
+        } catch (Exception ex) {
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping("/customer/{customerId}")
     public ResponseEntity<?> getAppointments(@PathVariable("customerId") Integer customerId) {
-        try{
+        try {
             User customer = userService.getCustomerById(customerId); // Check whether customer existed
             List<Appointment> appointments = appointmentService.getAppointmentsByCustomerId(customer.getUserId());
             List<AppointmentForListDto> appointmentForListDtos = appointments.stream()

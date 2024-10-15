@@ -5,7 +5,8 @@ import org.ftf.koifishveterinaryservicecenter.enums.AppointmentStatus;
 import org.ftf.koifishveterinaryservicecenter.exception.AppointmentServiceNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.MedicalReportNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.StatusNotFoundException;
-import org.ftf.koifishveterinaryservicecenter.repository.*;
+import org.ftf.koifishveterinaryservicecenter.repository.AppointmentRepository;
+import org.ftf.koifishveterinaryservicecenter.repository.MedicalReportRepository;
 import org.ftf.koifishveterinaryservicecenter.service.medicalreportservice.MedicalReportService;
 import org.ftf.koifishveterinaryservicecenter.service.paymentservice.PaymentService;
 import org.ftf.koifishveterinaryservicecenter.service.serviceservice.ServiceService;
@@ -16,7 +17,10 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AppointmentServiceImpl implements AppointmentService {
@@ -148,8 +152,8 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public List<Appointment> getAppointmentsByCustomerId(Integer customerId) {
         List<Appointment> appointments = appointmentRepository.findAppointmentByCustomerId(customerId);
-        if(appointments.isEmpty()) {
-            throw  new AppointmentServiceNotFoundException("Appointment not found!");
+        if (appointments.isEmpty()) {
+            throw new AppointmentServiceNotFoundException("Appointment not found!");
         }
         // Sort by newest appointment
         appointments.sort(Comparator.comparing(Appointment::getAppointmentId).reversed());
@@ -160,7 +164,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public List<Appointment> getAllAppointments() {
         List<Appointment> appointments = appointmentRepository.findAll();
-        if(appointments.isEmpty()) {
+        if (appointments.isEmpty()) {
             throw new AppointmentServiceNotFoundException("Not found appointments");
         }
         // Sort by created date
@@ -181,7 +185,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     public MedicalReport getMedicalReportByAppointmentId(Integer appointmentId) throws AppointmentServiceNotFoundException {
         Appointment appointment = getAppointmentById(appointmentId);
         MedicalReport medicalReport = medicalReportRepository.findByReportId(appointment.getMedicalReport().getReportId());
-        if(medicalReport == null){
+        if (medicalReport == null) {
             throw new MedicalReportNotFoundException("Not found Medical Report with appointment id: " + appointmentId);
         }
         return medicalReport;

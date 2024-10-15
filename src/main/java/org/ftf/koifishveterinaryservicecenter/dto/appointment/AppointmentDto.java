@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.ftf.koifishveterinaryservicecenter.dto.AddressDTO;
 import org.ftf.koifishveterinaryservicecenter.dto.PaymentDto;
-import org.ftf.koifishveterinaryservicecenter.dto.TimeSlotDto;
 
 import java.math.BigDecimal;
 

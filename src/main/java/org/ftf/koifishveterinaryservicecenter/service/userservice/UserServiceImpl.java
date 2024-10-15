@@ -128,6 +128,10 @@ public class UserServiceImpl implements UserService {
         if (username.contains(" ")) {
             throw new AuthenticationException("Username can not contain white space");
         }
+        if (userRepository.findUserByUsername(username) != null) {
+            throw new AuthenticationException("Username is existed");
+        }
+
 
         // Kiểm tra password
         if (password == null || password.isBlank()) {
@@ -161,11 +165,6 @@ public class UserServiceImpl implements UserService {
         // Kiểm tra last_name
         if (last_Name == null || last_Name.isBlank()) {
             throw new AuthenticationException("last_Name can not be empty");
-        }
-
-        // Kiểm tra username có tồn tại không
-        if (userRepository.findUserByUsername(username) != null) {
-            throw new AuthenticationException("Username is existed");
         }
 
         // Tạo user mới và lưu vào database
