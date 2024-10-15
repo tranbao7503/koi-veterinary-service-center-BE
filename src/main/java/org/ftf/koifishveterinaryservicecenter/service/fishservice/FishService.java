@@ -12,6 +12,14 @@ public interface FishService {
 
     FishDTO getDetailFish(int fishId);
 
+    Fish getFishById(Integer fishId);
+
+    ImageDTO addImageForFish(int fishId, String sourcePath);
+
+    FishDTO updateFish(Integer fishId, FishDTO fishDTO);
+
+    FishDTO removeFish(int fishID, boolean enabled);
+
     ImageDTO removeImage(int imageID, boolean enabled);
 
 }

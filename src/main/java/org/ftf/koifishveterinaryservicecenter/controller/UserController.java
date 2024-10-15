@@ -3,12 +3,15 @@ package org.ftf.koifishveterinaryservicecenter.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.ftf.koifishveterinaryservicecenter.dto.*;
-import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentForListDto;
 import org.ftf.koifishveterinaryservicecenter.dto.response.AuthenticationResponse;
 import org.ftf.koifishveterinaryservicecenter.dto.response.IntrospectResponse;
-import org.ftf.koifishveterinaryservicecenter.entity.*;
-import org.ftf.koifishveterinaryservicecenter.exception.*;
-import org.ftf.koifishveterinaryservicecenter.mapper.*;
+import org.ftf.koifishveterinaryservicecenter.entity.Address;
+import org.ftf.koifishveterinaryservicecenter.entity.User;
+import org.ftf.koifishveterinaryservicecenter.exception.AddressNotFoundException;
+import org.ftf.koifishveterinaryservicecenter.exception.AuthenticationException;
+import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
+import org.ftf.koifishveterinaryservicecenter.mapper.AddressMapper;
+import org.ftf.koifishveterinaryservicecenter.mapper.UserMapper;
 import org.ftf.koifishveterinaryservicecenter.service.appointmentservice.AppointmentService;
 import org.ftf.koifishveterinaryservicecenter.service.feedbackservice.FeedbackService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
@@ -17,20 +20,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
-import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.text.ParseException;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -111,9 +106,7 @@ public class UserController {
         if (customers.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } else {
-            List<UserDTO> userDTOs = customers.stream()
-                    .map(userMapper::convertEntityToDto)
-                    .collect(Collectors.toList());
+            List<UserDTO> userDTOs = customers.stream().map(userMapper::convertEntityToDto).collect(Collectors.toList());
             return new ResponseEntity<>(userDTOs, HttpStatus.OK);
         }
     }
@@ -121,21 +114,18 @@ public class UserController {
     @PostMapping("/token")
     ApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequestDTO request) {
         var result = authenticationService.authenticate(request);
-        return ApiResponse.<AuthenticationResponse>builder()
-                .result(result)
-                .build();
+        return ApiResponse.<AuthenticationResponse>builder().result(result).build();
     }
 
     @PostMapping("/introspect")
+
     ApiResponse<IntrospectResponse> authenticate(@RequestBody IntrospectRequestDTO request)
             throws ParseException {
-        var result = authenticationService.getUserInfoFromToken(request);
+        var result = authenticationService.introspect(request);
         if (result == null) {
             return ApiResponse.<IntrospectResponse>builder().code(404).build();
         }
-        return ApiResponse.<IntrospectResponse>builder()
-                .result(result)
-                .build();
+        return ApiResponse.<IntrospectResponse>builder().result(result).build();
     }
 
 
@@ -144,10 +134,11 @@ public class UserController {
         try {
             String username = userDTOFromRequest.getUsername();
             String password = userDTOFromRequest.getPassword();
+            String email = userDTOFromRequest.getEmail();
             String firstName = userDTOFromRequest.getFirstName();
             String lastName = userDTOFromRequest.getLastName();
 
-            userService.signUp(username, password, firstName, lastName);
+            userService.signUp(username, password, email, firstName, lastName);
             return new ResponseEntity<>("Sign up successfully", HttpStatus.OK);
         } catch (AuthenticationException ex) {
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
@@ -160,8 +151,7 @@ public class UserController {
      * */
     @PreAuthorize("hasAuthority('CUS')")
     @PutMapping("/avatar")
-    public ResponseEntity<?> updateUserAvatar(@RequestParam("user_id") Integer userId
-            , @RequestParam("image") MultipartFile image) {
+    public ResponseEntity<?> updateUserAvatar(@RequestParam("user_id") Integer userId, @RequestParam("image") MultipartFile image) {
         try {
             User user = userService.updateUserAvatar(userId, image);
             UserDTO userDto = UserMapper.INSTANCE.convertEntityToDtoIgnoreAddress(user);
@@ -174,15 +164,13 @@ public class UserController {
     }
 
     /*
-    * Actors: Manager
-    * */
+     * Actors: Manager
+     * */
     @GetMapping("/veterinarians")
     public ResponseEntity<?> getAllVeterinarians() {
         try {
             List<User> veterinarians = userService.getAllVeterinarians();
-            List<UserDTO> userDTOs = veterinarians.stream()
-                    .map(UserMapper.INSTANCE::convertEntityToDtoIgnoreAddress)
-                    .collect(Collectors.toList());
+            List<UserDTO> userDTOs = veterinarians.stream().map(UserMapper.INSTANCE::convertEntityToDtoIgnoreAddress).collect(Collectors.toList());
             return new ResponseEntity<>(userDTOs, HttpStatus.OK);
         } catch (UserNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -191,4 +179,23 @@ public class UserController {
         }
     }
 
+    @PutMapping("/{customerId}/address")
+    public ResponseEntity<?> updateAddress(@PathVariable Integer customerId, @RequestParam Integer addressId) {
+        try {
+            Address address = userService.getAddressById(addressId);
+            if (address.getCustomer().getUserId().equals(customerId)) {
+                address = userService.setCurrentAddress(customerId, addressId);
+                AddressDTO addressDto = AddressMapper.INSTANCE.convertEntityToDto(address);
+                return new ResponseEntity<>(addressDto, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            }
+        } catch (UserNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (AddressNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

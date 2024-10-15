@@ -1,5 +1,6 @@
 package org.ftf.koifishveterinaryservicecenter.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,6 +29,7 @@ public class Image {
     // Inverse side: Fish
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "fish_id", nullable = false, referencedColumnName = "fish_id")
+    @JsonBackReference // Thêm annotation này
     private Fish fish;
 
 }
