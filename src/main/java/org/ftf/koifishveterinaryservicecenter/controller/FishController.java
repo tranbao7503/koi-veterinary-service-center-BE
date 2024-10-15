@@ -5,6 +5,7 @@ import org.ftf.koifishveterinaryservicecenter.dto.ImageDTO;
 import org.ftf.koifishveterinaryservicecenter.dto.IntrospectRequestDTO;
 import org.ftf.koifishveterinaryservicecenter.dto.response.IntrospectResponse;
 import org.ftf.koifishveterinaryservicecenter.entity.Fish;
+import org.ftf.koifishveterinaryservicecenter.exception.FishNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.FishMapper;
 import org.ftf.koifishveterinaryservicecenter.service.fishservice.FishService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.text.ParseException;
 import java.util.List;
@@ -73,6 +75,40 @@ public class FishController {
         }
 
     }
+
+    @DeleteMapping("/deletefish")
+    public void deleteFish(@RequestBody FishDTO fishDTO) {
+        try {
+            // Gọi phương thức removeFish từ service với dữ liệu từ FishDTO
+            fishService.removeFish(fishDTO.getFishId(), fishDTO.isEnabled());
+        } catch (FishNotFoundException e) {
+            // Xử lý khi không tìm thấy cá
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Fish not found");
+        } catch (Exception e) {
+            // Xử lý các lỗi khác
+            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Unable to delete fish");
+        }
+    }
+
+    @PutMapping("update/{fishId}")
+    public ResponseEntity<FishDTO> updateFish(
+            @PathVariable Integer fishId,
+            @RequestBody FishDTO fishDTO) {
+        try {
+            // Gọi phương thức updateFish từ service
+            FishDTO updatedFish = fishService.updateFish(fishId, fishDTO);
+
+            // Trả về kết quả thành công
+            return ResponseEntity.ok(updatedFish);
+        } catch (FishNotFoundException e) {
+            // Trả về mã 404 nếu không tìm thấy cá
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (Exception e) {
+            // Xử lý các lỗi khác
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(null);
+        }
+    }
+
 
     @PostMapping("/add_image")
     public ResponseEntity<ImageDTO> addImageForFish(@RequestBody ImageDTO imageDTO) {

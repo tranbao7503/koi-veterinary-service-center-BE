@@ -3,9 +3,12 @@ package org.ftf.koifishveterinaryservicecenter.controller;
 
 import org.ftf.koifishveterinaryservicecenter.dto.FeedbackDto;
 import org.ftf.koifishveterinaryservicecenter.entity.Feedback;
+import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.ftf.koifishveterinaryservicecenter.exception.FeedbackNotFoundException;
+import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.FeedbackMapper;
 import org.ftf.koifishveterinaryservicecenter.service.feedbackservice.FeedbackService;
+import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,9 +24,13 @@ import java.util.stream.Collectors;
 public class FeedbackController {
 
     private final FeedbackService feedbackService;
+    private final UserService userService;
 
-    public FeedbackController(FeedbackService feedbackService) {
+    public FeedbackController(
+            FeedbackService feedbackService
+            , UserService userService) {
         this.feedbackService = feedbackService;
+        this.userService = userService;
     }
 
     @GetMapping("/limited")
@@ -38,6 +45,9 @@ public class FeedbackController {
         }
     }
 
+    /*
+     * Actors: Manager
+     * */
     @GetMapping("/all")
     public ResponseEntity<List<FeedbackDto>> getAllFeedbacks() {
         List<Feedback> feedbacks = feedbackService.getAllFeedbacks();
@@ -51,14 +61,61 @@ public class FeedbackController {
         }
     }
 
+    /*
+     * Actors: Manager
+     * */
     @GetMapping("/{feedbackId}")
     public ResponseEntity<?> getFeedbackById(@PathVariable Integer feedbackId) {
         try {
             Feedback feedback = feedbackService.getFeedbackById(feedbackId);
-            FeedbackDto feedbackDto = FeedbackMapper.INSTANCE.convertToFeedbackDto(feedback);
+            FeedbackDto feedbackDto = FeedbackMapper.INSTANCE.feedbackToFeedbackDto(feedback);
             return new ResponseEntity<>(feedbackDto, HttpStatus.OK);
         } catch (FeedbackNotFoundException ex) {
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
+
+    /*
+     * Actors: Veterinarian
+     * */
+    @GetMapping("/veterinarian/{veterinarianId}")
+    public ResponseEntity<?> getFeedbacks(@PathVariable("veterinarianId") Integer id) {
+        try {
+            List<Feedback> feedbacks = feedbackService.getFeedbacksByVeterianrianId(id);
+            List<FeedbackDto> feedbackDtos = feedbacks.stream()
+                    .map(feedback -> FeedbackMapper.INSTANCE.convertToFeedbackDto(feedback))
+                    .collect(Collectors.toList());
+            return new ResponseEntity<>(feedbackDtos, HttpStatus.OK);
+        } catch (UserNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (FeedbackNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /*
+     * Actors: Veterinarian
+     * */
+    @GetMapping("/{feedbackId}/veterinarian/{veterinarianId}")
+    public ResponseEntity<?> getFeedback(@PathVariable("feedbackId") Integer feedbackId
+            , @PathVariable("veterinarianId") Integer veterinarianId) {
+        try {
+            User veterinarian = userService.getVeterinarianById(veterinarianId);
+            Feedback feedback = feedbackService.getFeedbackById(feedbackId);
+            if (feedback.getVeterinarian().getUserId().equals(veterinarian.getUserId())) {
+                FeedbackDto feedbackDto = FeedbackMapper.INSTANCE.feedbackToFeedbackDto(feedback);
+                return new ResponseEntity<>(feedbackDto, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            }
+        } catch (FeedbackNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
+        } catch (UserNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
