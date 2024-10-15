@@ -53,4 +53,7 @@ public class TimeSlotController {
         List<TimeSlotDto> dtos = timeSlots.stream().map(timeSlotMapper::convertToTimeSlotDtoAvailable).toList();
         return new ResponseEntity<>(dtos, HttpStatus.OK);
     }
+
+    // for Staffs
+    @GetMapping("")
 }

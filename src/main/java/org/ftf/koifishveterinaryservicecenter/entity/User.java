@@ -2,6 +2,7 @@ package org.ftf.koifishveterinaryservicecenter.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.ftf.koifishveterinaryservicecenter.entity.veterinarian_slots.VeterinarianSlots;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.util.LinkedHashSet;
@@ -90,13 +91,17 @@ public class User {
     // Bidirectional, identifying  relationship
     // Owning side: VeterinarianSlots
     // Inverse side: User(Veterinarian)
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "veterinarian_slots",
-            joinColumns = @JoinColumn(name = "veterinarian_id"),
-            inverseJoinColumns = @JoinColumn(name = "slot_id")
-    )
-    private Set<TimeSlot> timeSlots = new LinkedHashSet<>();
+
+//    @ManyToMany(fetch = FetchType.LAZY)
+//    @JoinTable(
+//            name = "veterinarian_slots",
+//            joinColumns = @JoinColumn(name = "veterinarian_id"),
+//            inverseJoinColumns = @JoinColumn(name = "slot_id")
+//    )
+//    private Set<TimeSlot> timeSlots = new LinkedHashSet<>();
+    @OneToMany(mappedBy = "veterinarian", orphanRemoval = true)
+    private Set<VeterinarianSlots> veterinarianSlots = new LinkedHashSet<>();
+
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "current_address_id", nullable = true)
@@ -121,11 +126,11 @@ public class User {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return enabled == user.enabled && Objects.equals(userId, user.userId) && Objects.equals(username, user.username) && Objects.equals(password, user.password) && Objects.equals(email, user.email) && Objects.equals(firstName, user.firstName) && Objects.equals(lastName, user.lastName) && Objects.equals(phoneNumber, user.phoneNumber) && Objects.equals(avatar, user.avatar) && Objects.equals(role, user.role) && Objects.equals(addresses, user.addresses) && Objects.equals(fishes, user.fishes) && Objects.equals(allBookedAppointmentOfCustomer, user.allBookedAppointmentOfCustomer) && Objects.equals(allAssignedAppointmentOfVeterinarian, user.allAssignedAppointmentOfVeterinarian) && Objects.equals(timeSlots, user.timeSlots);
+        return enabled == user.enabled && Objects.equals(userId, user.userId) && Objects.equals(username, user.username) && Objects.equals(password, user.password) && Objects.equals(email, user.email) && Objects.equals(firstName, user.firstName) && Objects.equals(lastName, user.lastName) && Objects.equals(phoneNumber, user.phoneNumber) && Objects.equals(avatar, user.avatar) && Objects.equals(role, user.role) && Objects.equals(addresses, user.addresses) && Objects.equals(fishes, user.fishes) && Objects.equals(allBookedAppointmentOfCustomer, user.allBookedAppointmentOfCustomer) && Objects.equals(allAssignedAppointmentOfVeterinarian, user.allAssignedAppointmentOfVeterinarian) && Objects.equals(veterinarianSlots, user.veterinarianSlots) && Objects.equals(currentAddress, user.currentAddress);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(userId, username, password, email, firstName, lastName, phoneNumber, avatar, enabled, role, addresses, fishes, allBookedAppointmentOfCustomer, allAssignedAppointmentOfVeterinarian, timeSlots);
+        return Objects.hash(userId, username, password, email, firstName, lastName, phoneNumber, avatar, enabled, role, addresses, fishes, allBookedAppointmentOfCustomer, allAssignedAppointmentOfVeterinarian, veterinarianSlots, currentAddress);
     }
 }

@@ -120,7 +120,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         newAppointment.setCustomer(userFromDb);
 
         // veterinarian_id
-        if (appointment.getVeterinarian() != null) {
+        if (appointment.getVeterinarian().getUserId() != null) {
             User veterinarianFromDb = userService.getVeterinarianById(appointment.getVeterinarian().getUserId());
             newAppointment.setVeterinarian(veterinarianFromDb);
         }

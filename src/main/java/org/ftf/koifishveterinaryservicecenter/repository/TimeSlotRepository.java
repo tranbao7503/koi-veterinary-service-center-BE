@@ -18,4 +18,6 @@ public interface TimeSlotRepository extends JpaRepository<TimeSlot, Integer> {
             "ORDER BY t.year, t.month, t.day, t.slotOrder")
     List<TimeSlot> getAvailableTimeSlot();
 
+
+
 }
