@@ -45,9 +45,9 @@ public class TimeSlotController {
     }
 
     /*
-    * Get all available slots since current day for customer for choosing in case not specifying veterinarian
-    * Actors: Customer
-    * */
+     * Get all available slots since current day for customer for choosing in case not specifying veterinarian
+     * Actors: Customer
+     * */
     @GetMapping("/available")
     public ResponseEntity<?> getAvailableSlots() {
         try {
@@ -57,6 +57,28 @@ public class TimeSlotController {
                     .collect(Collectors.toList());
             return new ResponseEntity<>(slotDtos, HttpStatus.OK);
         } catch (TimeSlotNotFound e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /*
+     * Get all available slots since current day for customer for choosing in case not specifying veterinarian
+     * Actors: Customer
+     * */
+    @GetMapping("/{veterinarianId}/available")
+    public ResponseEntity<?> getAvailableSlotsByVeterinarianId(
+            @PathVariable("veterinarianId") final Integer veterinarianId) {
+        try {
+            List<TimeSlot> slots = slotService.getAvailableSlotsByVeterinarianId(veterinarianId);
+            List<TimeSlotDto> slotDtos = slots.stream()
+                    .map(TimeSlotMapper.INSTANCE::convertToAvailableTimeSlotDto)
+                    .collect(Collectors.toList());
+            return new ResponseEntity<>(slotDtos, HttpStatus.OK);
+        } catch (TimeSlotNotFound e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
+        } catch (UserNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);

@@ -3,6 +3,7 @@ package org.ftf.koifishveterinaryservicecenter.service.slotservice;
 import org.ftf.koifishveterinaryservicecenter.entity.TimeSlot;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.ftf.koifishveterinaryservicecenter.exception.TimeSlotNotFound;
+import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.repository.TimeSlotRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.VeterinarianSlotsRepository;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
@@ -68,6 +69,28 @@ public class SlotServiceImpl implements SlotService {
         Integer endDay = endDate.getDayOfMonth();
 
         List<TimeSlot> timeSlots = timeSlotRepository.findAvailableTimeSlot(currentYear, currentMonth, currentDay, endYear, endMonth, endDay);
+        if (timeSlots.isEmpty()) {
+            throw new TimeSlotNotFound("There are no available slots");
+        }
+        return timeSlots;
+    }
+
+    @Override
+    public List<TimeSlot> getAvailableSlotsByVeterinarianId(Integer veterinarianId) throws UserNotFoundException {
+        User veterinarian = userService.getVeterinarianById(veterinarianId);
+
+        LocalDate currentDate = LocalDate.now();
+        LocalDate endDate = currentDate.plusDays(30);
+
+        Integer currentYear = currentDate.getYear();
+        Integer currentMonth = currentDate.getMonthValue();
+        Integer currentDay = currentDate.getDayOfMonth();
+
+        Integer endYear = endDate.getYear();
+        Integer endMonth = endDate.getMonthValue();
+        Integer endDay = endDate.getDayOfMonth();
+
+        List<TimeSlot> timeSlots = timeSlotRepository.findAvailableTimeSlotByVeterinarianId(veterinarian.getUserId(), currentYear, currentMonth, currentDay, endYear, endMonth, endDay);
         if (timeSlots.isEmpty()) {
             throw new TimeSlotNotFound("There are no available slots");
         }
