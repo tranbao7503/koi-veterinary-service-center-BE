@@ -6,19 +6,15 @@ import org.ftf.koifishveterinaryservicecenter.dto.*;
 import org.ftf.koifishveterinaryservicecenter.dto.response.AuthenticationResponse;
 import org.ftf.koifishveterinaryservicecenter.dto.response.IntrospectResponse;
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
-import org.ftf.koifishveterinaryservicecenter.entity.Certificate;
-import org.ftf.koifishveterinaryservicecenter.entity.Feedback;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
+import org.ftf.koifishveterinaryservicecenter.exception.AddressNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.AuthenticationException;
-import org.ftf.koifishveterinaryservicecenter.exception.CertificateNotFoundException;
-import org.ftf.koifishveterinaryservicecenter.exception.FeedbackNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.AddressMapper;
-import org.ftf.koifishveterinaryservicecenter.mapper.CertificateMapper;
-import org.ftf.koifishveterinaryservicecenter.mapper.FeedbackMapper;
 import org.ftf.koifishveterinaryservicecenter.mapper.UserMapper;
+import org.ftf.koifishveterinaryservicecenter.service.appointmentservice.AppointmentService;
 import org.ftf.koifishveterinaryservicecenter.service.feedbackservice.FeedbackService;
-import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationServiceImpl;
+import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -39,15 +35,17 @@ public class UserController {
 
     private final UserService userService;
     private final UserMapper userMapper;
-    private final AuthenticationServiceImpl authenticationService;
+    private final AuthenticationService authenticationService;
     private final FeedbackService feedbackService;
+    private final AppointmentService appointmentService;
 
     @Autowired
-    public UserController(UserService userService, UserMapper userMapper, AuthenticationServiceImpl authenticationService, FeedbackService feedbackService) {
+    public UserController(UserService userService, UserMapper userMapper, AuthenticationService authenticationService, FeedbackService feedbackService, AppointmentService appointmentService) {
         this.userService = userService;
         this.userMapper = userMapper;
         this.authenticationService = authenticationService;
         this.feedbackService = feedbackService;
+        this.appointmentService = appointmentService;
     }
 
     @GetMapping("/profile")
@@ -126,7 +124,7 @@ public class UserController {
     @PostMapping("/introspect")
     ApiResponse<IntrospectResponse> authenticate(@RequestBody IntrospectRequestDTO request)
             throws ParseException {
-        var result = authenticationService.introspect(request);
+        var result = authenticationService.getUserInfoFromToken(request);
         if (result == null) {
             return ApiResponse.<IntrospectResponse>builder().code(404).build();
         }
@@ -141,32 +139,15 @@ public class UserController {
         try {
             String username = userDTOFromRequest.getUsername();
             String password = userDTOFromRequest.getPassword();
+            String email = userDTOFromRequest.getEmail();
             String firstName = userDTOFromRequest.getFirstName();
             String lastName = userDTOFromRequest.getLastName();
 
-            userService.signUp(username, password, firstName, lastName);
+            userService.signUp(username, password, email, firstName, lastName);
             return new ResponseEntity<>("Sign up successfully", HttpStatus.OK);
         } catch (AuthenticationException ex) {
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
         }
-    }
-
-
-    @GetMapping("/veterinarian/{veterinarianId}/feedbacks/{feedbackId}")
-    public ResponseEntity<?> getFeedback(@PathVariable("feedbackId") Integer feedbackId
-            , @PathVariable("veterinarianId") Integer veterinarianId) {
-        try {
-            Feedback feedback = feedbackService.getFeedbackById(feedbackId);
-            if (feedback.getVeterinarian().getUserId().equals(veterinarianId)) {
-                FeedbackDto feedbackDto = FeedbackMapper.INSTANCE.feedbackToFeedbackDto(feedback);
-                return new ResponseEntity<>(feedbackDto, HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-            }
-        } catch (FeedbackNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
-        }
-
     }
 
     /*
@@ -188,21 +169,9 @@ public class UserController {
         }
     }
 
-    @PostMapping("/veterinarians/{veterinarianId}/certificate")
-    public ResponseEntity<?> addVeterinarianCertificate(
-            @PathVariable("veterinarianId") Integer veterinarianId
-            , @RequestParam("certificateName") String certificateName
-            , @RequestParam("file") MultipartFile file) {
-        try {
-            String path = userService.AddVeterinarianCertificate(veterinarianId, certificateName, file);
-            return new ResponseEntity<>(path, HttpStatus.OK);
-        } catch (UserNotFoundException ex) {
-            return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
+    /*
+     * Actors: Manager
+     * */
     @GetMapping("/veterinarians")
     public ResponseEntity<?> getAllVeterinarians() {
         try {
@@ -218,37 +187,26 @@ public class UserController {
         }
     }
 
-    @GetMapping("/veterinarian/{id}/feedbacks")
-    public ResponseEntity<?> getFeedbacks(@PathVariable("id") Integer id) {
+    @PutMapping("/{customerId}/address")
+    public ResponseEntity<?> updateAddress(
+            @PathVariable Integer customerId
+            , @RequestParam Integer addressId) {
         try {
-            List<Feedback> feedbacks = feedbackService.getFeedbacksByVeterianrianId(id);
-            List<FeedbackDto> feedbackDtos = feedbacks.stream()
-                    .map(feedback -> FeedbackMapper.INSTANCE.convertToFeedbackDto(feedback))
-                    .collect(Collectors.toList());
-            return new ResponseEntity<>(feedbackDtos, HttpStatus.OK);
+            Address address = userService.getAddressById(addressId);
+            if (address.getCustomer().getUserId().equals(customerId)) {
+                address = userService.setCurrentAddress(customerId, addressId);
+                AddressDTO addressDto = AddressMapper.INSTANCE.convertEntityToDto(address);
+                return new ResponseEntity<>(addressDto, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            }
         } catch (UserNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (FeedbackNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
+        } catch (AddressNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @GetMapping("/veterinarians/{veterinarianId}/certificate")
-    public ResponseEntity<?> getCertificate(@PathVariable("veterinarianId") Integer veterinarianId) {
-        try {
-            List<Certificate> certificates = userService.getAllCertificatesByVeterinarianId(veterinarianId);
-            List<CertificateDto> certificateDtos = certificates.stream()
-                    .map(CertificateMapper.INSTANCE::convertToCertificateDto)
-                    .collect(Collectors.toList());
-            return new ResponseEntity<>(certificateDtos, HttpStatus.OK);
-        } catch (UserNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (CertificateNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
-        } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
 }

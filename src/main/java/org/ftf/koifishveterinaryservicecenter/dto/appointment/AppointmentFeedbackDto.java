@@ -1,19 +1,14 @@
-package org.ftf.koifishveterinaryservicecenter.dto;
+package org.ftf.koifishveterinaryservicecenter.dto.appointment;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import org.ftf.koifishveterinaryservicecenter.dto.TimeSlotDto;
 import org.ftf.koifishveterinaryservicecenter.enums.AppointmentStatus;
 
-import java.time.LocalDateTime;
-
+@EqualsAndHashCode(callSuper = true)
 @Data
-public class AppointmentDto {
-
-    @JsonProperty("appointment_id")
-    private Integer appointmentId;
-
-    @JsonProperty("created_date")
-    private LocalDateTime createdDate;
+public class AppointmentFeedbackDto extends AppointmentBaseDto {
 
     @JsonProperty("service_name")
     private String serviceName;
@@ -32,4 +27,5 @@ public class AppointmentDto {
 
     @JsonProperty("current_status")
     private AppointmentStatus currentStatus;
+
 }

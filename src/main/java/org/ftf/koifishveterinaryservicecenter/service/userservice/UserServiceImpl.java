@@ -1,14 +1,12 @@
 package org.ftf.koifishveterinaryservicecenter.service.userservice;
 
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
-import org.ftf.koifishveterinaryservicecenter.entity.Certificate;
 import org.ftf.koifishveterinaryservicecenter.entity.Role;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
+import org.ftf.koifishveterinaryservicecenter.exception.AddressNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.AuthenticationException;
-import org.ftf.koifishveterinaryservicecenter.exception.CertificateNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.repository.AddressRepository;
-import org.ftf.koifishveterinaryservicecenter.repository.CertificateRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.RoleRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.UserRepository;
 import org.ftf.koifishveterinaryservicecenter.service.fileservice.FileUploadService;
@@ -19,9 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.sql.Date;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,21 +28,18 @@ public class UserServiceImpl implements UserService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final FileUploadService fileUploadService;
-    private final CertificateRepository certificateRepository;
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository
             , AddressRepository addressRepository
             , RoleRepository roleRepository
             , PasswordEncoder passwordEncoder
-            , FileUploadService fileUploadService
-            , CertificateRepository certificateRepository) {
+            , FileUploadService fileUploadService) {
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.fileUploadService = fileUploadService;
-        this.certificateRepository = certificateRepository;
     }
 
     @Override
@@ -72,12 +64,12 @@ public class UserServiceImpl implements UserService {
         }
 
         // set addressId for Address input
-        Integer addressId = userFromDb.getAddress().getAddressId();
+        Integer addressId = userFromDb.getCurrentAddress().getAddressId();
         convertedAddress.setAddressId(addressId);
 
         // update Address property for User instance
         Address updatedAddress = addressRepository.save(convertedAddress);
-        userFromDb.setAddress(updatedAddress);
+        userFromDb.setCurrentAddress(updatedAddress);
         return userFromDb;
     }
 
@@ -127,35 +119,56 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void signUp(String username, String password, String first_Name, String last_Name) {
+    public void signUp(String username, String password, String email, String first_Name, String last_Name) {
 
+        // Kiểm tra username
         if (username == null || username.isBlank()) {
             throw new AuthenticationException("Username can not be empty");
         }
         if (username.contains(" ")) {
             throw new AuthenticationException("Username can not contain white space");
         }
+
+        // Kiểm tra password
         if (password == null || password.isBlank()) {
             throw new AuthenticationException("Password can not be empty");
         }
         if (password.length() < 8) {
-            throw new AuthenticationException("Password can not < 8 characters");
+            throw new AuthenticationException("Password can not be less than 8 characters");
         }
         String passwordPattern = "^(?=.*[@#$%^&+=!{}]).{8,}$";
         if (!password.matches(passwordPattern)) {
             throw new AuthenticationException("Password must contain at least one special character and be at least 8 characters long");
         }
 
+        // Kiểm tra email
+        if (email == null || email.isBlank()) {
+            throw new AuthenticationException("Email can not be empty");
+        }
+        String emailPattern = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
+        if (!email.matches(emailPattern)) {
+            throw new AuthenticationException("Email is not valid");
+        }
+        if (userRepository.findUserByEmail(email) != null) {
+            throw new AuthenticationException("Email is already registered");
+        }
+
+        // Kiểm tra first_name
         if (first_Name == null || first_Name.isBlank()) {
             throw new AuthenticationException("first_Name can not be empty");
         }
+
+        // Kiểm tra last_name
         if (last_Name == null || last_Name.isBlank()) {
             throw new AuthenticationException("last_Name can not be empty");
         }
+
+        // Kiểm tra username có tồn tại không
         if (userRepository.findUserByUsername(username) != null) {
             throw new AuthenticationException("Username is existed");
         }
 
+        // Tạo user mới và lưu vào database
         User user = new User();
         user.setUsername(username);
         user.setPassword(passwordEncoder.encode(password));
@@ -163,6 +176,7 @@ public class UserServiceImpl implements UserService {
         user.setRole(role);
         user.setFirstName(first_Name);
         user.setLastName(last_Name);
+        user.setEmail(email); // Gán email cho user
         userRepository.save(user);
     }
 
@@ -174,6 +188,15 @@ public class UserServiceImpl implements UserService {
             throw new UserNotFoundException("Veterinarian not found with Id: " + veterinarianId);
         }
         return veterinarian;
+    }
+
+    @Override
+    public User getCustomerById(Integer customerId) {
+        User customer = userRepository.findCustomerById(customerId);
+        if (customer == null) {
+            throw new UserNotFoundException("Customer not found with Id: " + customerId);
+        }
+        return customer;
     }
 
 
@@ -190,29 +213,77 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String AddVeterinarianCertificate(Integer veterinarianId, String certificateName, MultipartFile certificateFromRequest) throws IOException, UserNotFoundException {
-        User veterinarian = this.getVeterinarianById(veterinarianId);
-        String path = fileUploadService.uploadCertificate(certificateFromRequest);
-
-        Certificate certificate = new Certificate();
-        certificate.setCertificateName(certificateName);
-        certificate.setFilePath(path);
-        certificate.setUploadDate(LocalDateTime.now());
-        certificate.setVeterinarian(veterinarian);
-
-        certificateRepository.save(certificate);
-        return path;
+    public List<Address> getAllAddresses(Integer customerId) {
+        List<Address> addresses = addressRepository.findByCustomerId(customerId);
+        if (addresses.isEmpty()) {
+            throw new AddressNotFoundException("Address not found with customer ID: " + customerId);
+        }
+        return addresses;
     }
 
     @Override
-    public List<Certificate> getAllCertificatesByVeterinarianId(Integer veterinarianId) throws UserNotFoundException {
-        this.getVeterinarianById(veterinarianId);
-        List<Certificate> certificates = certificateRepository.findByVeterinarianId(veterinarianId);
-        if(certificates.isEmpty()){
-            throw new CertificateNotFoundException("Certificate not found for Veterinarian with Id: " + veterinarianId);
+    public Address getAddressById(Integer addressId) {
+        Address address = addressRepository.findById(addressId).orElse(null);
+        if (address == null) {
+            throw new AddressNotFoundException("Address not found with ID: " + addressId);
         }
-        return certificates;
+        return address;
     }
 
+    @Override
+    public Address updateAddressDetails(Integer addressId, Address newAddress) {
+        Address existedAddress = addressRepository.findById(addressId).orElse(null);
+        if (existedAddress == null) {
+            throw new AddressNotFoundException("Address not found with ID: " + addressId);
+        } else {
+            existedAddress.setCity(newAddress.getCity());
+            existedAddress.setWard(newAddress.getWard());
+            existedAddress.setDistrict(newAddress.getDistrict());
+            existedAddress.setHomeNumber(newAddress.getHomeNumber());
+
+            newAddress = addressRepository.save(existedAddress);
+
+            return newAddress;
+        }
+    }
+
+    @Override
+    public Address setCurrentAddress(Integer customerId, Integer addressId) throws UserNotFoundException {
+        User customer = this.getCustomerById(customerId);
+        Address address = addressRepository.findById(addressId).orElse(null);
+        if (address == null) {
+            throw new AddressNotFoundException("Address not found with ID: " + addressId);
+        } else {
+            customer.setCurrentAddress(address);
+            userRepository.save(customer);
+            return address;
+        }
+    }
+
+    @Override
+    public Address addAddress(Integer customerId, Address address) throws UserNotFoundException {
+        User customer = this.getCustomerById(customerId);
+
+        // Save address into database
+        address.setEnabled(true);
+        address.setCustomer(customer);
+        address = addressRepository.save(address);
+
+        // Set new address as main current address
+        this.setCurrentAddress(customerId, address.getAddressId());
+
+        return address;
+    }
+
+    @Override
+    public Address disableAddress(Integer addressId) {
+        Address address = addressRepository.findById(addressId).orElse(null);
+        if (address == null) {
+            throw new AddressNotFoundException("Address not found with ID: " + addressId);
+        }
+        address.setEnabled(false);
+        address = addressRepository.save(address);
+        return address;
+    }
 
 }

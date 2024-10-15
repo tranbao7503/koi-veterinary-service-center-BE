@@ -2,6 +2,7 @@ package org.ftf.koifishveterinaryservicecenter.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
+import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentFeedbackDto;
 
 import java.time.LocalDateTime;
 
@@ -25,6 +26,6 @@ public class FeedbackDto {
     private LocalDateTime datetime;
 
     @JsonProperty("appointment")
-    private AppointmentDto appointment;
+    private AppointmentFeedbackDto appointment;
 
 }
