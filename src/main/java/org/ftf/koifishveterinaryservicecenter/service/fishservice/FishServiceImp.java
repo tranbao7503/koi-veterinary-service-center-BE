@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class FishServiceImp implements FishService {
@@ -25,6 +26,17 @@ public class FishServiceImp implements FishService {
 
 
     @Override
+
+    public List<Fish> getAllFishByUserId(int id) {
+        // Lấy danh sách tất cả các con cá thuộc về customer có ID tương ứng
+        List<Fish> allFish = fishRepository.findAllFishByCustomer_UserId(id);
+
+        // Lọc danh sách cá, chỉ giữ lại những con có enabled = true
+        return allFish.stream()
+                .filter(fish -> fish.isEnabled())  // Sử dụng phương thức getEnabled() để lọc
+                .collect(Collectors.toList());
+    }
+
     public FishDTO getDetailFish(int fishId) {
         Fish fish = fishRepository.findByFishId(fishId);
 
@@ -43,10 +55,5 @@ public class FishServiceImp implements FishService {
         } else {
             return null; // Trả về null nếu cá không tồn tại hoặc không được kích hoạt
         }
-    }
-
-    @Override
-    public List<Fish> getAllFishByUserId(int Id) {
-        return fishRepository.findAllFishByCustomer_UserId(Id);
     }
 }
