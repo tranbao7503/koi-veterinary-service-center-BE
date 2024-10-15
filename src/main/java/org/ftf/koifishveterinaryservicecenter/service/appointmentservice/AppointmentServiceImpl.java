@@ -94,7 +94,6 @@ public class AppointmentServiceImpl implements AppointmentService {
         return statuses;
     }
 
-
     public void createAppointment(Appointment appointment, Integer customerId) {
         // 1. online booking
         // 2. consultation at home
