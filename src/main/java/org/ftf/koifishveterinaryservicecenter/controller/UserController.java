@@ -3,12 +3,14 @@ package org.ftf.koifishveterinaryservicecenter.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.ftf.koifishveterinaryservicecenter.dto.*;
-import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentForListDto;
 import org.ftf.koifishveterinaryservicecenter.dto.response.AuthenticationResponse;
 import org.ftf.koifishveterinaryservicecenter.dto.response.IntrospectResponse;
-import org.ftf.koifishveterinaryservicecenter.entity.*;
-import org.ftf.koifishveterinaryservicecenter.exception.*;
-import org.ftf.koifishveterinaryservicecenter.mapper.*;
+import org.ftf.koifishveterinaryservicecenter.entity.Address;
+import org.ftf.koifishveterinaryservicecenter.entity.User;
+import org.ftf.koifishveterinaryservicecenter.exception.AuthenticationException;
+import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
+import org.ftf.koifishveterinaryservicecenter.mapper.AddressMapper;
+import org.ftf.koifishveterinaryservicecenter.mapper.UserMapper;
 import org.ftf.koifishveterinaryservicecenter.service.appointmentservice.AppointmentService;
 import org.ftf.koifishveterinaryservicecenter.service.feedbackservice.FeedbackService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
@@ -17,20 +19,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
-import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.text.ParseException;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -144,10 +138,11 @@ public class UserController {
         try {
             String username = userDTOFromRequest.getUsername();
             String password = userDTOFromRequest.getPassword();
+            String email = userDTOFromRequest.getEmail();
             String firstName = userDTOFromRequest.getFirstName();
             String lastName = userDTOFromRequest.getLastName();
 
-            userService.signUp(username, password, firstName, lastName);
+            userService.signUp(username, password, email, firstName, lastName);
             return new ResponseEntity<>("Sign up successfully", HttpStatus.OK);
         } catch (AuthenticationException ex) {
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
