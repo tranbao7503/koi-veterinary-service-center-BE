@@ -5,7 +5,8 @@ import org.ftf.koifishveterinaryservicecenter.enums.AppointmentStatus;
 import org.ftf.koifishveterinaryservicecenter.exception.AppointmentServiceNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.MedicalReportNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.StatusNotFoundException;
-import org.ftf.koifishveterinaryservicecenter.repository.*;
+import org.ftf.koifishveterinaryservicecenter.repository.AppointmentRepository;
+import org.ftf.koifishveterinaryservicecenter.repository.MedicalReportRepository;
 import org.ftf.koifishveterinaryservicecenter.service.addressservice.AddressService;
 import org.ftf.koifishveterinaryservicecenter.service.fishservice.FishService;
 import org.ftf.koifishveterinaryservicecenter.service.medicalreportservice.MedicalReportService;
@@ -19,7 +20,10 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AppointmentServiceImpl implements AppointmentService {
@@ -114,7 +118,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         // address_id
         Integer addressId = appointment.getAddress().getAddressId();
-        if(addressId != null) {
+        if (addressId != null) {
             Address address = addressService.getAddressById(addressId);
             newAppointment.setAddress(address);
 
@@ -158,7 +162,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         // fish
         Integer fishId = appointment.getFish().getFishId();
-        if(fishId != null) {
+        if (fishId != null) {
             Fish fish = fishService.getFishById(fishId);
             newAppointment.setFish(fish);
         }

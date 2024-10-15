@@ -20,4 +20,6 @@ public interface FishService {
 
     FishDTO removeFish(int fishID, boolean enabled);
 
+    ImageDTO removeImage(int imageID, boolean enabled);
+
 }
