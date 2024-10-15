@@ -5,22 +5,21 @@ import org.ftf.koifishveterinaryservicecenter.enums.AppointmentStatus;
 import org.ftf.koifishveterinaryservicecenter.exception.AppointmentServiceNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.MedicalReportNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.StatusNotFoundException;
-import org.ftf.koifishveterinaryservicecenter.repository.AppointmentRepository;
-import org.ftf.koifishveterinaryservicecenter.repository.MedicalReportRepository;
+import org.ftf.koifishveterinaryservicecenter.repository.*;
+import org.ftf.koifishveterinaryservicecenter.service.addressservice.AddressService;
+import org.ftf.koifishveterinaryservicecenter.service.fishservice.FishService;
 import org.ftf.koifishveterinaryservicecenter.service.medicalreportservice.MedicalReportService;
 import org.ftf.koifishveterinaryservicecenter.service.paymentservice.PaymentService;
 import org.ftf.koifishveterinaryservicecenter.service.serviceservice.ServiceService;
 import org.ftf.koifishveterinaryservicecenter.service.slotservice.SlotService;
+import org.ftf.koifishveterinaryservicecenter.service.surchargeservice.SurchargeService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class AppointmentServiceImpl implements AppointmentService {
@@ -32,6 +31,9 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final ServiceService serviceService;
     private final SlotService slotService;
     private final PaymentService paymentService;
+    private final AddressService addressService;
+    private final SurchargeService surchargeService;
+    private final FishService fishService;
 
     @Autowired
     public AppointmentServiceImpl(AppointmentRepository appointmentRepository
@@ -39,7 +41,11 @@ public class AppointmentServiceImpl implements AppointmentService {
             , UserService userService
             , MedicalReportRepository medicalReportRepository
             , ServiceService serviceService
-            , SlotService slotService, PaymentService paymentService) {
+            , SlotService slotService
+            , PaymentService paymentService
+            , AddressService addressService
+            , SurchargeService surchargeService
+            , FishService fishService) {
         this.appointmentRepository = appointmentRepository;
         this.medicalReportService = medicalReportService;
         this.userService = userService;
@@ -47,6 +53,9 @@ public class AppointmentServiceImpl implements AppointmentService {
         this.serviceService = serviceService;
         this.slotService = slotService;
         this.paymentService = paymentService;
+        this.addressService = addressService;
+        this.surchargeService = surchargeService;
+        this.fishService = fishService;
     }
 
 
@@ -91,6 +100,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     public void createAppointment(Appointment appointment, Integer customerId) {
         // 1. online booking
+        // 2. consultation at home
 
         // setting fields for newAppointment
         Appointment newAppointment = new Appointment();
@@ -103,7 +113,16 @@ public class AppointmentServiceImpl implements AppointmentService {
         newAppointment.setService(bookedService);
 
         // address_id
-        // moving_surcharge_id
+        Integer addressId = appointment.getAddress().getAddressId();
+        if(addressId != null) {
+            Address address = addressService.getAddressById(addressId);
+            newAppointment.setAddress(address);
+
+            // moving_surcharge_id
+            MovingSurcharge movingSurcharge = surchargeService.getMovingSurchargeFromAddressId(addressId);
+            newAppointment.setMovingSurcharge(movingSurcharge);
+        }
+
 
         // slot_id
         TimeSlot timeSlot = slotService.getTimeSlotById(appointment.getTimeSlot().getSlotId());
@@ -137,6 +156,13 @@ public class AppointmentServiceImpl implements AppointmentService {
         // description
         newAppointment.setDescription(appointment.getDescription());
 
+        // fish
+        Integer fishId = appointment.getFish().getFishId();
+        if(fishId != null) {
+            Fish fish = fishService.getFishById(fishId);
+            newAppointment.setFish(fish);
+        }
+
         // total price
         newAppointment.setTotalPrice(calculatePrice(newAppointment));
 
@@ -152,7 +178,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public List<Appointment> getAppointmentsByCustomerId(Integer customerId) {
         List<Appointment> appointments = appointmentRepository.findAppointmentByCustomerId(customerId);
-        if (appointments.isEmpty()) {
+        if(appointments.isEmpty()) {
             throw new AppointmentServiceNotFoundException("Appointment not found!");
         }
         // Sort by newest appointment

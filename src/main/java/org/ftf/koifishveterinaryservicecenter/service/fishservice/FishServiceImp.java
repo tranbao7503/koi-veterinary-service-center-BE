@@ -18,6 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -100,6 +101,13 @@ public class FishServiceImp implements FishService {
         } else {
             return null; // Trả về null nếu cá không tồn tại hoặc không được kích hoạt
         }
+    }
+
+    @Override
+    public Fish getFishById(Integer fishId) {
+        Optional<Fish> fish = fishRepository.findById(fishId);
+        if (fish.isEmpty()) throw  new FishNotFoundException("Fish not found with id " + fishId);
+        return fish.get();
     }
 
 

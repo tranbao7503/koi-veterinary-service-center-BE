@@ -15,8 +15,8 @@ public class AppointmentDto extends AppointmentBaseDto {
     @JsonProperty("service_id")
     private Integer serviceId;
 
-    @JsonProperty("address")
-    private AddressDTO address;
+    @JsonProperty("address_id")
+    private Integer addressId;
 
     @JsonProperty("veterinarian_id")
     private Integer veterinarianId;
@@ -36,11 +36,13 @@ public class AppointmentDto extends AppointmentBaseDto {
     @JsonProperty("description")
     private String description;
 
+    @JsonProperty("fish_id")
+    private Integer fishId;
+
     @JsonProperty("total_price")
     private BigDecimal totalPrice;
 
     @JsonProperty("payment")
     private PaymentDto payment;
-
 
 }

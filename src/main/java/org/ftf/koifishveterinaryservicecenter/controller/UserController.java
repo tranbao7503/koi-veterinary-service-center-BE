@@ -106,9 +106,7 @@ public class UserController {
         if (customers.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } else {
-            List<UserDTO> userDTOs = customers.stream()
-                    .map(userMapper::convertEntityToDto)
-                    .collect(Collectors.toList());
+            List<UserDTO> userDTOs = customers.stream().map(userMapper::convertEntityToDto).collect(Collectors.toList());
             return new ResponseEntity<>(userDTOs, HttpStatus.OK);
         }
     }
@@ -116,21 +114,18 @@ public class UserController {
     @PostMapping("/token")
     ApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequestDTO request) {
         var result = authenticationService.authenticate(request);
-        return ApiResponse.<AuthenticationResponse>builder()
-                .result(result)
-                .build();
+        return ApiResponse.<AuthenticationResponse>builder().result(result).build();
     }
 
     @PostMapping("/introspect")
+
     ApiResponse<IntrospectResponse> authenticate(@RequestBody IntrospectRequestDTO request)
             throws ParseException {
         var result = authenticationService.introspect(request);
         if (result == null) {
             return ApiResponse.<IntrospectResponse>builder().code(404).build();
         }
-        return ApiResponse.<IntrospectResponse>builder()
-                .result(result)
-                .build();
+        return ApiResponse.<IntrospectResponse>builder().result(result).build();
     }
 
 
@@ -156,8 +151,7 @@ public class UserController {
      * */
     @PreAuthorize("hasAuthority('CUS')")
     @PutMapping("/avatar")
-    public ResponseEntity<?> updateUserAvatar(@RequestParam("user_id") Integer userId
-            , @RequestParam("image") MultipartFile image) {
+    public ResponseEntity<?> updateUserAvatar(@RequestParam("user_id") Integer userId, @RequestParam("image") MultipartFile image) {
         try {
             User user = userService.updateUserAvatar(userId, image);
             UserDTO userDto = UserMapper.INSTANCE.convertEntityToDtoIgnoreAddress(user);
@@ -176,9 +170,7 @@ public class UserController {
     public ResponseEntity<?> getAllVeterinarians() {
         try {
             List<User> veterinarians = userService.getAllVeterinarians();
-            List<UserDTO> userDTOs = veterinarians.stream()
-                    .map(UserMapper.INSTANCE::convertEntityToDtoIgnoreAddress)
-                    .collect(Collectors.toList());
+            List<UserDTO> userDTOs = veterinarians.stream().map(UserMapper.INSTANCE::convertEntityToDtoIgnoreAddress).collect(Collectors.toList());
             return new ResponseEntity<>(userDTOs, HttpStatus.OK);
         } catch (UserNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -188,9 +180,7 @@ public class UserController {
     }
 
     @PutMapping("/{customerId}/address")
-    public ResponseEntity<?> updateAddress(
-            @PathVariable Integer customerId
-            , @RequestParam Integer addressId) {
+    public ResponseEntity<?> updateAddress(@PathVariable Integer customerId, @RequestParam Integer addressId) {
         try {
             Address address = userService.getAddressById(addressId);
             if (address.getCustomer().getUserId().equals(customerId)) {
@@ -208,5 +198,4 @@ public class UserController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 }

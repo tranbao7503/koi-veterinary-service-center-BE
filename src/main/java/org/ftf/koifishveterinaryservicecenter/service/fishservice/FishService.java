@@ -7,16 +7,16 @@ import org.ftf.koifishveterinaryservicecenter.entity.Fish;
 
 import java.util.List;
 
-
 public interface FishService {
     List<Fish> getAllFishByUserId(int Id);
 
     FishDTO getDetailFish(int fishId);
 
-    public ImageDTO addImageForFish(int fishId, String sourcePath);
+    Fish getFishById(Integer fishId);
+
+    ImageDTO addImageForFish(int fishId, String sourcePath);
 
     FishDTO updateFish(Integer fishId, FishDTO fishDTO);
-
 
     FishDTO removeFish(int fishID, boolean enabled);
 

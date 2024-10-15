@@ -101,7 +101,7 @@ public class AppointmentController {
             Appointment convertedAppointment = AppointmentMapper.INSTANCE.convertedToAppointment(appointmentDto);
             appointmentService.createAppointment(convertedAppointment, userId);
             return new ResponseEntity<>("Booked an appointment successfully", HttpStatus.CREATED);
-        } catch (UserNotFoundException exception) {
+        } catch (UserNotFoundException | AddressNotFoundException exception) {
             return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
@@ -133,7 +133,7 @@ public class AppointmentController {
             User veterinarian = userService.getVeterinarianById(veterinarianId);
             Appointment appointment = appointmentService.getAppointmentById(appointmentId);
             if (appointment.getVeterinarian().getUserId().equals(veterinarian.getUserId())) {
-                AppointmentDetailsDto appointmentDetailsDto = AppointmentMapper.INSTANCE.convertedToappointmentDetailsDtoForVet(appointment);
+                AppointmentDetailsDto appointmentDetailsDto = AppointmentMapper.INSTANCE.convertedToAppointmentDetailsDtoForVet(appointment);
                 return new ResponseEntity<>(appointmentDetailsDto, HttpStatus.OK);
             }
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
