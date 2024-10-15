@@ -1,6 +1,7 @@
 package org.ftf.koifishveterinaryservicecenter.controller;
 
 import org.ftf.koifishveterinaryservicecenter.dto.FishDTO;
+import org.ftf.koifishveterinaryservicecenter.dto.ImageDTO;
 import org.ftf.koifishveterinaryservicecenter.dto.IntrospectRequestDTO;
 import org.ftf.koifishveterinaryservicecenter.dto.response.IntrospectResponse;
 import org.ftf.koifishveterinaryservicecenter.entity.Fish;
@@ -24,6 +25,7 @@ public class FishController {
     private final FishService fishService;
     private final FishMapper fishMapper;
     private final AuthenticationService authenticationService;
+
 
 
     @Autowired
@@ -107,6 +109,16 @@ public class FishController {
         }
     }
 
+
+    @PostMapping("/add_image")
+    public ResponseEntity<ImageDTO> addImageForFish(@RequestBody ImageDTO imageDTO) {
+        try {
+            ImageDTO newImage = fishService.addImageForFish(imageDTO.getFishId(), imageDTO.getSourcePath());
+            return new ResponseEntity<>(newImage, HttpStatus.CREATED);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
+        }
+    }
 
 }
 

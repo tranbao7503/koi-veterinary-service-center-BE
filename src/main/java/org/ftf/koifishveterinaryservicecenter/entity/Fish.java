@@ -1,5 +1,6 @@
 package org.ftf.koifishveterinaryservicecenter.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -64,6 +65,7 @@ public class Fish {
     // Owning side: Image
     // Inverse side: Fish
     @OneToMany(mappedBy = "fish", fetch = FetchType.LAZY)
+    @JsonManagedReference // Thêm annotation này
     private Set<Image> images = new LinkedHashSet<>();
 
 
