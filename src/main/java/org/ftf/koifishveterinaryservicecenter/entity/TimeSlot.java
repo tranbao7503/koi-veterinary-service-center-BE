@@ -15,7 +15,8 @@ import java.util.Set;
 
 
 @Entity
-@Table(name = "time_slots")public class TimeSlot {
+@Table(name = "time_slots")
+public class TimeSlot {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,7 +36,7 @@ import java.util.Set;
     private Integer slotOrder;
 
     //    @Lob
-    @Column(name = "description", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "description", nullable = true, columnDefinition = "TEXT")
     private String description;
 
     // Bidirectional, identifying relationship

@@ -9,5 +9,8 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class IntrospectResponse {
+    Integer userId;
+    String roleId;
+    private Integer timeout;
     boolean valid;
 }

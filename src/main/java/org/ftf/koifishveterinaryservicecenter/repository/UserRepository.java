@@ -11,17 +11,29 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Integer> {
 
-  User findUsersByUserId(int userId);
+    User findUsersByUserId(int userId);
 
-  @Query("SELECT u FROM User u WHERE u.userId = :veterinarianId AND u.role.roleKey = 'VET'")
-  User findVeterinarianById(@Param("veterinarianId") Integer veterinarianId);
+    @Query("SELECT u FROM User u WHERE u.userId = :veterinarianId AND u.role.roleKey = 'VET'")
+    User findVeterinarianById(@Param("veterinarianId") Integer veterinarianId);
 
-  boolean existsUserByPhoneNumber(String phoneNumber);
+    @Query("SELECT u FROM User u WHERE u.userId = :customerId AND u.role.roleKey = 'CUS'")
+    User findCustomerById(@Param("customerId") Integer customerId);
 
-  List<User> findAllByRole (Role role);
 
-  List<User>findAllByRoleRoleId(int roleId);
+    boolean existsUserByPhoneNumber(String phoneNumber);
 
-  Optional<User> findByUsername(String username);
+    List<User> findAllByRole(Role role);
+
+    List<User> findAllByRoleRoleId(int roleId);
+
+
+    Optional<User> findByUsername(String username);
+
+    User findUserByUsername(String username);
+
+    User findUserByEmail(String email);
+
+
 
   }
+

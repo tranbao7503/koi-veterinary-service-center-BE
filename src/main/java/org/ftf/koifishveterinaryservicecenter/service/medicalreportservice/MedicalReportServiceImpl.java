@@ -28,7 +28,9 @@ public class MedicalReportServiceImpl implements MedicalReportService {
     private final PrescriptionMedicineRepository prescriptionMedicineRepository;
 
     @Autowired
-    public MedicalReportServiceImpl(MedicineRepository medicineRepository, PrescriptionRepository prescriptionRepository, PrescriptionMedicineRepository prescriptionMedicineRepository) {
+    public MedicalReportServiceImpl(MedicineRepository medicineRepository
+            , PrescriptionRepository prescriptionRepository
+            , PrescriptionMedicineRepository prescriptionMedicineRepository) {
         this.medicineRepository = medicineRepository;
         this.prescriptionRepository = prescriptionRepository;
         this.prescriptionMedicineRepository = prescriptionMedicineRepository;
@@ -83,5 +85,6 @@ public class MedicalReportServiceImpl implements MedicalReportService {
             throw new PrescriptionNotFoundException("Not found Prescription with id: " + prescriptionId);
         return prescription.get();
     }
+
 
 }

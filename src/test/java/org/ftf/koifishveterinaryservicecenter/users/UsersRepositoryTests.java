@@ -23,7 +23,7 @@ public class UsersRepositoryTests {
         int userId = 1;
         User user = userRepository.findUsersByUserId(userId);
 
-        Assertions.assertThat(user.getAddress()).isNotNull();
+        Assertions.assertThat(user.getCurrentAddress()).isNotNull();
         System.out.println(user);
     }
 
@@ -39,7 +39,7 @@ public class UsersRepositoryTests {
     }
 
     @Test
-    public void testCreateMedicalReportForAppointmentSuccess(){
+    public void testCreateMedicalReportForAppointmentSuccess() {
         int veterinarianId = 3;
         User veterinarian = userRepository.findUsersByUserId(veterinarianId);
 
