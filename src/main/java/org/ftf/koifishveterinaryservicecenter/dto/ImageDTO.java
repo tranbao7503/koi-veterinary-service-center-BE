@@ -9,10 +9,13 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ImageDTO {
+
     @JsonProperty("image_id")
     private Integer imageId;
+
     @JsonProperty("source_path")
     private String sourcePath;
+
     @JsonProperty("fish_id")
     private Integer fishId;
     // Thêm trường enable
