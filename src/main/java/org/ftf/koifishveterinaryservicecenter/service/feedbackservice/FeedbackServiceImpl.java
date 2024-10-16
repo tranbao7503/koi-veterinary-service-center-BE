@@ -1,7 +1,10 @@
 package org.ftf.koifishveterinaryservicecenter.service.feedbackservice;
 
+import org.ftf.koifishveterinaryservicecenter.entity.Appointment;
 import org.ftf.koifishveterinaryservicecenter.entity.Feedback;
+import org.ftf.koifishveterinaryservicecenter.entity.Fish;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
+import org.ftf.koifishveterinaryservicecenter.exception.AppointmentNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.FeedbackNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.repository.FeedbackRepository;
@@ -9,6 +12,7 @@ import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -50,6 +54,33 @@ public class FeedbackServiceImpl implements FeedbackService {
         Feedback feedback = feedbackRepository.findById(feedbackId).orElseThrow(
                 () -> new FeedbackNotFoundException("Feedback not found with id: " + feedbackId));
         return feedback;
+    }
+
+    @Override
+    public Feedback createFeedback(Feedback feedback, Appointment appointment) {
+        Feedback newFeedback = new Feedback();
+
+        if(appointment == null) {
+            throw new AppointmentNotFoundException("Appointment not found");
+        }
+        if(appointment.getCustomer() == null) {
+            throw new UserNotFoundException("Customer not found");
+        }
+        if(appointment.getVeterinarian() == null) {
+            throw new UserNotFoundException("Veterinarian not found");
+        }
+
+        newFeedback.setRating(feedback.getRating());
+        newFeedback.setComment(feedback.getComment());
+        newFeedback.setDatetime(LocalDateTime.now());
+        newFeedback.setAppointment(appointment);
+        newFeedback.setCustomer(appointment.getCustomer());
+        newFeedback.setVeterinarian(appointment.getVeterinarian());
+        newFeedback.setFish(appointment.getFish());
+
+        feedbackRepository.save(newFeedback);
+
+        return newFeedback;
     }
 
 }

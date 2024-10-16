@@ -4,6 +4,7 @@ package org.ftf.koifishveterinaryservicecenter.service.appointmentservice;
 import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentDto;
 import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentUpdateDto;
 import org.ftf.koifishveterinaryservicecenter.entity.Appointment;
+import org.ftf.koifishveterinaryservicecenter.entity.Feedback;
 import org.ftf.koifishveterinaryservicecenter.entity.MedicalReport;
 import org.ftf.koifishveterinaryservicecenter.entity.Status;
 import org.ftf.koifishveterinaryservicecenter.exception.AppointmentUpdatedException;
@@ -36,4 +37,6 @@ public interface AppointmentService {
     void cancelAppointment(Integer appointmentId);
 
     void assignVeterinarian(Integer appointmentId, Integer veterinarianId);
+    Feedback createFeedback(Integer appointmentId, Feedback feedback);
+
 }

@@ -87,5 +87,4 @@ public class MedicalReportServiceImpl implements MedicalReportService {
     }
 
 
-
 }

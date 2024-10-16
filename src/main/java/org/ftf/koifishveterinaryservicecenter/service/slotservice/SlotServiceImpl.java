@@ -2,9 +2,11 @@ package org.ftf.koifishveterinaryservicecenter.service.slotservice;
 
 import org.ftf.koifishveterinaryservicecenter.entity.TimeSlot;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
+
 import org.ftf.koifishveterinaryservicecenter.entity.veterinarian_slots.VeterinarianSlots;
 import org.ftf.koifishveterinaryservicecenter.enums.SlotStatus;
 import org.ftf.koifishveterinaryservicecenter.exception.TimeSlotNotFoundException;
+import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.repository.TimeSlotRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.VeterinarianSlotsRepository;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
@@ -68,9 +70,45 @@ public class SlotServiceImpl implements SlotService {
     @Override
     public List<VeterinarianSlots> getVeterinarianSlotsBySlotId(Integer slotId) {
         TimeSlot timeSlot = getTimeSlotById(slotId);
-        List<VeterinarianSlots> veterinarianSlots = veterinarianSlotsRepository.getAvailableSlotsBySlotId(SlotStatus.AVAILABLE,timeSlot.getSlotId());
+        List<VeterinarianSlots> veterinarianSlots = veterinarianSlotsRepository.getAvailableSlotsBySlotId(SlotStatus.AVAILABLE, timeSlot.getSlotId());
         return veterinarianSlots;
     }
 
+
+    @Override
+    public List<TimeSlot> getAvailableSlotsByVeterinarianId(Integer veterinarianId) throws UserNotFoundException {
+        User veterinarian = userService.getVeterinarianById(veterinarianId);
+
+        LocalDateTime currentDate = LocalDateTime.now();
+        LocalDateTime threeHoursFromNow = currentDate.plusHours(3);
+
+        Integer nextThreeHour = threeHoursFromNow.getHour();
+
+        Integer beginSlot = 1;
+        if (nextThreeHour <= 10){
+            beginSlot = 2;
+        } else if (nextThreeHour <= 13){
+            beginSlot = 3;
+        } else if (nextThreeHour <= 15){
+            beginSlot = 4;
+        } else {
+            currentDate = currentDate.plusDays(1);
+        }
+
+        Integer currentYear = currentDate.getYear();
+        Integer currentMonth = currentDate.getMonthValue();
+        Integer currentDay = currentDate.getDayOfMonth();
+
+        LocalDateTime endDate = currentDate.plusDays(30);
+        Integer endYear = endDate.getYear();
+        Integer endMonth = endDate.getMonthValue();
+        Integer endDay = endDate.getDayOfMonth();
+
+        List<TimeSlot> timeSlots = timeSlotRepository.findAvailableTimeSlotByVeterinarianId(veterinarian.getUserId(), currentYear, currentMonth, currentDay, beginSlot, endYear, endMonth, endDay);
+        if (timeSlots.isEmpty()) {
+            throw new TimeSlotNotFoundException("There are no available slots");
+        }
+        return timeSlots;
+    }
 
 }

@@ -21,13 +21,14 @@ public interface AppointmentMapper {
     // Usage: mapping from DTO as body request of creating appointment
     @Mapping(source = "serviceId", target = "service.serviceId")
     @Mapping(source = "veterinarianId", target = "veterinarian.userId", conditionExpression = "java(appointmentDto.getVeterinarianId() != null)")
-    @Mapping(source = "address", target = "address", conditionExpression = "java(appointmentDto.getAddress() != null)")
+    @Mapping(source = "addressId", target = "address.addressId", conditionExpression = "java(appointmentDto.getAddressId() != null)")
     @Mapping(source = "slotId", target = "timeSlot.slotId")
     @Mapping(source = "customerName", target = "customerName")
     @Mapping(source = "phoneNumber", target = "phoneNumber")
     @Mapping(source = "email", target = "email")
+    @Mapping(source = "fishId", target = "fish.fishId", conditionExpression = "java(appointmentDto.getFishId() != null)")
     @Mapping(source = "description", target = "description")
-    @Mapping(source = "payment", target = "payment")
+    @Mapping(source = "payment", target = "payment", qualifiedByName = "convertToEntity")
     Appointment convertedToAppointment(AppointmentDto appointmentDto);
 
 
@@ -47,12 +48,14 @@ public interface AppointmentMapper {
     @Mapping(target = "totalPrice", ignore = true)
     @Mapping(target = "service.servicePrice", ignore = true)
     @Mapping(target = "movingSurcharge", ignore = true)
-    AppointmentDetailsDto convertedToappointmentDetailsDtoForVet(Appointment appointment);
+    AppointmentDetailsDto convertedToAppointmentDetailsDtoForVet(Appointment appointment);
+
 
     // Mapper for viewing appointment list
     @Mapping(target = "serviceName", source = "service.serviceName")
     @Mapping(target = "veterinarianName", source = "veterinarian.firstName")
     @Mapping(target = "paymentStatus", source = "payment.status")
+    @Mapping(target = "appointmentStatus", source = "currentStatus")
     @Mapping(target = "timeSlot.appointment", ignore = true)
     AppointmentForListDto convertedToAppointmentDtoForList(Appointment appointment);
 

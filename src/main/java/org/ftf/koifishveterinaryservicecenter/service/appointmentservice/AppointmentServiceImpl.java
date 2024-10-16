@@ -5,16 +5,19 @@ import org.ftf.koifishveterinaryservicecenter.entity.*;
 import org.ftf.koifishveterinaryservicecenter.entity.veterinarian_slots.VeterinarianSlots;
 import org.ftf.koifishveterinaryservicecenter.enums.AppointmentStatus;
 import org.ftf.koifishveterinaryservicecenter.enums.SlotStatus;
-import org.ftf.koifishveterinaryservicecenter.exception.AppointmentNotFoundException;
-import org.ftf.koifishveterinaryservicecenter.exception.AppointmentUpdatedException;
-import org.ftf.koifishveterinaryservicecenter.exception.MedicalReportNotFoundException;
-import org.ftf.koifishveterinaryservicecenter.exception.StatusNotFoundException;
-import org.ftf.koifishveterinaryservicecenter.repository.*;
+import org.ftf.koifishveterinaryservicecenter.exception.*;
+import org.ftf.koifishveterinaryservicecenter.repository.AppointmentRepository;
+import org.ftf.koifishveterinaryservicecenter.repository.MedicalReportRepository;
+import org.ftf.koifishveterinaryservicecenter.repository.VeterinarianSlotsRepository;
+import org.ftf.koifishveterinaryservicecenter.service.addressservice.AddressService;
+import org.ftf.koifishveterinaryservicecenter.service.feedbackservice.FeedbackService;
+import org.ftf.koifishveterinaryservicecenter.service.fishservice.FishService;
 import org.ftf.koifishveterinaryservicecenter.service.medicalreportservice.MedicalReportService;
 import org.ftf.koifishveterinaryservicecenter.service.paymentservice.PaymentService;
 import org.ftf.koifishveterinaryservicecenter.service.serviceservice.ServiceService;
 import org.ftf.koifishveterinaryservicecenter.service.slotservice.SlotService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
+import org.ftf.koifishveterinaryservicecenter.service.surchargeservice.SurchargeService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
@@ -22,7 +25,10 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AppointmentServiceImpl implements AppointmentService {
@@ -36,6 +42,10 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final PaymentService paymentService;
     private final AuthenticationService authenticationService;
     private final VeterinarianSlotsRepository veterinarianSlotsRepository;
+    private final AddressService addressService;
+    private final SurchargeService surchargeService;
+    private final FishService fishService;
+    private final FeedbackService feedbackService;
 
     @Autowired
     public AppointmentServiceImpl(AppointmentRepository appointmentRepository
@@ -43,9 +53,14 @@ public class AppointmentServiceImpl implements AppointmentService {
             , UserService userService
             , MedicalReportRepository medicalReportRepository
             , ServiceService serviceService
-            , SlotService slotService, PaymentService paymentService
+            , SlotService slotService
+            , PaymentService paymentService
             , AuthenticationService authenticationService
-            , VeterinarianSlotsRepository veterinarianSlotsRepository) {
+            , VeterinarianSlotsRepository veterinarianSlotsRepository
+            , AddressService addressService
+            , SurchargeService surchargeService
+            , FishService fishService
+            , FeedbackService feedbackService) {
         this.appointmentRepository = appointmentRepository;
         this.medicalReportService = medicalReportService;
         this.userService = userService;
@@ -55,6 +70,10 @@ public class AppointmentServiceImpl implements AppointmentService {
         this.paymentService = paymentService;
         this.authenticationService = authenticationService;
         this.veterinarianSlotsRepository = veterinarianSlotsRepository;
+        this.addressService = addressService;
+        this.surchargeService = surchargeService;
+        this.fishService = fishService;
+        this.feedbackService = feedbackService;
     }
 
 
@@ -99,6 +118,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     public void createAppointment(Appointment appointment, Integer customerId) {
         // 1. online booking
+        // 2. consultation at home
 
         // setting fields for newAppointment
         Appointment newAppointment = new Appointment();
@@ -111,7 +131,16 @@ public class AppointmentServiceImpl implements AppointmentService {
         newAppointment.setService(bookedService);
 
         // address_id
-        // moving_surcharge_id
+        Integer addressId = appointment.getAddress().getAddressId();
+        if (addressId != null) {
+            Address address = addressService.getAddressById(addressId);
+            newAppointment.setAddress(address);
+
+            // moving_surcharge_id
+            MovingSurcharge movingSurcharge = surchargeService.getMovingSurchargeFromAddressId(addressId);
+            newAppointment.setMovingSurcharge(movingSurcharge);
+        }
+
 
         // slot_id
         TimeSlot timeSlot = slotService.getTimeSlotById(appointment.getTimeSlot().getSlotId());
@@ -144,6 +173,13 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         // description
         newAppointment.setDescription(appointment.getDescription());
+
+        // fish
+        Integer fishId = appointment.getFish().getFishId();
+        if (fishId != null) {
+            Fish fish = fishService.getFishById(fishId);
+            newAppointment.setFish(fish);
+        }
 
         // total price
         newAppointment.setTotalPrice(calculatePrice(newAppointment));
@@ -224,6 +260,23 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointmentRepository.save(appointment.get());
 
         // send email
+    }
+
+    @Override
+    public Feedback createFeedback(Integer appointmentId, Feedback feedback) throws AppointmentNotFoundException, UserNotFoundException {
+        Appointment appointment = this.getAppointmentById(appointmentId);
+
+        if (appointment.getFeedback() != null) {
+            throw new FeedbackExistedException("Feedback already existed for appointment with id: " + appointmentId);
+        } else {
+            Feedback newFeedback = feedbackService.createFeedback(feedback, appointment);
+
+            appointment.setFeedback(newFeedback);
+
+            appointmentRepository.save(appointment);
+
+            return newFeedback;
+        }
     }
 
     @Override

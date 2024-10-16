@@ -58,6 +58,7 @@ public class TimeSlot {
 //    )
 //    private Set<User> veterinarians = new LinkedHashSet<>();
 
+
     @OneToMany(mappedBy = "timeSlot", orphanRemoval = true)
     private Set<VeterinarianSlots> veterinarianSlots = new LinkedHashSet<>();
 
@@ -87,5 +88,6 @@ public class TimeSlot {
                 ", slotId=" + slotId +
                 '}';
     }
+
 }
 

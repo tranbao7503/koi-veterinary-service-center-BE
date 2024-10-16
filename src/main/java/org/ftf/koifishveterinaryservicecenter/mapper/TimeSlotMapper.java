@@ -1,7 +1,7 @@
 package org.ftf.koifishveterinaryservicecenter.mapper;
 
-import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentFeedbackDto;
 import org.ftf.koifishveterinaryservicecenter.dto.TimeSlotDto;
+import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentFeedbackDto;
 import org.ftf.koifishveterinaryservicecenter.entity.Appointment;
 import org.ftf.koifishveterinaryservicecenter.entity.TimeSlot;
 import org.mapstruct.Mapper;
@@ -27,6 +27,7 @@ public interface TimeSlotMapper {
     default AppointmentFeedbackDto mapFirstAppointment(Set<Appointment> appointments) {
         Appointment firstAppointment = appointments.stream().findFirst().get();
         AppointmentFeedbackDto appointmentFeedbackDto = new AppointmentFeedbackDto();
+        appointmentFeedbackDto.setAppointmentId(firstAppointment.getAppointmentId());
         appointmentFeedbackDto.setServiceName(firstAppointment.getService().getServiceName());
         appointmentFeedbackDto.setCurrentStatus(firstAppointment.getCurrentStatus());
         return appointmentFeedbackDto;
@@ -42,5 +43,8 @@ public interface TimeSlotMapper {
     })
     TimeSlotDto convertToTimeSlotDtoAvailable(TimeSlot timeSlotDto);
 
+
+    @Mapping(target = "appointment", ignore = true)
+    TimeSlotDto convertToAvailableTimeSlotDto(TimeSlot timeSlot);
 
 }

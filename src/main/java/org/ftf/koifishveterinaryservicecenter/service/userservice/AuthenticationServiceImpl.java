@@ -85,6 +85,20 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
 
+    public IntrospectResponse getUserInfoFromToken(IntrospectRequestDTO request) throws AuthenticationException, ParseException {
+        var token = request.getToken();
+        if (!isSignatureValid(token)) {
+            return null;
+        }
+        SignedJWT signedJWT = SignedJWT.parse(token);
+        var claimsSet = signedJWT.getJWTClaimsSet();
+        return IntrospectResponse.builder()
+                .userId(((Long) claimsSet.getClaim("userId")).intValue())
+                .roleId((String) claimsSet.getClaim("scope"))
+                .build();
+    }
+
+
     private String generateToken(User user) {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
 
@@ -125,17 +139,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             return false;
         }
     }
-    public IntrospectResponse getUserInfoFromToken(IntrospectRequestDTO request) throws AuthenticationException,ParseException {
-        var token = request.getToken();
-        if (!isSignatureValid(token)) {
-            return null;
-        }
-        SignedJWT signedJWT = SignedJWT.parse(token);
-        var claimsSet = signedJWT.getJWTClaimsSet();
-        return IntrospectResponse.builder()
-                .userId(((Long) claimsSet.getClaim("userId")).intValue())
-                .roleId((String) claimsSet.getClaim("scope"))
-                .build();
+
+    @Override
+    public String getAuthenticatedUserRoleKey() {
+        Integer userId = getAuthenticatedUserId();
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found"));
+        return user.getRole().getRoleKey();
     }
 
 
