@@ -2,7 +2,9 @@ package org.ftf.koifishveterinaryservicecenter.service.appointmentservice;
 
 import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentUpdateDto;
 import org.ftf.koifishveterinaryservicecenter.entity.*;
+import org.ftf.koifishveterinaryservicecenter.entity.veterinarian_slots.VeterinarianSlots;
 import org.ftf.koifishveterinaryservicecenter.enums.AppointmentStatus;
+import org.ftf.koifishveterinaryservicecenter.enums.SlotStatus;
 import org.ftf.koifishveterinaryservicecenter.exception.AppointmentNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.AppointmentUpdatedException;
 import org.ftf.koifishveterinaryservicecenter.exception.MedicalReportNotFoundException;
@@ -33,6 +35,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final SlotService slotService;
     private final PaymentService paymentService;
     private final AuthenticationService authenticationService;
+    private final VeterinarianSlotsRepository veterinarianSlotsRepository;
 
     @Autowired
     public AppointmentServiceImpl(AppointmentRepository appointmentRepository
@@ -41,7 +44,8 @@ public class AppointmentServiceImpl implements AppointmentService {
             , MedicalReportRepository medicalReportRepository
             , ServiceService serviceService
             , SlotService slotService, PaymentService paymentService
-            , AuthenticationService authenticationService) {
+            , AuthenticationService authenticationService
+            , VeterinarianSlotsRepository veterinarianSlotsRepository) {
         this.appointmentRepository = appointmentRepository;
         this.medicalReportService = medicalReportService;
         this.userService = userService;
@@ -50,6 +54,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         this.slotService = slotService;
         this.paymentService = paymentService;
         this.authenticationService = authenticationService;
+        this.veterinarianSlotsRepository = veterinarianSlotsRepository;
     }
 
 
@@ -239,6 +244,24 @@ public class AppointmentServiceImpl implements AppointmentService {
         return medicalReport;
     }
 
+    @Override
+    public void assignVeterinarian(Integer appointmentId, Integer veterinarianId) {
+        Appointment assignedAppointment = getAppointmentById(appointmentId);
+        if(assignedAppointment.getVeterinarian()==null){
+            User veterinarian = userService.getVeterinarianById(veterinarianId);
+
+            // assign Appointment for Vet
+            assignedAppointment.setVeterinarian(veterinarian);
+            appointmentRepository.save(assignedAppointment);
+
+            // update status schedule
+            Integer slotId = assignedAppointment.getTimeSlot().getSlotId();
+            VeterinarianSlots veterinarianSlot = veterinarianSlotsRepository.getVeterinarianSlotsById(veterinarianId,slotId);
+            veterinarianSlot.setStatus(SlotStatus.BOOKED);
+            veterinarianSlotsRepository.save(veterinarianSlot);
+        }
+    }
+
     private BigDecimal calculatePrice(Appointment appointment) {
         BigDecimal servicePrice = appointment.getService().getServicePrice();
         return appointment.getMovingSurcharge() == null ? servicePrice : servicePrice.add(appointment.getMovingSurcharge().getPrice());
@@ -248,6 +271,8 @@ public class AppointmentServiceImpl implements AppointmentService {
         Appointment appointment = getAppointmentById(appointmentId);
         return appointment.getCustomer().getUserId();
     }
+
+
 
     private boolean isAbleToUpdateAppointment(Appointment appointment, AppointmentUpdateDto appointmentUpdateDto) throws AppointmentUpdatedException {
         LocalDateTime openingTime = appointment.getTimeSlot().getDateTimeBasedOnSlot();

@@ -34,4 +34,6 @@ public interface AppointmentService {
     Appointment updateAppointment(AppointmentUpdateDto appointmentDto, Integer appointmentId) throws AppointmentUpdatedException;
 
     void cancelAppointment(Integer appointmentId);
+
+    void assignVeterinarian(Integer appointmentId, Integer veterinarianId);
 }

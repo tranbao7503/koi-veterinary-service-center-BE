@@ -233,6 +233,17 @@ public class AppointmentController {
     }
 
 
+    // assign Vet for unassigned appointment
+    // for Staff
+    @PutMapping("/{appointmentId}/veterinarian/{veterinarianId}")
+    public ResponseEntity<?> assignVeterinarianForAppointment(@PathVariable Integer appointmentId, @PathVariable Integer veterinarianId){
+        try {
+            appointmentService.assignVeterinarian(appointmentId, veterinarianId);
+            return new ResponseEntity<>("Veterinarian assigned successfully", HttpStatus.OK);
+        } catch (AppointmentNotFoundException | UserNotFoundException ex) {
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
 
 
 }

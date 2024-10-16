@@ -2,7 +2,9 @@ package org.ftf.koifishveterinaryservicecenter.service.slotservice;
 
 import org.ftf.koifishveterinaryservicecenter.entity.TimeSlot;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
-import org.ftf.koifishveterinaryservicecenter.exception.TimeSlotNotFound;
+import org.ftf.koifishveterinaryservicecenter.entity.veterinarian_slots.VeterinarianSlots;
+import org.ftf.koifishveterinaryservicecenter.enums.SlotStatus;
+import org.ftf.koifishveterinaryservicecenter.exception.TimeSlotNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.repository.TimeSlotRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.VeterinarianSlotsRepository;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
@@ -19,11 +21,13 @@ public class SlotServiceImpl implements SlotService {
 
     private final TimeSlotRepository timeSlotRepository;
     private final UserService userService;
+    private final VeterinarianSlotsRepository veterinarianSlotsRepository;
 
     @Autowired
-    public SlotServiceImpl(TimeSlotRepository timeSlotRepository, UserService userService) {
+    public SlotServiceImpl(TimeSlotRepository timeSlotRepository, UserService userService, VeterinarianSlotsRepository veterinarianSlotsRepository) {
         this.timeSlotRepository = timeSlotRepository;
         this.userService = userService;
+        this.veterinarianSlotsRepository = veterinarianSlotsRepository;
     }
 
     @Override
@@ -33,7 +37,7 @@ public class SlotServiceImpl implements SlotService {
         // Veterinarian existed
         List<TimeSlot> veterinarianSlotsList = timeSlotRepository.findByVeterinarianId(veterinarianId);
         if (veterinarianSlotsList.isEmpty()) { // Veterianrian has no slots
-            throw new TimeSlotNotFound("Veterinarian with ID: " + veterinarianId + " has no shift schedule yet");
+            throw new TimeSlotNotFoundException("Veterinarian with ID: " + veterinarianId + " has no shift schedule yet");
         } // Veterinarian having slots
 
         // Filter appointments to retain only the one with matching veterinarianId
@@ -47,7 +51,7 @@ public class SlotServiceImpl implements SlotService {
     @Override
     public TimeSlot getTimeSlotById(Integer timeSlotId) {
         Optional<TimeSlot> timeSlot = timeSlotRepository.findById(timeSlotId);
-        if (timeSlot.isEmpty()) throw new TimeSlotNotFound("Time slot with ID: " + timeSlotId + " not found");
+        if (timeSlot.isEmpty()) throw new TimeSlotNotFoundException("Time slot with ID: " + timeSlotId + " not found");
         return timeSlot.get();
     }
 
@@ -59,6 +63,13 @@ public class SlotServiceImpl implements SlotService {
 
         List<TimeSlot> availableTimeSlot = timeSlotRepository.getAvailableTimeSlot();
         return availableTimeSlot.stream().filter(timeSlot -> timeSlot.getDateTimeBasedOnSlot().isAfter(threeHoursFromNow) && timeSlot.getDateTimeBasedOnSlot().isBefore(threeMonthsFromNow)).toList();
+    }
+
+    @Override
+    public List<VeterinarianSlots> getVeterinarianSlotsBySlotId(Integer slotId) {
+        TimeSlot timeSlot = getTimeSlotById(slotId);
+        List<VeterinarianSlots> veterinarianSlots = veterinarianSlotsRepository.getAvailableSlotsBySlotId(SlotStatus.AVAILABLE,timeSlot.getSlotId());
+        return veterinarianSlots;
     }
 
 

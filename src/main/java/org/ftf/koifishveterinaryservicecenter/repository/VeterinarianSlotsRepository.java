@@ -14,5 +14,10 @@ public interface VeterinarianSlotsRepository extends JpaRepository<VeterinarianS
     List<VeterinarianSlots> findByVeterinarianId(@Param("veterinarianId") Integer veterinarianId);
 
     @Query("SELECT vs FROM VeterinarianSlots vs WHERE vs.status = ?1 AND vs.veterinarianSlotId.slotId = ?2")
-    List<VeterinarianSlots> getAvailableSlotsByVeterinarianId(SlotStatus status, Integer slotId);
+    List<VeterinarianSlots> getAvailableSlotsBySlotId(SlotStatus status, Integer slotId);
+
+    @Query("SELECT vs FROM VeterinarianSlots vs WHERE vs.veterinarianSlotId.veterinarianId = ?1 AND vs.veterinarianSlotId.slotId = ?2")
+    VeterinarianSlots getVeterinarianSlotsById(Integer veterinarianId, Integer slotId);
+
+
   }

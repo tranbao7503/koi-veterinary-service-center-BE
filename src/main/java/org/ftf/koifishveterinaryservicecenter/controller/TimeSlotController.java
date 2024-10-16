@@ -2,7 +2,7 @@ package org.ftf.koifishveterinaryservicecenter.controller;
 
 import org.ftf.koifishveterinaryservicecenter.dto.TimeSlotDto;
 import org.ftf.koifishveterinaryservicecenter.entity.TimeSlot;
-import org.ftf.koifishveterinaryservicecenter.exception.TimeSlotNotFound;
+import org.ftf.koifishveterinaryservicecenter.exception.TimeSlotNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.TimeSlotMapper;
 import org.ftf.koifishveterinaryservicecenter.service.slotservice.SlotService;
@@ -41,12 +41,13 @@ public class TimeSlotController {
             return new ResponseEntity<>(dtos, HttpStatus.OK);
         } catch (UserNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (TimeSlotNotFound e) {
+        } catch (TimeSlotNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 
     // get all available slot id > current hour + 3h
+    // for Customer
     @GetMapping("/available")
     public ResponseEntity<?> getAvailableSlots() {
         List<TimeSlot> timeSlots = slotService.getListAvailableTimeSlots();
@@ -54,5 +55,5 @@ public class TimeSlotController {
         return new ResponseEntity<>(dtos, HttpStatus.OK);
     }
 
-    // for Staffs
+
 }

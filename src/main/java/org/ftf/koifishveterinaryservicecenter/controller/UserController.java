@@ -3,34 +3,27 @@ package org.ftf.koifishveterinaryservicecenter.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.ftf.koifishveterinaryservicecenter.dto.*;
-import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentForListDto;
 import org.ftf.koifishveterinaryservicecenter.dto.response.AuthenticationResponse;
 import org.ftf.koifishveterinaryservicecenter.dto.response.IntrospectResponse;
 import org.ftf.koifishveterinaryservicecenter.entity.*;
+import org.ftf.koifishveterinaryservicecenter.entity.veterinarian_slots.VeterinarianSlots;
 import org.ftf.koifishveterinaryservicecenter.exception.*;
 import org.ftf.koifishveterinaryservicecenter.mapper.*;
 import org.ftf.koifishveterinaryservicecenter.service.appointmentservice.AppointmentService;
 import org.ftf.koifishveterinaryservicecenter.service.feedbackservice.FeedbackService;
+import org.ftf.koifishveterinaryservicecenter.service.slotservice.SlotService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
-import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.text.ParseException;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -43,14 +36,16 @@ public class UserController {
     private final AuthenticationService authenticationService;
     private final FeedbackService feedbackService;
     private final AppointmentService appointmentService;
+    private final SlotService slotService;
 
     @Autowired
-    public UserController(UserService userService, UserMapper userMapper, AuthenticationService authenticationService, FeedbackService feedbackService, AppointmentService appointmentService) {
+    public UserController(UserService userService, UserMapper userMapper, AuthenticationService authenticationService, FeedbackService feedbackService, AppointmentService appointmentService, SlotService slotService) {
         this.userService = userService;
         this.userMapper = userMapper;
         this.authenticationService = authenticationService;
         this.feedbackService = feedbackService;
         this.appointmentService = appointmentService;
+        this.slotService = slotService;
     }
 
     @GetMapping("/profile")
@@ -190,5 +185,25 @@ public class UserController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+
+    // get all available VET based on slotId
+    // for Staff
+    @GetMapping("/veterinarian/{slotId}")
+    public ResponseEntity<?> getAllAvailableVeterinariansBasedOnSlotId(@PathVariable Integer slotId) {
+        try {
+            List<VeterinarianSlots> veterinarianSlots = slotService.getVeterinarianSlotsBySlotId(slotId);
+
+            // from vetId -> list veterinarian
+            List<User> veterinarians = veterinarianSlots.stream().map(vetSlot -> userService.getVeterinarianById(vetSlot.getVeterinarian().getUserId())).toList();
+
+            List<UserDTO> vetDtos = veterinarians.stream().map(UserMapper.INSTANCE::convertToVeterinarianDto).toList();
+            return new ResponseEntity<>(vetDtos, HttpStatus.OK);
+        } catch (TimeSlotNotFoundException exception){
+            return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
+
+
 
 }
