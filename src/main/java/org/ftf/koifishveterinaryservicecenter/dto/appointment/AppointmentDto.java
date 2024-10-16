@@ -3,7 +3,6 @@ package org.ftf.koifishveterinaryservicecenter.dto.appointment;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.ftf.koifishveterinaryservicecenter.dto.AddressDTO;
 import org.ftf.koifishveterinaryservicecenter.dto.PaymentDto;
 
 import java.math.BigDecimal;

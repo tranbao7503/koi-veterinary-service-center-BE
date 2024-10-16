@@ -27,6 +27,7 @@ public interface TimeSlotMapper {
     default AppointmentFeedbackDto mapFirstAppointment(Set<Appointment> appointments) {
         Appointment firstAppointment = appointments.stream().findFirst().get();
         AppointmentFeedbackDto appointmentFeedbackDto = new AppointmentFeedbackDto();
+        appointmentFeedbackDto.setAppointmentId(firstAppointment.getAppointmentId());
         appointmentFeedbackDto.setServiceName(firstAppointment.getService().getServiceName());
         appointmentFeedbackDto.setCurrentStatus(firstAppointment.getCurrentStatus());
         return appointmentFeedbackDto;

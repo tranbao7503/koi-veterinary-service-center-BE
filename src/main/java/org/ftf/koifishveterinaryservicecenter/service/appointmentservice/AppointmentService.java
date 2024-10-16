@@ -2,6 +2,7 @@ package org.ftf.koifishveterinaryservicecenter.service.appointmentservice;
 
 
 import org.ftf.koifishveterinaryservicecenter.entity.Appointment;
+import org.ftf.koifishveterinaryservicecenter.entity.Feedback;
 import org.ftf.koifishveterinaryservicecenter.entity.MedicalReport;
 import org.ftf.koifishveterinaryservicecenter.entity.Status;
 
@@ -23,5 +24,7 @@ public interface AppointmentService {
     List<Appointment> getAppointmentsByCustomerId(Integer customerId);
 
     List<Appointment> getAllAppointments();
+
+    Feedback createFeedback(Integer appointmentId, Feedback feedback);
 
 }

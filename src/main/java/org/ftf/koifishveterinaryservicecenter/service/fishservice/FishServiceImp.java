@@ -7,6 +7,7 @@ import org.ftf.koifishveterinaryservicecenter.entity.Image;
 import org.ftf.koifishveterinaryservicecenter.enums.Gender;
 import org.ftf.koifishveterinaryservicecenter.exception.AuthenticationException;
 import org.ftf.koifishveterinaryservicecenter.exception.FishNotFoundException;
+import org.ftf.koifishveterinaryservicecenter.exception.ImageNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.FishMapper;
 import org.ftf.koifishveterinaryservicecenter.mapper.ImageMapper;
 import org.ftf.koifishveterinaryservicecenter.repository.FishRepository;
@@ -20,6 +21,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 
 @Service
 public class FishServiceImp implements FishService {
@@ -37,7 +39,6 @@ public class FishServiceImp implements FishService {
         this.imageRepository = imageRepository;
         this.imageMapper = imageMapper;
     }
-
 
     @Override
     public FishDTO updateFish(Integer fishId, FishDTO fishDTO) {
@@ -70,6 +71,7 @@ public class FishServiceImp implements FishService {
         // Sử dụng mapper để chuyển đổi entity sang DTO
         return fishMapper.convertEntityToDto(updatedFish);
     }
+
 
     @Override
     public List<Fish> getAllFishByUserId(int id) {
@@ -106,7 +108,7 @@ public class FishServiceImp implements FishService {
     @Override
     public Fish getFishById(Integer fishId) {
         Optional<Fish> fish = fishRepository.findById(fishId);
-        if (fish.isEmpty()) throw  new FishNotFoundException("Fish not found with id " + fishId);
+        if (fish.isEmpty()) throw new FishNotFoundException("Fish not found with id " + fishId);
         return fish.get();
     }
 
@@ -144,6 +146,45 @@ public class FishServiceImp implements FishService {
     }
 
 
+    @Override
+    public ImageDTO removeImage(int imageID, boolean enabled) {
+        // Tìm kiếm ảnh từ database
+        Image imageFromDb = imageRepository.findById(imageID).orElse(null);
+
+        if (imageFromDb == null) {
+            throw new ImageNotFoundException("Image not found with ID: " + imageID);
+        }
+
+        // Lấy fishId từ ảnh
+        int fishId = imageFromDb.getFish().getFishId();
+
+        // Tìm con cá từ fishId
+        Fish fishFromDb = fishRepository.findById(fishId).orElse(null);
+
+        if (fishFromDb == null) {
+            throw new FishNotFoundException("Fish not found with ID: " + fishId);
+        }
+
+        // Lấy customerId từ fish
+        int fishCustomerId = fishFromDb.getCustomer().getUserId();
+
+        // Lấy customerId từ token
+        int loggedInCustomerId = authenticationService.getAuthenticatedUserId(); // Sử dụng phương thức của bạn
+
+        // So sánh customerId của fish với customerId của người dùng đăng nhập
+        if (fishCustomerId != loggedInCustomerId) {
+            throw new AuthenticationException("You can only disable images of your own fish.");
+        }
+
+        // Cập nhật enable/disable cho image
+        imageFromDb.setEnabled(enabled);
+
+        // Lưu ảnh đã cập nhật
+        Image updatedImage = imageRepository.save(imageFromDb);
+
+        // Sử dụng mapper để chuyển đổi entity sang DTO
+        return imageMapper.convertEntityToDto(updatedImage);
+    }
     @Override
     public FishDTO removeFish(int fishId, boolean enabled) {
         // Lấy thông tin con cá từ database

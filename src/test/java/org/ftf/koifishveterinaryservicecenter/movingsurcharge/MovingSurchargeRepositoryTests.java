@@ -9,8 +9,6 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.annotation.Rollback;
 
-import java.math.BigDecimal;
-
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Rollback(false)
@@ -20,7 +18,7 @@ public class MovingSurchargeRepositoryTests {
     private MovingSurchargeRepository movingSurchargeRepository;
 
     @Test
-    public void testGetMovingPriceByAddressIdSuccess(){
+    public void testGetMovingPriceByAddressIdSuccess() {
         Integer addressId = 1;
         MovingSurcharge movingPrice = movingSurchargeRepository.getMovingSurchargeByAddressId(addressId);
         Assertions.assertThat(movingPrice).isNotNull();

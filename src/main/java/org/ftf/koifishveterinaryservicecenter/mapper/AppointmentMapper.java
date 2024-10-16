@@ -54,6 +54,7 @@ public interface AppointmentMapper {
     @Mapping(target = "serviceName", source = "service.serviceName")
     @Mapping(target = "veterinarianName", source = "veterinarian.firstName")
     @Mapping(target = "paymentStatus", source = "payment.status")
+    @Mapping(target = "appointmentStatus", source = "currentStatus")
     @Mapping(target = "timeSlot.appointment", ignore = true)
     AppointmentForListDto convertedToAppointmentDtoForList(Appointment appointment);
 

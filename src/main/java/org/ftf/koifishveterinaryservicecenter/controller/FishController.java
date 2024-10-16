@@ -6,6 +6,7 @@ import org.ftf.koifishveterinaryservicecenter.dto.IntrospectRequestDTO;
 import org.ftf.koifishveterinaryservicecenter.dto.response.IntrospectResponse;
 import org.ftf.koifishveterinaryservicecenter.entity.Fish;
 import org.ftf.koifishveterinaryservicecenter.exception.FishNotFoundException;
+import org.ftf.koifishveterinaryservicecenter.exception.ImageNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.FishMapper;
 import org.ftf.koifishveterinaryservicecenter.service.fishservice.FishService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
@@ -117,6 +118,21 @@ public class FishController {
             return new ResponseEntity<>(newImage, HttpStatus.CREATED);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
+        }
+    }
+
+    @DeleteMapping("/deleteimage")
+    public ResponseEntity<ImageDTO> updateImage(@RequestBody ImageDTO imageDTO) {
+        try {
+            // Gọi phương thức updateUser từ service với dữ liệu từ UserDTO
+            ImageDTO updatedImage = fishService.removeImage(imageDTO.getImageId(), imageDTO.isEnabled());
+
+            // Trả về kết quả thành công với đối tượng UserDTO đã cập nhật
+            return ResponseEntity.ok(updatedImage);
+        } catch (ImageNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(null);
         }
     }
 
