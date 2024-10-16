@@ -24,4 +24,6 @@ public interface FeedbackMapper {
     @Mapping(target = "appointment.timeSlot.appointment", ignore = true)
     FeedbackDto feedbackToFeedbackDto(Feedback feedback);
 
+    Feedback convertFeedbackDtoToFeedback(FeedbackDto feedbackDto);
+
 }
