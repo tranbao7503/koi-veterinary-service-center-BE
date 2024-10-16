@@ -56,20 +56,20 @@ public class UserController {
         UserDTO userDto = UserMapper.INSTANCE.convertEntityToDto(user);
         return ResponseEntity.ok(userDto);
     }
-
-    @PutMapping("/address")
-    public ResponseEntity<?> updateAddressForCustomer(@RequestParam Integer userId, @RequestBody AddressDTO addressFromRequest) {
-
-        Address convertedAddress = AddressMapper.INSTANCE.convertDtoToEntity(addressFromRequest);
-
-        Integer userIdFromToken = 1; // the userId takes from Authentication object in SecurityContext
-
-        // check(userIdFromToken, userId)
-
-        User updatedCustomer = userService.updateAddress(userId, convertedAddress);
-        UserDTO userDto = UserMapper.INSTANCE.convertEntityToDto(updatedCustomer);
-        return ResponseEntity.ok(userDto);
-    }
+// Already have API in AddressController
+//    @PutMapping("/address")
+//    public ResponseEntity<?> updateAddressForCustomer(@RequestParam Integer userId, @RequestBody AddressDTO addressFromRequest) {
+//
+//        Address convertedAddress = AddressMapper.INSTANCE.convertDtoToEntity(addressFromRequest);
+//
+//        Integer userIdFromToken = 1; // the userId takes from Authentication object in SecurityContext
+//
+//        // check(userIdFromToken, userId)
+//
+//        User updatedCustomer = userService.updateAddress(userId, convertedAddress);
+//        UserDTO userDto = UserMapper.INSTANCE.convertEntityToDto(updatedCustomer);
+//        return ResponseEntity.ok(userDto);
+//    }
 
     @PutMapping("/profile")
     public ResponseEntity<?> updateUserProfile(@RequestParam Integer userId, @RequestBody UserDTO userFromRequest) {
