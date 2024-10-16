@@ -86,10 +86,10 @@ public class FeedbackController {
     /*
      * Actors: Veterinarian
      * */
-    @GetMapping("/veterinarian/{veterinarianId}")
-    public ResponseEntity<?> getFeedbacks(@PathVariable("veterinarianId") Integer id) {
+    @GetMapping("/veterinarian")
+    public ResponseEntity<?> getFeedbacks() {
         try {
-            List<Feedback> feedbacks = feedbackService.getFeedbacksByVeterianrianId(id);
+            List<Feedback> feedbacks = feedbackService.getFeedbacksByVeterianrianId(authenticationService.getAuthenticatedUserId());
             List<FeedbackDto> feedbackDtos = feedbacks.stream()
                     .map(feedback -> FeedbackMapper.INSTANCE.convertToFeedbackDto(feedback))
                     .collect(Collectors.toList());
@@ -106,11 +106,10 @@ public class FeedbackController {
     /*
      * Actors: Veterinarian
      * */
-    @GetMapping("/{feedbackId}/veterinarian/{veterinarianId}")
-    public ResponseEntity<?> getFeedback(@PathVariable("feedbackId") Integer feedbackId
-            , @PathVariable("veterinarianId") Integer veterinarianId) {
+    @GetMapping("/{feedbackId}/veterinarian")
+    public ResponseEntity<?> getFeedback(@PathVariable("feedbackId") Integer feedbackId) {
         try {
-            User veterinarian = userService.getVeterinarianById(veterinarianId);
+            User veterinarian = userService.getVeterinarianById(authenticationService.getAuthenticatedUserId());
             Feedback feedback = feedbackService.getFeedbackById(feedbackId);
             if (feedback.getVeterinarian().getUserId().equals(veterinarian.getUserId())) {
                 FeedbackDto feedbackDto = FeedbackMapper.INSTANCE.feedbackToFeedbackDto(feedback);
@@ -133,7 +132,7 @@ public class FeedbackController {
             , @RequestBody FeedbackDto feedbackDto) {
         try {
             Appointment appointment = appointmentService.getAppointmentById(appointmentId);
-            if(!appointment.getCustomer().getUserId().equals(authenticationService.getAuthenticatedUserId())){
+            if (!appointment.getCustomer().getUserId().equals(authenticationService.getAuthenticatedUserId())) {
                 return new ResponseEntity<>(HttpStatus.FORBIDDEN);
             }
             Feedback feedback = FeedbackMapper.INSTANCE.convertFeedbackDtoToFeedback(feedbackDto);
