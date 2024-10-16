@@ -55,5 +55,4 @@ public class TimeSlotController {
     }
 
     // for Staffs
-    @GetMapping("")
 }
