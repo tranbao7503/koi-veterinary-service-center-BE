@@ -2,6 +2,7 @@ package org.ftf.koifishveterinaryservicecenter.controller;
 
 
 import org.ftf.koifishveterinaryservicecenter.dto.FeedbackDto;
+import org.ftf.koifishveterinaryservicecenter.entity.Appointment;
 import org.ftf.koifishveterinaryservicecenter.entity.Feedback;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.ftf.koifishveterinaryservicecenter.exception.AppointmentServiceNotFoundException;
@@ -11,6 +12,7 @@ import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.FeedbackMapper;
 import org.ftf.koifishveterinaryservicecenter.service.appointmentservice.AppointmentService;
 import org.ftf.koifishveterinaryservicecenter.service.feedbackservice.FeedbackService;
+import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,14 +28,17 @@ public class FeedbackController {
     private final FeedbackService feedbackService;
     private final UserService userService;
     private final AppointmentService appointmentService;
+    private final AuthenticationService authenticationService;
 
     public FeedbackController(
             FeedbackService feedbackService
             , UserService userService
-            , AppointmentService appointmentService) {
+            , AppointmentService appointmentService
+            , AuthenticationService authenticationService) {
         this.feedbackService = feedbackService;
         this.userService = userService;
         this.appointmentService = appointmentService;
+        this.authenticationService = authenticationService;
     }
 
     @GetMapping("/limited")
@@ -127,6 +132,10 @@ public class FeedbackController {
             @RequestParam Integer appointmentId
             , @RequestBody FeedbackDto feedbackDto) {
         try {
+            Appointment appointment = appointmentService.getAppointmentById(appointmentId);
+            if(!appointment.getCustomer().getUserId().equals(authenticationService.getAuthenticatedUserId())){
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            }
             Feedback feedback = FeedbackMapper.INSTANCE.convertFeedbackDtoToFeedback(feedbackDto);
             Feedback newFeedback = appointmentService.createFeedback(appointmentId, feedback);
             FeedbackDto newFeedbackDto = FeedbackMapper.INSTANCE.feedbackToFeedbackDto(newFeedback);
