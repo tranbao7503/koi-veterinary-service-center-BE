@@ -1,5 +1,6 @@
 package org.ftf.koifishveterinaryservicecenter.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -55,6 +56,8 @@ public class User {
     // Uni-directional, identifying relationship
     // owning side: User
     // inverse side: Role
+
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY, optional = false)  // optional = false  <-> user must have a role
     @JoinColumn(name = "role_id", nullable = false, referencedColumnName = "role_id")
     private Role role;
@@ -63,6 +66,8 @@ public class User {
     // Uni-directional, non-identifying relationship
     // Owning side: User
     // Inverse side: Address
+
+    @JsonIgnore
     @OneToMany(mappedBy = "customer"/*, optional = true*/)
     //@JoinColumn(name = "address_id"/*, unique = false, nullable = true*/)
     private Set<Address> addresses = new LinkedHashSet<>();
@@ -71,6 +76,8 @@ public class User {
     // Bidirectional, identifying relationship
     // Owning side: Fish
     // Inverse side: User(customer)
+
+    @JsonIgnore
     @OneToMany(mappedBy = "customer"/*, orphanRemoval = true*/) // Shouldn't allow to remove data
     // orphanRemoval: true -->  remove User then all related Fishes will be removed
     private Set<Fish> fishes = new LinkedHashSet<>();
@@ -78,12 +85,16 @@ public class User {
     // Bidirectional, identifying relationship
     // Owning side: Appointment
     // Inverse side: User(customer)
+
+    @JsonIgnore
     @OneToMany(mappedBy = "customer")
     private Set<Appointment> allBookedAppointmentOfCustomer = new LinkedHashSet<>();
 
     // Bidirectional, identifying relationship
     // Owning side: Appointment
     // Inverse side: User(veterinarian)
+
+    @JsonIgnore
     @OneToMany(mappedBy = "veterinarian")
     private Set<Appointment> allAssignedAppointmentOfVeterinarian = new LinkedHashSet<>();
 

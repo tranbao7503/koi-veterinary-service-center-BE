@@ -1,5 +1,6 @@
 package org.ftf.koifishveterinaryservicecenter.service.userservice;
 
+import org.ftf.koifishveterinaryservicecenter.dto.UserDTO;
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,5 +38,7 @@ public interface UserService {
     Address addAddress(Integer customerId, Address address);
 
     Address disableAddress(Integer addressId);
+
+    UserDTO updatePassword(String newPassword);
 
 }

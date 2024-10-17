@@ -1,11 +1,13 @@
 package org.ftf.koifishveterinaryservicecenter.service.userservice;
 
+import org.ftf.koifishveterinaryservicecenter.dto.UserDTO;
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
 import org.ftf.koifishveterinaryservicecenter.entity.Role;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.ftf.koifishveterinaryservicecenter.exception.AddressNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.AuthenticationException;
 import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
+import org.ftf.koifishveterinaryservicecenter.mapper.UserMapper;
 import org.ftf.koifishveterinaryservicecenter.repository.AddressRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.RoleRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.UserRepository;
@@ -28,18 +30,20 @@ public class UserServiceImpl implements UserService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final FileUploadService fileUploadService;
+    private final AuthenticationService authenticationService;
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository
             , AddressRepository addressRepository
             , RoleRepository roleRepository
             , PasswordEncoder passwordEncoder
-            , FileUploadService fileUploadService) {
+            , FileUploadService fileUploadService, AuthenticationService authenticationService) {
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.fileUploadService = fileUploadService;
+        this.authenticationService = authenticationService;
     }
 
     @Override
@@ -285,4 +289,38 @@ public class UserServiceImpl implements UserService {
         return address;
     }
 
+    @Override
+    public UserDTO updatePassword(String newPassword) {
+        // Lấy userId từ token
+        int userId = authenticationService.getAuthenticatedUserId();
+
+        User userFromDb = userRepository.findUsersByUserId(userId);
+
+        if (userFromDb == null) {
+            throw new UserNotFoundException("Không tìm thấy người dùng với Id: " + userId);
+        }
+
+        // Kiểm tra mật khẩu mới không được null hoặc trống
+        if (newPassword == null || newPassword.isBlank()) {
+            throw new AuthenticationException("Mật khẩu không được để trống");
+        }
+
+        // Kiểm tra độ dài mật khẩu mới
+        if (newPassword.length() < 8) {
+            throw new AuthenticationException("Mật khẩu không được ngắn hơn 8 ký tự");
+        }
+
+        // Kiểm tra mật khẩu có chứa ít nhất một ký tự đặc biệt
+        String passwordPattern = "^(?=.*[@#$%^&+=!{}]).{8,}$";
+        if (!newPassword.matches(passwordPattern)) {
+            throw new AuthenticationException("Mật khẩu phải chứa ít nhất một ký tự đặc biệt và có độ dài tối thiểu là 8 ký tự");
+        }
+
+        // Mã hóa mật khẩu mới và cập nhật
+        userFromDb.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(userFromDb);
+
+        // Chuyển đổi User sang UserDTO
+        return UserMapper.INSTANCE.convertEntityToDto(userFromDb); // Giả sử bạn có một mapper cho User
+    }
 }
