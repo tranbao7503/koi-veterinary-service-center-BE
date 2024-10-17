@@ -1,9 +1,11 @@
 package org.ftf.koifishveterinaryservicecenter.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.ftf.koifishveterinaryservicecenter.enums.Gender;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.math.BigDecimal;
 import java.util.LinkedHashSet;
@@ -42,6 +44,10 @@ public class Fish {
     @Column(name = "origin", nullable = false, length = 45)
     private String origin;
 
+    @ColumnDefault("b'1'")
+    @Column(name = "enable", nullable = false)
+    private boolean enabled = true;
+
 
     // Bidirectional, identifying relationship
     // Owning side: Fish
@@ -60,6 +66,7 @@ public class Fish {
     // Owning side: Image
     // Inverse side: Fish
     @OneToMany(mappedBy = "fish", fetch = FetchType.LAZY)
+    @JsonManagedReference // Thêm annotation này
     private Set<Image> images = new LinkedHashSet<>();
 
 

@@ -23,7 +23,9 @@ import javax.crypto.spec.SecretKeySpec;
 public class AppConfig {
 
     private final String[] PUBLIC_ENDPOINTS = {
-            "/api/v1/users/token", "/api/v1/users/introspect", "api/v1/users/customers", "api/v1/users/signup", "api/v1/users/**", "api/v1/fish/addfish"
+            "/api/v1/users/token", "/api/v1/users/introspect", "api/v1/users/customers", "api/v1/users/signup", "api/v1/users/**", "api/v1/fishes/addfish"
+
+
     };
 
     @Value("${jwt.signer}")
@@ -61,19 +63,19 @@ public class AppConfig {
                 .csrf(csrfConfig -> csrfConfig.ignoringRequestMatchers("/api/v1/users/token", "/api/v1/users/introspect", "api/v1/users/customers", "api/v1/users/signup", "api/v1/users/**", "api/v1/fish/addfish"))
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(Customizer.withDefaults())
-
                 .authorizeHttpRequests(request -> request
-                // Cho phép truy cập công khai đối với các endpoint được chỉ định
-                .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
-                // Chỉ cho phép các vai trò "STA", "VET", "MAN" truy cập /api/v1/users/customers
-                        .requestMatchers("/api/v1/users/customers").hasAnyAuthority("MAN")
-                // Các quyền khác cho /api/v1/users
-                .requestMatchers("/api/v1/users").hasAnyAuthority("MAN", "STA", "VET")
-                // Các yêu cầu còn lại phải được xác thực
+                        // Cho phép truy cập công khai đối với các endpoint được chỉ định
+                        .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/fish/update/**").permitAll()
+                        // Chỉ cho phép role CUS truy cập PUT /api/v1/fishes/deletefish
+
+                        // Các yêu cầu còn lại phải được xác thực
                         .anyRequest().authenticated())
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer ->
-                        jwtConfigurer.decoder(jwtDecoder()).jwtAuthenticationConverter(jwtAuthenticationConverter())
-                ));
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwtConfigurer -> jwtConfigurer
+                                .decoder(jwtDecoder())
+                                .jwtAuthenticationConverter(jwtAuthenticationConverter())
+                        ));
 
         return httpSecurity.build();
     }

@@ -24,7 +24,6 @@ public interface FishMapper {
     })
     FishDTO convertEntityToDto(Fish fish);
 
-    // Thêm ánh xạ từ DTO sang Entity cho việc thêm mới Fish
     @Mappings({
             @Mapping(source = "fishId", target = "fishId"),
             @Mapping(source = "gender", target = "gender"),
@@ -34,7 +33,7 @@ public interface FishMapper {
             @Mapping(source = "weight", target = "weight"),
             @Mapping(source = "color", target = "color"),
             @Mapping(source = "origin", target = "origin"),
-            @Mapping(source = "customerId", target = "customer.userId")  // Ánh xạ customerId từ DTO sang Entity
+            @Mapping(target = "customer.userId", source = "customerId")  // Ánh xạ từ customerId sang đối tượng Customer
     })
     Fish convertDtoToEntity(FishDTO fishDTO);
 }
