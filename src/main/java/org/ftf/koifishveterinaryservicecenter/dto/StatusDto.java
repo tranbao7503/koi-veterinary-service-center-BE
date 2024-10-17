@@ -14,8 +14,8 @@ public class StatusDto {
     @JsonProperty("status_id")
     private Integer statusId;
 
-    @JsonProperty("status_name")
-    private AppointmentStatus statusName;
+    @JsonProperty("status")
+    private String statusName;
 
     @JsonProperty("time")
     private LocalDateTime time;

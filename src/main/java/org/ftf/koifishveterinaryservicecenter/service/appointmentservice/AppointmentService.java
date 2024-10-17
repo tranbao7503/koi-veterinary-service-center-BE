@@ -7,6 +7,7 @@ import org.ftf.koifishveterinaryservicecenter.entity.Appointment;
 import org.ftf.koifishveterinaryservicecenter.entity.Feedback;
 import org.ftf.koifishveterinaryservicecenter.entity.MedicalReport;
 import org.ftf.koifishveterinaryservicecenter.entity.Status;
+import org.ftf.koifishveterinaryservicecenter.enums.AppointmentStatus;
 import org.ftf.koifishveterinaryservicecenter.exception.AppointmentUpdatedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +38,9 @@ public interface AppointmentService {
     void cancelAppointment(Integer appointmentId);
 
     void assignVeterinarian(Integer appointmentId, Integer veterinarianId);
+
     Feedback createFeedback(Integer appointmentId, Feedback feedback);
+
+    void updateStatus(Integer appointmentId, AppointmentStatus status);
 
 }

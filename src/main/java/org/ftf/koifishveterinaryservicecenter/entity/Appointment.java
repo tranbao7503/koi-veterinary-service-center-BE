@@ -135,8 +135,15 @@ public class Appointment {
     // Bidirectional, identifying relationship
     // Owning side: Status
     // Inverse side: Appointment
-    @OneToMany(mappedBy = "appointment", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "appointment", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Status> statuses = new LinkedHashSet<>();
+
+
+    public void addStatus(Status status) {
+        status.setAppointment(this);
+        this.statuses.add(status);
+    }
+
 
 
 }

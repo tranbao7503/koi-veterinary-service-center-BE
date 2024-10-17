@@ -10,9 +10,11 @@ import org.ftf.koifishveterinaryservicecenter.entity.Appointment;
 import org.ftf.koifishveterinaryservicecenter.entity.MedicalReport;
 import org.ftf.koifishveterinaryservicecenter.entity.Status;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
+import org.ftf.koifishveterinaryservicecenter.enums.AppointmentStatus;
 import org.ftf.koifishveterinaryservicecenter.exception.*;
 import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentDto;
 import org.ftf.koifishveterinaryservicecenter.exception.AppointmentNotFoundException;
+import org.ftf.koifishveterinaryservicecenter.exception.IllegalStateException;
 import org.ftf.koifishveterinaryservicecenter.exception.PrescriptionNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.StatusNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
@@ -103,13 +105,13 @@ public class AppointmentController {
             MedicalReport medicalReport = appointmentService.getMedicalReportByAppointmentId(appointmentId);
 
             if (user.getRole().getRoleKey().equals("CUS")) { // Validate customer
-                if(!appointment.getCustomer().getUserId().equals(user.getUserId())) {
+                if (!appointment.getCustomer().getUserId().equals(user.getUserId())) {
                     return new ResponseEntity<>(HttpStatus.FORBIDDEN);
                 }
             }
 
             if (user.getRole().getRoleKey().equals("VET")) { // validate veterinarian
-                if(!medicalReport.getVeterinarian().getUserId().equals(user.getUserId())) {
+                if (!medicalReport.getVeterinarian().getUserId().equals(user.getUserId())) {
                     return new ResponseEntity<>(HttpStatus.FORBIDDEN);
                 }
             }
@@ -264,17 +266,41 @@ public class AppointmentController {
         }
     }
 
-
     // assign Vet for unassigned appointment
     // for Staff
     @PutMapping("/{appointmentId}/veterinarian/{veterinarianId}")
-    public ResponseEntity<?> assignVeterinarianForAppointment(@PathVariable Integer appointmentId, @PathVariable Integer veterinarianId){
+    public ResponseEntity<?> assignVeterinarianForAppointment(@PathVariable Integer appointmentId, @PathVariable Integer veterinarianId) {
         try {
             appointmentService.assignVeterinarian(appointmentId, veterinarianId);
             return new ResponseEntity<>("Veterinarian assigned successfully", HttpStatus.OK);
         } catch (AppointmentNotFoundException | UserNotFoundException ex) {
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
         }
+    }
+
+    // update status for an appointment
+    // for: Customer, Staff
+    @PutMapping("/{appointmentId}/status")
+    public ResponseEntity<?> updateStatus(@PathVariable Integer appointmentId, @RequestBody StatusDto statusDto) {
+
+        if (statusDto != null && statusDto.getStatusName() != null) {
+            String updateStatus = statusDto.getStatusName().toUpperCase();
+
+            AppointmentStatus appointmentStatus = AppointmentStatus.valueOf(updateStatus);
+
+            try {
+                appointmentService.updateStatus(appointmentId, appointmentStatus);
+                return new ResponseEntity<>("Status updated successfully", HttpStatus.OK);
+            } catch (AppointmentNotFoundException e) {
+                return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+            } catch (IllegalStateException e) {
+                return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            }
+
+        }
+        return new ResponseEntity<>("Invalid status value", HttpStatus.BAD_REQUEST);
+
+
     }
 
 

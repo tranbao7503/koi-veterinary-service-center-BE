@@ -10,6 +10,8 @@ import org.ftf.koifishveterinaryservicecenter.repository.AppointmentRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.MedicalReportRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.VeterinarianSlotsRepository;
 import org.ftf.koifishveterinaryservicecenter.service.addressservice.AddressService;
+import org.ftf.koifishveterinaryservicecenter.service.appointmentservice.appointmentstate.AppointmentContext;
+import org.ftf.koifishveterinaryservicecenter.service.appointmentservice.appointmentstate.AppointmentStateFactory;
 import org.ftf.koifishveterinaryservicecenter.service.feedbackservice.FeedbackService;
 import org.ftf.koifishveterinaryservicecenter.service.fishservice.FishService;
 import org.ftf.koifishveterinaryservicecenter.service.medicalreportservice.MedicalReportService;
@@ -46,6 +48,8 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final SurchargeService surchargeService;
     private final FishService fishService;
     private final FeedbackService feedbackService;
+    private final AppointmentStateFactory appointmentStateFactory;
+
 
     @Autowired
     public AppointmentServiceImpl(AppointmentRepository appointmentRepository
@@ -60,7 +64,7 @@ public class AppointmentServiceImpl implements AppointmentService {
             , AddressService addressService
             , SurchargeService surchargeService
             , FishService fishService
-            , FeedbackService feedbackService) {
+            , FeedbackService feedbackService, AppointmentStateFactory appointmentStateFactory){
         this.appointmentRepository = appointmentRepository;
         this.medicalReportService = medicalReportService;
         this.userService = userService;
@@ -74,6 +78,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         this.surchargeService = surchargeService;
         this.fishService = fishService;
         this.feedbackService = feedbackService;
+        this.appointmentStateFactory = appointmentStateFactory;
     }
 
 
@@ -280,6 +285,32 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
+    public void updateStatus(Integer appointmentId, AppointmentStatus updatedStatus) {
+
+        Appointment updatedAppointment = getAppointmentById(appointmentId);
+
+        AppointmentContext appointmentContext = new AppointmentContext(updatedAppointment, appointmentStateFactory);
+        appointmentContext.update(updatedAppointment);
+        // staff: PENDING -> CONFIRMED  --> sending email
+        //        PENDING -> CANCELED
+
+
+        // 1. online
+        //     payment successfully    <---    customer
+        //  system:  payment: UNPAID -> PAID
+        //          appointment: CONFIRMED -> ONGOING
+
+        // 2. at home
+        //  system: appointment: CONFIRMED -> CHECKIN
+        //  staff:  payment: UNPAID -> PAID
+        //          appointment: CHECKIN -> ONGOING
+
+
+        // staff
+        // appointment: ONGOING --> DONE
+    }
+
+    @Override
     public Appointment getAppointmentById(Integer appointmentId) {
         Optional<Appointment> appointmentOptional = appointmentRepository.findById(appointmentId);
         if (appointmentOptional.isEmpty())
@@ -324,7 +355,6 @@ public class AppointmentServiceImpl implements AppointmentService {
         Appointment appointment = getAppointmentById(appointmentId);
         return appointment.getCustomer().getUserId();
     }
-
 
 
     private boolean isAbleToUpdateAppointment(Appointment appointment, AppointmentUpdateDto appointmentUpdateDto) throws AppointmentUpdatedException {
