@@ -10,4 +10,6 @@ public interface SurchargeService {
     MovingSurcharge getMovingSurchargeById(Integer id);
 
     MovingSurcharge updateMovingSurcharge(Integer movingSurchargeId, MovingSurcharge movingSurcharge);
+
+    MovingSurcharge getMovingSurchargeFromAddressId(Integer addressId);
 }

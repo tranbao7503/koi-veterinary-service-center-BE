@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentFeedbackDto;
 
 @Getter
 @Setter
@@ -29,5 +30,5 @@ public class TimeSlotDto {
     private String description;
 
     @JsonProperty("appointment")
-    private AppointmentDto appointment;
+    private AppointmentFeedbackDto appointment;
 }
