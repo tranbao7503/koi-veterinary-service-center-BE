@@ -13,6 +13,7 @@ import org.ftf.koifishveterinaryservicecenter.service.paymentservice.PaymentServ
 import org.ftf.koifishveterinaryservicecenter.service.serviceservice.ServiceService;
 import org.ftf.koifishveterinaryservicecenter.service.slotservice.SlotService;
 import org.ftf.koifishveterinaryservicecenter.service.surchargeservice.SurchargeService;
+import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,19 +39,10 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final SurchargeService surchargeService;
     private final FishService fishService;
     private final FeedbackService feedbackService;
+    private final AuthenticationService authenticationService;
 
     @Autowired
-    public AppointmentServiceImpl(AppointmentRepository appointmentRepository
-            , MedicalReportService medicalReportService
-            , UserService userService
-            , MedicalReportRepository medicalReportRepository
-            , ServiceService serviceService
-            , SlotService slotService
-            , PaymentService paymentService
-            , AddressService addressService
-            , SurchargeService surchargeService
-            , FishService fishService
-            , FeedbackService feedbackService) {
+    public AppointmentServiceImpl(AppointmentRepository appointmentRepository, MedicalReportService medicalReportService, UserService userService, MedicalReportRepository medicalReportRepository, ServiceService serviceService, SlotService slotService, PaymentService paymentService, AddressService addressService, SurchargeService surchargeService, FishService fishService, FeedbackService feedbackService, AuthenticationService authenticationService) {
         this.appointmentRepository = appointmentRepository;
         this.medicalReportService = medicalReportService;
         this.userService = userService;
@@ -62,21 +54,27 @@ public class AppointmentServiceImpl implements AppointmentService {
         this.surchargeService = surchargeService;
         this.fishService = fishService;
         this.feedbackService = feedbackService;
+        this.authenticationService = authenticationService;
     }
 
 
     @Override
-    public void createMedicalReport(MedicalReport medicalReport, Integer appointmentId, Integer prescriptionId, Integer veterinarianId) {
+    public void createMedicalReport(MedicalReport medicalReport, Integer appointmentId) {
 
-        // get prescription on db by id
-        Prescription prescription = medicalReportService.findPrescriptionById(prescriptionId);
+        Integer prescriptionId = medicalReport.getPrescription().getPrescriptionId();
+        if (prescriptionId != null) {
+            // get prescription on db by id
+            Prescription prescription = medicalReportService.findPrescriptionById(prescriptionId);
 
-        // set prop for medicalReport
-        medicalReport.setPrescription(prescription);
+            // set prop for medicalReport
+            medicalReport.setPrescription(prescription);
 
+        } else medicalReport.setPrescription(null);
+
+        Integer veterinarianId = authenticationService.getAuthenticatedUserId();
         User veterinarian = userService.getVeterinarianById(veterinarianId);
-        medicalReport.setVeterinarian(veterinarian);
 
+        medicalReport.setVeterinarian(veterinarian);
         MedicalReport savedMedicalReport = medicalReportRepository.save(medicalReport);
 
         Appointment appointment = getAppointmentById(appointmentId);

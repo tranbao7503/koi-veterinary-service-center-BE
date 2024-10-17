@@ -43,23 +43,10 @@ public class AppointmentController {
 
     @PostMapping("/{appointmentId}/report")
     public ResponseEntity<?> createMedicalReport(@PathVariable Integer appointmentId, @RequestBody MedicalReportDto reportDto) {
-        // Check veterinarianId == userId from Authentication (in SecurityContext)
-        int userIdFromContext = 3;
-
-        Integer veterinarianId = reportDto.getVeterinarianId();
-        Integer prescriptionId = reportDto.getPrescriptionId();
-
-        if (veterinarianId == null || prescriptionId == null) {
-            return ResponseEntity.badRequest().body("Veterinarian id or prescription id is required !!");
-        }
-
-        if (userIdFromContext != veterinarianId) {
-            return ResponseEntity.badRequest().body("Invalid veterinarian Id");
-        }
 
         try {
             MedicalReport convertedMedicalReport = MedicalReportMapper.INSTANCE.convertToEntity(reportDto);
-            appointmentService.createMedicalReport(convertedMedicalReport, appointmentId, prescriptionId, veterinarianId);
+            appointmentService.createMedicalReport(convertedMedicalReport, appointmentId);
             return ResponseEntity.ok().body("Added medical report successfully");
         } catch (PrescriptionNotFoundException | AppointmentServiceNotFoundException exception) {
             return ResponseEntity.badRequest().body(exception.getMessage());
@@ -149,8 +136,7 @@ public class AppointmentController {
      * Actors: Veterinarian
      * */
     @GetMapping("/{appointmentId}/veterinarian")
-    public ResponseEntity<?> getAppointmentForVeterinarian(
-            @PathVariable("appointmentId") Integer appointmentId) {
+    public ResponseEntity<?> getAppointmentForVeterinarian(@PathVariable("appointmentId") Integer appointmentId) {
         try {
             User veterinarian = userService.getVeterinarianById(authenticationService.getAuthenticatedUserId());
             Appointment appointment = appointmentService.getAppointmentById(appointmentId);
@@ -172,8 +158,7 @@ public class AppointmentController {
      * Actors: Customer
      * */
     @GetMapping("/{appointmentId}/customer")
-    public ResponseEntity<?> getAppointmentForCustomer(
-            @PathVariable("appointmentId") Integer appointmentId) {
+    public ResponseEntity<?> getAppointmentForCustomer(@PathVariable("appointmentId") Integer appointmentId) {
         try {
             User customer = userService.getCustomerById(authenticationService.getAuthenticatedUserId());
             Appointment appointment = appointmentService.getAppointmentById(appointmentId);
@@ -198,9 +183,7 @@ public class AppointmentController {
     public ResponseEntity<?> getAllAppointments() {
         try {
             List<Appointment> appointments = appointmentService.getAllAppointments();
-            List<AppointmentForListDto> appointmentDtoList = appointments.stream()
-                    .map(AppointmentMapper.INSTANCE::convertedToAppointmentDtoForList)
-                    .collect(Collectors.toList());
+            List<AppointmentForListDto> appointmentDtoList = appointments.stream().map(AppointmentMapper.INSTANCE::convertedToAppointmentDtoForList).collect(Collectors.toList());
             return new ResponseEntity<>(appointmentDtoList, HttpStatus.OK);
         } catch (AppointmentServiceNotFoundException ex) {
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
@@ -214,9 +197,7 @@ public class AppointmentController {
         try {
             User customer = userService.getCustomerById(authenticationService.getAuthenticatedUserId()); // Check whether customer existed
             List<Appointment> appointments = appointmentService.getAppointmentsByCustomerId(customer.getUserId());
-            List<AppointmentForListDto> appointmentForListDtos = appointments.stream()
-                    .map(AppointmentMapper.INSTANCE::convertedToAppointmentDtoForList)
-                    .collect(Collectors.toList());
+            List<AppointmentForListDto> appointmentForListDtos = appointments.stream().map(AppointmentMapper.INSTANCE::convertedToAppointmentDtoForList).collect(Collectors.toList());
             return new ResponseEntity<>(appointmentForListDtos, HttpStatus.OK);
         } catch (AppointmentServiceNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
