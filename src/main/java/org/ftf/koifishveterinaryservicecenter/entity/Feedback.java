@@ -21,7 +21,7 @@ public class Feedback {
     @Column(name = "rating", nullable = true)
     private Integer rating;
 
-//    @Lob
+    //  @Lob
     @Column(name = "comment", nullable = true, columnDefinition = "TEXT")
     private String comment;
 

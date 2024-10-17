@@ -30,16 +30,21 @@ public class Appointment {
     @ColumnDefault("'PENDING'")
     private AppointmentStatus currentStatus;
 
-    @Column(name = "cusomter_name", nullable = false, length = 100)
+    @Column(name = "customer_name", nullable = false, length = 100)
     private String customerName;
 
-//    @Lob
+    @Column(name = "email", nullable = true, length = 50, unique = true)
+    private String email;
+
+    @Column(name = "phone_number", nullable = true, length = 10)
+    private String phoneNumber;
+
+    //    @Lob
     @Column(name = "description", nullable = true, columnDefinition = "TEXT")
     private String description;
 
     @Column(name = "total_price", nullable = false, precision = 10, scale = 2)
     private BigDecimal totalPrice;
-
 
     // Bidirectional, identifying relationship
     // Owning side: Appointment
@@ -47,7 +52,6 @@ public class Appointment {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "service_id", nullable = false, referencedColumnName = "service_id")
     private Service service;
-
 
     // Unidirectional, non-identifying relationship
     // Owning side: Appointment
@@ -118,7 +122,7 @@ public class Appointment {
     // Bidirectional, non-identifying relationship
     // Owning side: Appointment
     // Inverse side: Appointment(Follow-up)
-    @OneToOne(mappedBy = "followUpAppointment", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "followUpAppointment")
     private Appointment appointment;
 
     // Unidirectional, non-identifying relationship

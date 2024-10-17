@@ -9,7 +9,6 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.annotation.Rollback;
 
-import java.sql.SQLOutput;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -24,7 +23,7 @@ public class UsersRepositoryTests {
         int userId = 1;
         User user = userRepository.findUsersByUserId(userId);
 
-        Assertions.assertThat(user.getAddress()).isNotNull();
+        Assertions.assertThat(user.getCurrentAddress()).isNotNull();
         System.out.println(user);
     }
 
@@ -38,5 +37,15 @@ public class UsersRepositoryTests {
         userRepository.save(user);
         System.out.println(user.getFirstName());
     }
+
+    @Test
+    public void testCreateMedicalReportForAppointmentSuccess() {
+        int veterinarianId = 3;
+        User veterinarian = userRepository.findUsersByUserId(veterinarianId);
+
+        Assertions.assertThat(veterinarian).isNotNull();
+        System.out.println(veterinarian.getUserId());
+    }
+
 
 }

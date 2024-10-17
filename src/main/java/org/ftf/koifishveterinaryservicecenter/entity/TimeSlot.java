@@ -3,6 +3,7 @@ package org.ftf.koifishveterinaryservicecenter.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -35,8 +36,8 @@ public class TimeSlot {
     @Column(name = "slot_order", nullable = false)
     private Integer slotOrder;
 
-//    @Lob
-    @Column(name = "description", nullable = false, columnDefinition = "TEXT")
+    //    @Lob
+    @Column(name = "description", nullable = true, columnDefinition = "TEXT")
     private String description;
 
     // Bidirectional, identifying relationship
@@ -56,4 +57,19 @@ public class TimeSlot {
     )
     private Set<User> veterinarians = new LinkedHashSet<>();
 
+    public LocalDateTime getDateTimeBasedOnSlot() {
+        int hour = 0;
+        int minute = 0;
+
+        if (this.slotOrder == 1) hour = 8;
+        if (this.slotOrder == 2) hour = 10;
+        if (this.slotOrder == 3) hour = 13;
+        if (this.slotOrder == 4) hour = 15;
+
+        LocalDateTime localDateTime = LocalDateTime.of(year, month, day, hour, minute);
+
+        return localDateTime;
+    }
+
 }
+
