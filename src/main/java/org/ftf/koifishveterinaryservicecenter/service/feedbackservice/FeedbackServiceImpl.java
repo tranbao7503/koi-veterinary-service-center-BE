@@ -3,7 +3,7 @@ package org.ftf.koifishveterinaryservicecenter.service.feedbackservice;
 import org.ftf.koifishveterinaryservicecenter.entity.Appointment;
 import org.ftf.koifishveterinaryservicecenter.entity.Feedback;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
-import org.ftf.koifishveterinaryservicecenter.exception.AppointmentServiceNotFoundException;
+import org.ftf.koifishveterinaryservicecenter.exception.AppointmentNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.FeedbackNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.repository.FeedbackRepository;
@@ -59,8 +59,8 @@ public class FeedbackServiceImpl implements FeedbackService {
     public Feedback createFeedback(Feedback feedback, Appointment appointment) {
         Feedback newFeedback = new Feedback();
 
-        if (appointment == null) {
-            throw new AppointmentServiceNotFoundException("Appointment not found");
+        if(appointment == null) {
+            throw new AppointmentNotFoundException("Appointment not found");
         }
         if (appointment.getCustomer() == null) {
             throw new UserNotFoundException("Customer not found");

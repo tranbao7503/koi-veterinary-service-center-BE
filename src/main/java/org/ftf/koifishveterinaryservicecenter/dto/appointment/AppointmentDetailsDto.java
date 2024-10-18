@@ -16,6 +16,9 @@ public class AppointmentDetailsDto extends AppointmentBaseDto {
     @JsonProperty("customer_name")
     private String customerName;
 
+    @JsonProperty("slot_id")
+    private Integer slotId;
+
     @JsonProperty("email")
     private String email;
 

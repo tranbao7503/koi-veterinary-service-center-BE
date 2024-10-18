@@ -11,6 +11,8 @@ import java.text.ParseException;
 public interface AuthenticationService {
     Integer getAuthenticatedUserId();
 
+    String getAuthenticationRole();
+
     IntrospectResponse introspect(IntrospectRequestDTO request) throws ParseException;
 
     AuthenticationResponse authenticate(AuthenticationRequestDTO request);

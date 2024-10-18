@@ -1,21 +1,29 @@
 package org.ftf.koifishveterinaryservicecenter.service.appointmentservice;
 
+import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentUpdateDto;
 import org.ftf.koifishveterinaryservicecenter.entity.*;
+import org.ftf.koifishveterinaryservicecenter.entity.veterinarian_slots.VeterinarianSlots;
 import org.ftf.koifishveterinaryservicecenter.enums.AppointmentStatus;
+import org.ftf.koifishveterinaryservicecenter.enums.SlotStatus;
 import org.ftf.koifishveterinaryservicecenter.exception.*;
 import org.ftf.koifishveterinaryservicecenter.repository.AppointmentRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.MedicalReportRepository;
+import org.ftf.koifishveterinaryservicecenter.repository.VeterinarianSlotsRepository;
 import org.ftf.koifishveterinaryservicecenter.service.addressservice.AddressService;
+import org.ftf.koifishveterinaryservicecenter.service.appointmentservice.appointmentstate.AppointmentContext;
+import org.ftf.koifishveterinaryservicecenter.service.appointmentservice.appointmentstate.AppointmentStateFactory;
 import org.ftf.koifishveterinaryservicecenter.service.feedbackservice.FeedbackService;
 import org.ftf.koifishveterinaryservicecenter.service.fishservice.FishService;
 import org.ftf.koifishveterinaryservicecenter.service.medicalreportservice.MedicalReportService;
 import org.ftf.koifishveterinaryservicecenter.service.paymentservice.PaymentService;
 import org.ftf.koifishveterinaryservicecenter.service.serviceservice.ServiceService;
 import org.ftf.koifishveterinaryservicecenter.service.slotservice.SlotService;
+import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
 import org.ftf.koifishveterinaryservicecenter.service.surchargeservice.SurchargeService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -35,14 +43,29 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final ServiceService serviceService;
     private final SlotService slotService;
     private final PaymentService paymentService;
+    private final AuthenticationService authenticationService;
+    private final VeterinarianSlotsRepository veterinarianSlotsRepository;
     private final AddressService addressService;
     private final SurchargeService surchargeService;
     private final FishService fishService;
     private final FeedbackService feedbackService;
-    private final AuthenticationService authenticationService;
+    private final AppointmentStateFactory appointmentStateFactory;
+
 
     @Autowired
-    public AppointmentServiceImpl(AppointmentRepository appointmentRepository, MedicalReportService medicalReportService, UserService userService, MedicalReportRepository medicalReportRepository, ServiceService serviceService, SlotService slotService, PaymentService paymentService, AddressService addressService, SurchargeService surchargeService, FishService fishService, FeedbackService feedbackService, AuthenticationService authenticationService) {
+    public AppointmentServiceImpl(AppointmentRepository appointmentRepository
+            , MedicalReportService medicalReportService
+            , UserService userService
+            , MedicalReportRepository medicalReportRepository
+            , ServiceService serviceService
+            , SlotService slotService
+            , PaymentService paymentService
+            , AuthenticationService authenticationService
+            , VeterinarianSlotsRepository veterinarianSlotsRepository
+            , AddressService addressService
+            , SurchargeService surchargeService
+            , FishService fishService
+            , FeedbackService feedbackService, AppointmentStateFactory appointmentStateFactory){
         this.appointmentRepository = appointmentRepository;
         this.medicalReportService = medicalReportService;
         this.userService = userService;
@@ -50,11 +73,13 @@ public class AppointmentServiceImpl implements AppointmentService {
         this.serviceService = serviceService;
         this.slotService = slotService;
         this.paymentService = paymentService;
+        this.authenticationService = authenticationService;
+        this.veterinarianSlotsRepository = veterinarianSlotsRepository;
         this.addressService = addressService;
         this.surchargeService = surchargeService;
         this.fishService = fishService;
         this.feedbackService = feedbackService;
-        this.authenticationService = authenticationService;
+        this.appointmentStateFactory = appointmentStateFactory;
     }
 
 
@@ -84,7 +109,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public List<Status> findStatusByAppointmentId(Integer appointmentId) throws AppointmentServiceNotFoundException {
+    public List<Status> findStatusByAppointmentId(Integer appointmentId) throws AppointmentNotFoundException {
 
         // Get appointment by Appointment Id - Not found => exception
         Appointment appointment = this.getAppointmentById(appointmentId);
@@ -140,7 +165,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         newAppointment.setCustomer(userFromDb);
 
         // veterinarian_id
-        if (appointment.getVeterinarian() != null) {
+        if (appointment.getVeterinarian().getUserId() != null) {
             User veterinarianFromDb = userService.getVeterinarianById(appointment.getVeterinarian().getUserId());
             newAppointment.setVeterinarian(veterinarianFromDb);
         }
@@ -183,7 +208,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     public List<Appointment> getAppointmentsByCustomerId(Integer customerId) {
         List<Appointment> appointments = appointmentRepository.findAppointmentByCustomerId(customerId);
         if (appointments.isEmpty()) {
-            throw new AppointmentServiceNotFoundException("Appointment not found!");
+            throw new AppointmentNotFoundException("Appointment not found!");
         }
         // Sort by newest appointment
         appointments.sort(Comparator.comparing(Appointment::getAppointmentId).reversed());
@@ -195,7 +220,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     public List<Appointment> getAllAppointments() {
         List<Appointment> appointments = appointmentRepository.findAll();
         if (appointments.isEmpty()) {
-            throw new AppointmentServiceNotFoundException("Not found appointments");
+            throw new AppointmentNotFoundException("Not found appointments");
         }
         // Sort by created date
         appointments.sort(Comparator.comparing(Appointment::getAppointmentId).reversed());
@@ -203,8 +228,53 @@ public class AppointmentServiceImpl implements AppointmentService {
         return appointments;
     }
 
+
     @Override
-    public Feedback createFeedback(Integer appointmentId, Feedback feedback) throws AppointmentServiceNotFoundException, UserNotFoundException {
+    public Appointment updateAppointment(AppointmentUpdateDto appointmentDto, Integer appointmentId) throws AppointmentUpdatedException {
+
+        Integer authenticatedUserId = authenticationService.getAuthenticatedUserId();
+        Integer ownerId = getAppointmentOwnerId(appointmentId);
+
+        if (authenticatedUserId.equals(ownerId)) {
+            Appointment bookedAppointment = getAppointmentById(appointmentId);
+
+            if (isAbleToUpdateAppointment(bookedAppointment, appointmentDto)) {
+                // update slot Id
+                if (appointmentDto.getSlotId() != null) {
+                    TimeSlot newTimeSlot = slotService.getTimeSlotById(appointmentDto.getSlotId());
+                    bookedAppointment.setTimeSlot(newTimeSlot);
+                }
+
+                // update email
+                if (appointmentDto.getEmail() != null) {
+                    bookedAppointment.setEmail(appointmentDto.getEmail());
+                }
+
+                // update phone number
+                if (appointmentDto.getPhoneNumber() != null) {
+                    bookedAppointment.setPhoneNumber(appointmentDto.getPhoneNumber());
+                }
+
+                return appointmentRepository.save(bookedAppointment);
+            }
+            throw new AppointmentUpdatedException("Cannot update this appointment. The appointment is upcoming soon");
+        }
+        throw new AccessDeniedException("Access denied");   // bad practice handler exception
+    }
+
+    @Override
+    public void cancelAppointment(Integer appointmentId) {
+        Optional<Appointment> appointment = appointmentRepository.findById(appointmentId);
+        if (appointment.isEmpty()) throw new AppointmentNotFoundException("Appointment not found with id: " + appointmentId);
+
+        appointment.get().setCurrentStatus(AppointmentStatus.CANCELED);
+        appointmentRepository.save(appointment.get());
+
+        // send email
+    }
+
+    @Override
+    public Feedback createFeedback(Integer appointmentId, Feedback feedback) throws AppointmentNotFoundException, UserNotFoundException {
         Appointment appointment = this.getAppointmentById(appointmentId);
 
         if (appointment.getFeedback() != null) {
@@ -221,15 +291,41 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
+    public void updateStatus(Integer appointmentId, AppointmentStatus updatedStatus) {
+
+        Appointment updatedAppointment = getAppointmentById(appointmentId);
+
+        AppointmentContext appointmentContext = new AppointmentContext(updatedAppointment, appointmentStateFactory);
+        appointmentContext.update(updatedAppointment);
+        // staff: PENDING -> CONFIRMED  --> sending email
+        //        PENDING -> CANCELED
+
+
+        // 1. online
+        //     payment successfully    <---    customer
+        //  system:  payment: UNPAID -> PAID
+        //          appointment: CONFIRMED -> ONGOING
+
+        // 2. at home
+        //  system: appointment: CONFIRMED -> CHECKIN
+        //  staff:  payment: UNPAID -> PAID
+        //          appointment: CHECKIN -> ONGOING
+
+
+        // staff
+        // appointment: ONGOING --> DONE
+    }
+
+    @Override
     public Appointment getAppointmentById(Integer appointmentId) {
         Optional<Appointment> appointmentOptional = appointmentRepository.findById(appointmentId);
         if (appointmentOptional.isEmpty())
-            throw new AppointmentServiceNotFoundException("Not found Appointment with Id: " + appointmentId);
+            throw new AppointmentNotFoundException("Not found Appointment with Id: " + appointmentId);
         return appointmentOptional.get();
     }
 
     @Override
-    public MedicalReport getMedicalReportByAppointmentId(Integer appointmentId) throws AppointmentServiceNotFoundException {
+    public MedicalReport getMedicalReportByAppointmentId(Integer appointmentId) throws AppointmentNotFoundException {
         Appointment appointment = getAppointmentById(appointmentId);
         MedicalReport medicalReport = medicalReportRepository.findByReportId(appointment.getMedicalReport().getReportId());
         if (medicalReport == null) {
@@ -238,9 +334,47 @@ public class AppointmentServiceImpl implements AppointmentService {
         return medicalReport;
     }
 
+    @Override
+    public void assignVeterinarian(Integer appointmentId, Integer veterinarianId) {
+        Appointment assignedAppointment = getAppointmentById(appointmentId);
+        if(assignedAppointment.getVeterinarian()==null){
+            User veterinarian = userService.getVeterinarianById(veterinarianId);
+
+            // assign Appointment for Vet
+            assignedAppointment.setVeterinarian(veterinarian);
+            appointmentRepository.save(assignedAppointment);
+
+            // update status schedule
+            Integer slotId = assignedAppointment.getTimeSlot().getSlotId();
+            VeterinarianSlots veterinarianSlot = veterinarianSlotsRepository.getVeterinarianSlotsById(veterinarianId,slotId);
+            veterinarianSlot.setStatus(SlotStatus.BOOKED);
+            veterinarianSlotsRepository.save(veterinarianSlot);
+        }
+    }
+
     private BigDecimal calculatePrice(Appointment appointment) {
         BigDecimal servicePrice = appointment.getService().getServicePrice();
         return appointment.getMovingSurcharge() == null ? servicePrice : servicePrice.add(appointment.getMovingSurcharge().getPrice());
+    }
+
+    public Integer getAppointmentOwnerId(Integer appointmentId) {
+        Appointment appointment = getAppointmentById(appointmentId);
+        return appointment.getCustomer().getUserId();
+    }
+
+
+    private boolean isAbleToUpdateAppointment(Appointment appointment, AppointmentUpdateDto appointmentUpdateDto) throws AppointmentUpdatedException {
+        LocalDateTime openingTime = appointment.getTimeSlot().getDateTimeBasedOnSlot();
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime threeHoursFromNow = now.plusHours(3);
+
+        TimeSlot timeSlot = slotService.getTimeSlotById(appointmentUpdateDto.getSlotId());
+        List<TimeSlot> availableTimeSlot = slotService.getListAvailableTimeSlots();
+
+        return openingTime.isAfter(threeHoursFromNow)
+                && availableTimeSlot.contains(timeSlot)
+                && (appointment.getCurrentStatus().equals(AppointmentStatus.PENDING)
+                || appointment.getCurrentStatus().equals(AppointmentStatus.CONFIRMED));
     }
 
 }

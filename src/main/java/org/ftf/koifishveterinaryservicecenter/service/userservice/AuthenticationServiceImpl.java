@@ -50,6 +50,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
+    public String getAuthenticationRole() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Jwt jwt = (Jwt) auth.getPrincipal();
+        Map<String, Object> claims = jwt.getClaims();
+        return (String) claims.get("role");
+    }
+
+    @Override
     public IntrospectResponse introspect(IntrospectRequestDTO request) throws ParseException {
         var token = request.getToken();
 
