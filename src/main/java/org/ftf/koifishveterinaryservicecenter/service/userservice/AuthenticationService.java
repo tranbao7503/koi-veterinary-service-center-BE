@@ -7,6 +7,7 @@ import org.ftf.koifishveterinaryservicecenter.dto.response.IntrospectResponse;
 
 import java.text.ParseException;
 
+
 public interface AuthenticationService {
     Integer getAuthenticatedUserId();
 

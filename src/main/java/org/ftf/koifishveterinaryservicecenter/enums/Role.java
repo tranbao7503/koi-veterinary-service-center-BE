@@ -9,8 +9,8 @@ public enum Role {
 
     private int value;
 
-     Role(int value){
-     this.value=value;
+    Role(int value) {
+        this.value = value;
     }
 
     public int getValue() {

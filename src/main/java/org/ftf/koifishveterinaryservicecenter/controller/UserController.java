@@ -117,6 +117,7 @@ public class UserController {
         return ApiResponse.<AuthenticationResponse>builder().result(result).build();
     }
 
+
     @PostMapping("/introspect")
     ApiResponse<IntrospectResponse> authenticate(@RequestBody IntrospectRequestDTO request)
             throws ParseException {
@@ -201,16 +202,16 @@ public class UserController {
 
     // view list staffs
     @GetMapping("/staffs")
-    public ResponseEntity<?> getAllStaffsAndVeterinarians(){
+    public ResponseEntity<?> getAllStaffsAndVeterinarians() {
         List<User> staffs = userService.getAllStaffs();
 
         if (staffs.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }else{
+        } else {
             List<UserDTO> userDTOS = staffs.stream()
                     .map(UserMapper.INSTANCE::convertEntityToDto)
                     .collect(Collectors.toList());
-                    return new ResponseEntity<>(userDTOS,HttpStatus.OK);
+            return new ResponseEntity<>(userDTOS, HttpStatus.OK);
         }
     }
 
