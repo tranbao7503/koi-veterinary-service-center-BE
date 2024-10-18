@@ -1,6 +1,7 @@
 package org.ftf.koifishveterinaryservicecenter.controller;
 
 
+import com.nimbusds.jose.JOSEException;
 import lombok.extern.slf4j.Slf4j;
 import org.ftf.koifishveterinaryservicecenter.dto.*;
 import org.ftf.koifishveterinaryservicecenter.dto.response.AuthenticationResponse;
@@ -17,9 +18,8 @@ import org.ftf.koifishveterinaryservicecenter.mapper.UserMapper;
 import org.ftf.koifishveterinaryservicecenter.service.appointmentservice.AppointmentService;
 import org.ftf.koifishveterinaryservicecenter.service.feedbackservice.FeedbackService;
 import org.ftf.koifishveterinaryservicecenter.service.slotservice.SlotService;
-import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
+import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationServiceImpl;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -38,13 +38,12 @@ public class UserController {
 
     private final UserService userService;
     private final UserMapper userMapper;
-    private final AuthenticationService authenticationService;
+    private final AuthenticationServiceImpl authenticationService;
     private final FeedbackService feedbackService;
     private final AppointmentService appointmentService;
     private final SlotService slotService;
 
-    @Autowired
-    public UserController(UserService userService, UserMapper userMapper, AuthenticationService authenticationService, FeedbackService feedbackService, AppointmentService appointmentService, SlotService slotService) {
+    public UserController(UserService userService, UserMapper userMapper, AuthenticationServiceImpl authenticationService, FeedbackService feedbackService, AppointmentService appointmentService, SlotService slotService) {
         this.userService = userService;
         this.userMapper = userMapper;
         this.authenticationService = authenticationService;
@@ -52,6 +51,7 @@ public class UserController {
         this.appointmentService = appointmentService;
         this.slotService = slotService;
     }
+
 
     @GetMapping("/profile")
     public ResponseEntity<?> getProfile(@RequestParam Integer userId) {
@@ -126,7 +126,7 @@ public class UserController {
 
     @PostMapping("/introspect")
     ApiResponse<IntrospectResponse> authenticate(@RequestBody IntrospectRequestDTO request)
-            throws ParseException {
+            throws ParseException, JOSEException {
         var result = authenticationService.introspect(request);
         if (result == null) {
             return ApiResponse.<IntrospectResponse>builder().code(404).build();
@@ -198,7 +198,7 @@ public class UserController {
 
             List<UserDTO> vetDtos = veterinarians.stream().map(UserMapper.INSTANCE::convertToVeterinarianDto).toList();
             return new ResponseEntity<>(vetDtos, HttpStatus.OK);
-        } catch (TimeSlotNotFoundException exception){
+        } catch (TimeSlotNotFoundException exception) {
             return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
@@ -250,4 +250,19 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.OK).body("Thêm mới nhân viên thành công.");
         }
     }
+
+    @PostMapping("/logout")
+    ApiResponse<Void> logout(@RequestBody LogoutRequest request) throws ParseException, JOSEException {
+        authenticationService.logout(request);
+        return ApiResponse.<Void>builder().build();
+    }
+
+    @PostMapping("/refresh")
+    ApiResponse<AuthenticationResponse> logout(@RequestBody RefreshRequest request) throws ParseException, JOSEException {
+        var result = authenticationService.refreshToken(request);
+        return ApiResponse.<AuthenticationResponse>builder()
+                .result(result)
+                .build();
+    }
+
 }

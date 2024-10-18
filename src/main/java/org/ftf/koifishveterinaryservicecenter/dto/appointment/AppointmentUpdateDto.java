@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class AppointmentUpdateDto extends AppointmentBaseDto{
+public class AppointmentUpdateDto extends AppointmentBaseDto {
 
     @JsonProperty("slot_id")
     private Integer slotId;

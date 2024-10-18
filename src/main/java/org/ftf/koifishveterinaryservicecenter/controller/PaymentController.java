@@ -2,12 +2,9 @@ package org.ftf.koifishveterinaryservicecenter.controller;
 
 import jakarta.servlet.http.HttpServletResponse;
 import org.ftf.koifishveterinaryservicecenter.configuration.PaymentConfig;
-import org.ftf.koifishveterinaryservicecenter.dto.ApiResponse;
 import org.ftf.koifishveterinaryservicecenter.dto.PaymentDto;
 import org.ftf.koifishveterinaryservicecenter.entity.Appointment;
 import org.ftf.koifishveterinaryservicecenter.entity.Payment;
-import org.ftf.koifishveterinaryservicecenter.exception.AppointmentNotFoundException;
-import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.ftf.koifishveterinaryservicecenter.enums.PaymentMethod;
 import org.ftf.koifishveterinaryservicecenter.enums.PaymentStatus;
 import org.ftf.koifishveterinaryservicecenter.exception.AppointmentNotFoundException;
@@ -25,7 +22,8 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/payments")

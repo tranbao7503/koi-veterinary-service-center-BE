@@ -1,5 +1,6 @@
 package org.ftf.koifishveterinaryservicecenter.configuration;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,28 +10,25 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 
 @Configuration
 public class AppConfig {
 
     private final String[] PUBLIC_ENDPOINTS = {
-            "/api/v1/users/token", "/api/v1/users/introspect", "api/v1/users/customers", "api/v1/users/signup",
+            "/api/v1/users/token", "/api/v1/users/introspect", "api/v1/users/customers", "api/v1/users/signup", "api/v1/users/**"
 
     };
 
     @Value("${jwt.signer}")
     private String SIGNER_KEY;
+    @Autowired
+    private CustomJwtDecoder customJwtDecoder;
     @Bean
     /*
      * ModelMapper use for mapping Entity to DTO
@@ -60,14 +58,10 @@ public class AppConfig {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .csrf(csrfConfig -> csrfConfig
-                        .ignoringRequestMatchers("/api/v1/users/token", "/api/v1/users/introspect", "/api/v1/users/customers", "/api/v1/users/signup", "/api/v1/fishes"))
-
-
-                .csrf(csrfConfig -> csrfConfig.ignoringRequestMatchers("/api/v1/users/token", "/api/v1/users/introspect", "api/v1/users/customers", "api/v1/users/signup", "api/v1/users/signup"))
+                        .ignoringRequestMatchers("/api/v1/users/token", "/api/v1/users/introspect", "/api/v1/users/customers", "/api/v1/users/signup", "/api/v1/fishes", "api/v1/users/logout", "api/v1/users/refresh"))
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(Customizer.withDefaults())
                 .authorizeHttpRequests(request -> request
-                        // Cho phép truy cập công khai đối với các endpoint được chỉ định
                         .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.PUT, "/api/v1/fish/update/**").permitAll()
                         // Chỉ cho phép role CUS truy cập PUT /api/v1/fishes/deletefish
@@ -80,18 +74,11 @@ public class AppConfig {
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwtConfigurer -> jwtConfigurer
-                                .decoder(jwtDecoder())
+                                .decoder(customJwtDecoder)
                                 .jwtAuthenticationConverter(jwtAuthenticationConverter())
                         ));
 
         return httpSecurity.build();
-    }
-
-    @Bean
-    public JwtDecoder jwtDecoder() {
-        byte[] secretKeyBytes = SIGNER_KEY.getBytes();
-        SecretKey secretKey = new SecretKeySpec(secretKeyBytes, "HmacSHA512");
-        return NimbusJwtDecoder.withSecretKey(secretKey).macAlgorithm(MacAlgorithm.HS512).build();
     }
 
     @Bean
@@ -105,4 +92,6 @@ public class AppConfig {
         source.registerCorsConfiguration("/**", configuration); // Apply this CORS configuration to all endpoints
         return source;
     }
+
+
 }

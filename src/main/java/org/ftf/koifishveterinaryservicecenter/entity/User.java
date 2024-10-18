@@ -92,7 +92,7 @@ public class User {
     // Owning side: VeterinarianSlots
     // Inverse side: User(Veterinarian)
 
-//    @ManyToMany(fetch = FetchType.LAZY)
+    //    @ManyToMany(fetch = FetchType.LAZY)
 //    @JoinTable(
 //            name = "veterinarian_slots",
 //            joinColumns = @JoinColumn(name = "veterinarian_id"),

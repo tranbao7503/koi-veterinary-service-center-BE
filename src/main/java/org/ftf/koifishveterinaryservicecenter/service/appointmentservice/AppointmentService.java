@@ -1,7 +1,6 @@
 package org.ftf.koifishveterinaryservicecenter.service.appointmentservice;
 
 
-import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentDto;
 import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentUpdateDto;
 import org.ftf.koifishveterinaryservicecenter.entity.Appointment;
 import org.ftf.koifishveterinaryservicecenter.entity.Feedback;
@@ -10,14 +9,13 @@ import org.ftf.koifishveterinaryservicecenter.entity.Status;
 import org.ftf.koifishveterinaryservicecenter.enums.AppointmentStatus;
 import org.ftf.koifishveterinaryservicecenter.exception.AppointmentUpdatedException;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 public interface AppointmentService {
 
 
-    void createMedicalReport(MedicalReport medicalReport,Integer appointmentId);
+    void createMedicalReport(MedicalReport medicalReport, Integer appointmentId);
 
     List<Status> findStatusByAppointmentId(Integer appointmentId);
 

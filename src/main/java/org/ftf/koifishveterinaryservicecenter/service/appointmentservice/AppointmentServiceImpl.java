@@ -18,7 +18,6 @@ import org.ftf.koifishveterinaryservicecenter.service.medicalreportservice.Medic
 import org.ftf.koifishveterinaryservicecenter.service.paymentservice.PaymentService;
 import org.ftf.koifishveterinaryservicecenter.service.serviceservice.ServiceService;
 import org.ftf.koifishveterinaryservicecenter.service.slotservice.SlotService;
-import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
 import org.ftf.koifishveterinaryservicecenter.service.surchargeservice.SurchargeService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
@@ -65,7 +64,7 @@ public class AppointmentServiceImpl implements AppointmentService {
             , AddressService addressService
             , SurchargeService surchargeService
             , FishService fishService
-            , FeedbackService feedbackService, AppointmentStateFactory appointmentStateFactory){
+            , FeedbackService feedbackService, AppointmentStateFactory appointmentStateFactory) {
         this.appointmentRepository = appointmentRepository;
         this.medicalReportService = medicalReportService;
         this.userService = userService;
@@ -265,7 +264,8 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public void cancelAppointment(Integer appointmentId) {
         Optional<Appointment> appointment = appointmentRepository.findById(appointmentId);
-        if (appointment.isEmpty()) throw new AppointmentNotFoundException("Appointment not found with id: " + appointmentId);
+        if (appointment.isEmpty())
+            throw new AppointmentNotFoundException("Appointment not found with id: " + appointmentId);
 
         appointment.get().setCurrentStatus(AppointmentStatus.CANCELED);
         appointmentRepository.save(appointment.get());
@@ -337,7 +337,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public void assignVeterinarian(Integer appointmentId, Integer veterinarianId) {
         Appointment assignedAppointment = getAppointmentById(appointmentId);
-        if(assignedAppointment.getVeterinarian()==null){
+        if (assignedAppointment.getVeterinarian() == null) {
             User veterinarian = userService.getVeterinarianById(veterinarianId);
 
             // assign Appointment for Vet
@@ -346,7 +346,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
             // update status schedule
             Integer slotId = assignedAppointment.getTimeSlot().getSlotId();
-            VeterinarianSlots veterinarianSlot = veterinarianSlotsRepository.getVeterinarianSlotsById(veterinarianId,slotId);
+            VeterinarianSlots veterinarianSlot = veterinarianSlotsRepository.getVeterinarianSlotsById(veterinarianId, slotId);
             veterinarianSlot.setStatus(SlotStatus.BOOKED);
             veterinarianSlotsRepository.save(veterinarianSlot);
         }

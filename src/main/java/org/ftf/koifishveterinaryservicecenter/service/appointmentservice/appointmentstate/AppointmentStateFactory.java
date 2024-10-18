@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * This class is used to produce implementation of AppointmentState based on AppointmentStatus
- * */
+ */
 
 @Component
 public class AppointmentStateFactory {
@@ -23,7 +23,7 @@ public class AppointmentStateFactory {
         this.ongoingState = ongoingState;
     }
 
-    public AppointmentState getState(AppointmentStatus appointmentStatus){
+    public AppointmentState getState(AppointmentStatus appointmentStatus) {
         if (appointmentStatus == AppointmentStatus.PENDING) return pendingState;
         if (appointmentStatus == AppointmentStatus.CONFIRMED) return confirmedState;
         if (appointmentStatus == AppointmentStatus.ON_GOING) return ongoingState;

@@ -73,7 +73,7 @@ public class TimeSlot {
         if (this.slotOrder == 3) hour = 13;
         if (this.slotOrder == 4) hour = 15;
 
-        LocalDateTime slotDateTime =  LocalDateTime.of(this.getYear(), this.getMonth(), this.getDay(), hour, minute);
+        LocalDateTime slotDateTime = LocalDateTime.of(this.getYear(), this.getMonth(), this.getDay(), hour, minute);
         return slotDateTime;
     }
 

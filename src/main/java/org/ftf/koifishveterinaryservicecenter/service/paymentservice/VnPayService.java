@@ -7,15 +7,12 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import java.awt.*;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.List;
 
 @Service
 public class VnPayService {
@@ -28,8 +25,8 @@ public class VnPayService {
     }
 
     /*
-    * Create URL for VNPay payment request
-    * */
+     * Create URL for VNPay payment request
+     * */
     public String createPaymentUrl(Appointment appointment) throws Exception {
         String vnp_Version = "2.1.0";
         String vnp_Command = "pay";
@@ -69,8 +66,8 @@ public class VnPayService {
     }
 
     /*
-    * Verify HASH after finish payment via VNPay
-    * */
+     * Verify HASH after finish payment via VNPay
+     * */
     public boolean verifySignature(Map<String, String> vnpParams) throws UnsupportedEncodingException, Exception {
         String vnp_SecureHash = vnpParams.get("vnp_SecureHash");
         Map<String, String> filteredParams = new HashMap<>(vnpParams);

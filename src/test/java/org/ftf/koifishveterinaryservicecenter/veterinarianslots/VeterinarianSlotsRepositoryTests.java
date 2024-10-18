@@ -20,7 +20,7 @@ public class VeterinarianSlotsRepositoryTests {
     public void testGetVeterinarianSlotsByCompositeId() {
         Integer veterinarianSlotId = 11;
         Integer slotId = 177;
-        VeterinarianSlots veterinarianSlot = veterinarianSlotsRepository.getVeterinarianSlotsById(veterinarianSlotId,slotId);
+        VeterinarianSlots veterinarianSlot = veterinarianSlotsRepository.getVeterinarianSlotsById(veterinarianSlotId, slotId);
         Assertions.assertThat(veterinarianSlot).isNotNull();
         System.out.println(veterinarianSlot.toString());
     }

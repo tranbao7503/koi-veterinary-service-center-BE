@@ -59,7 +59,7 @@ public class FeedbackServiceImpl implements FeedbackService {
     public Feedback createFeedback(Feedback feedback, Appointment appointment) {
         Feedback newFeedback = new Feedback();
 
-        if(appointment == null) {
+        if (appointment == null) {
             throw new AppointmentNotFoundException("Appointment not found");
         }
         if (appointment.getCustomer() == null) {

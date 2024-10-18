@@ -1,7 +1,6 @@
 package org.ftf.koifishveterinaryservicecenter.entity;
 
 import jakarta.persistence.*;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.ftf.koifishveterinaryservicecenter.enums.AppointmentStatus;
