@@ -41,4 +41,7 @@ public interface UserService {
 
 
     UserDTO createStaff(String userName, String passWord, String firstName, String lastName);
+
+    List<User> getAllStaffs();
+
 }

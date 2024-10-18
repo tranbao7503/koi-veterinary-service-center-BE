@@ -73,6 +73,7 @@ public class AppConfig {
                         // Các yêu cầu còn lại phải được xác thực
                         .requestMatchers("/api/v1/users/signup").hasAnyAuthority("MAN")
                         .requestMatchers("/api/v1/users/staff").hasAnyAuthority("MAN")
+                        .requestMatchers("/api/v1/users/staffs").hasAnyAuthority("MAN")
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwtConfigurer -> jwtConfigurer

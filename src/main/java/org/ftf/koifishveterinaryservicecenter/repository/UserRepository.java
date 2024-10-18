@@ -20,7 +20,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     User findCustomerById(@Param("customerId") Integer customerId);
 
 
-
     boolean existsUserByPhoneNumber(String phoneNumber);
 
     List<User> findAllByRole(Role role);

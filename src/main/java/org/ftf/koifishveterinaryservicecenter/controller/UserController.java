@@ -118,7 +118,6 @@ public class UserController {
     }
 
     @PostMapping("/introspect")
-
     ApiResponse<IntrospectResponse> authenticate(@RequestBody IntrospectRequestDTO request)
             throws ParseException {
         var result = authenticationService.introspect(request);
@@ -200,6 +199,22 @@ public class UserController {
         }
     }
 
+    // view list staffs
+    @GetMapping("/staffs")
+    public ResponseEntity<?> getAllStaffsAndVeterinarians(){
+        List<User> staffs = userService.getAllStaffs();
+
+        if (staffs.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }else{
+            List<UserDTO> userDTOS = staffs.stream()
+                    .map(UserMapper.INSTANCE::convertEntityToDto)
+                    .collect(Collectors.toList());
+                    return new ResponseEntity<>(userDTOS,HttpStatus.OK);
+        }
+    }
+
+
     @PostMapping("/staff")
     public ResponseEntity<String> createStaff(@RequestBody UserDTO userDTO) {
         UserDTO createdUser = userService.createStaff(userDTO.getUsername(), userDTO.getPassword(), userDTO.getFirstName(), userDTO.getLastName());
@@ -209,4 +224,5 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.OK).body("Thêm mới nhân viên thành công.");
         }
     }
+
 }

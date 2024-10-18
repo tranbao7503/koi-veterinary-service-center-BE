@@ -304,4 +304,20 @@ public class UserServiceImpl implements UserService {
         return address;
     }
 
+    @Override
+    public List<User> getAllStaffs() {
+        // Lấy danh sách staffs dựa vào Role
+        Role staffRole = roleRepository.findByRoleKey("STA");
+
+        // Kiểm tra nếu role không tồn tại
+        if (staffRole == null) {
+            return new ArrayList<>(); // Trả về danh sách rỗng nếu không tìm thấy role
+        }
+
+        // Trả về danh sách users từ role "STA"
+        return new ArrayList<>(staffRole.getUsers());
+    }
+
+
+
 }
