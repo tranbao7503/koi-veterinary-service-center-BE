@@ -63,9 +63,9 @@ public class User {
     // Uni-directional, non-identifying relationship
     // Owning side: User
     // Inverse side: Address
-    @OneToOne(fetch = FetchType.LAZY/*, optional = true*/)
-    @JoinColumn(name = "address_id"/*, unique = false, nullable = true*/)
-    private Address address;
+    @OneToMany(mappedBy = "customer"/*, optional = true*/)
+    //@JoinColumn(name = "address_id"/*, unique = false, nullable = true*/)
+    private Set<Address> addresses = new LinkedHashSet<>();
 
 
     // Bidirectional, identifying relationship
@@ -98,6 +98,9 @@ public class User {
     )
     private Set<TimeSlot> timeSlots = new LinkedHashSet<>();
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "current_address_id", nullable = true)
+    private Address currentAddress;
 
 
     @Override
@@ -110,7 +113,7 @@ public class User {
                 ", lastName='" + lastName + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
                 ", avatar='" + avatar + '\'' +
-                ", address=" + address +
+                ", address=" + addresses +
                 '}';
     }
 
@@ -119,11 +122,11 @@ public class User {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return enabled == user.enabled && Objects.equals(userId, user.userId) && Objects.equals(username, user.username) && Objects.equals(password, user.password) && Objects.equals(email, user.email) && Objects.equals(firstName, user.firstName) && Objects.equals(lastName, user.lastName) && Objects.equals(phoneNumber, user.phoneNumber) && Objects.equals(avatar, user.avatar) && Objects.equals(role, user.role) && Objects.equals(address, user.address) && Objects.equals(fishes, user.fishes) && Objects.equals(allBookedAppointmentOfCustomer, user.allBookedAppointmentOfCustomer) && Objects.equals(allAssignedAppointmentOfVeterinarian, user.allAssignedAppointmentOfVeterinarian) && Objects.equals(timeSlots, user.timeSlots);
+        return enabled == user.enabled && Objects.equals(userId, user.userId) && Objects.equals(username, user.username) && Objects.equals(password, user.password) && Objects.equals(email, user.email) && Objects.equals(firstName, user.firstName) && Objects.equals(lastName, user.lastName) && Objects.equals(phoneNumber, user.phoneNumber) && Objects.equals(avatar, user.avatar) && Objects.equals(role, user.role) && Objects.equals(addresses, user.addresses) && Objects.equals(fishes, user.fishes) && Objects.equals(allBookedAppointmentOfCustomer, user.allBookedAppointmentOfCustomer) && Objects.equals(allAssignedAppointmentOfVeterinarian, user.allAssignedAppointmentOfVeterinarian) && Objects.equals(timeSlots, user.timeSlots);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(userId, username, password, email, firstName, lastName, phoneNumber, avatar, enabled, role, address, fishes, allBookedAppointmentOfCustomer, allAssignedAppointmentOfVeterinarian, timeSlots);
+        return Objects.hash(userId, username, password, email, firstName, lastName, phoneNumber, avatar, enabled, role, addresses, fishes, allBookedAppointmentOfCustomer, allAssignedAppointmentOfVeterinarian, timeSlots);
     }
 }

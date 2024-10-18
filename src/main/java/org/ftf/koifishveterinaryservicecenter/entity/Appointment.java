@@ -122,7 +122,7 @@ public class Appointment {
     // Bidirectional, non-identifying relationship
     // Owning side: Appointment
     // Inverse side: Appointment(Follow-up)
-    @OneToOne(mappedBy = "followUpAppointment", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "followUpAppointment")
     private Appointment appointment;
 
     // Unidirectional, non-identifying relationship

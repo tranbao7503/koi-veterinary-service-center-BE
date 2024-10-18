@@ -12,4 +12,5 @@ public interface MedicalReportService {
     PrescriptionDto createPrescription(PrescriptionDto prescriptionDto);
 
     Prescription findPrescriptionById(Integer prescriptionId);
+
 }
