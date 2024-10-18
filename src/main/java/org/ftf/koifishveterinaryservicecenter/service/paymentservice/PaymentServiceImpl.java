@@ -7,8 +7,9 @@ import org.ftf.koifishveterinaryservicecenter.repository.PaymentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 
 @Service
 public class PaymentServiceImpl implements PaymentService {
@@ -41,6 +42,20 @@ public class PaymentServiceImpl implements PaymentService {
 
         payment.setTransactionTime(LocalDateTime.now());
         payment.setDescription(newPayment.getDescription());
+        payment.setStatus(PaymentStatus.PAID);
+
+        paymentRepository.save(payment);
+
+        return payment;
+    }
+
+    @Override
+    public Payment updatePaymentForVnPay(Integer paymentId, Date payDate, String transactionId, String description) {
+        Payment payment = findPaymentByAppointmentId(paymentId);
+
+        payment.setTransactionId(transactionId);
+        payment.setTransactionTime(LocalDateTime.ofInstant(payDate.toInstant(), ZoneId.systemDefault()));
+        payment.setDescription(description);
         payment.setStatus(PaymentStatus.PAID);
 
         paymentRepository.save(payment);
