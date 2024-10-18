@@ -8,8 +8,12 @@ import java.text.ParseException;
 
 public interface AuthenticationService {
     Integer getAuthenticatedUserId();
+
     IntrospectResponse introspect(IntrospectRequestDTO request) throws ParseException;
+
     AuthenticationResponse authenticate(AuthenticationRequestDTO request);
+
     IntrospectResponse getUserInfoFromToken(IntrospectRequestDTO request) throws ParseException;
+
     String getAuthenticatedUserRoleKey();
 }

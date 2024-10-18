@@ -1,10 +1,8 @@
 package org.ftf.koifishveterinaryservicecenter.controller;
 
-import org.ftf.koifishveterinaryservicecenter.dto.ApiResponse;
 import org.ftf.koifishveterinaryservicecenter.dto.PaymentDto;
 import org.ftf.koifishveterinaryservicecenter.entity.Appointment;
 import org.ftf.koifishveterinaryservicecenter.entity.Payment;
-import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.ftf.koifishveterinaryservicecenter.exception.AppointmentServiceNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.PaymentNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.PaymentMapper;
@@ -43,7 +41,7 @@ public class PaymentController {
             Appointment appointment = appointmentService.getAppointmentById(appointmentId);
 
             if (authenticationService.getAuthenticatedUserRoleKey().equals("CUS")) { // Validate Customer
-                if(!appointment.getCustomer().getUserId().equals(authenticationService.getAuthenticatedUserId())) {
+                if (!appointment.getCustomer().getUserId().equals(authenticationService.getAuthenticatedUserId())) {
                     return new ResponseEntity<>(HttpStatus.FORBIDDEN);
                 }
             }

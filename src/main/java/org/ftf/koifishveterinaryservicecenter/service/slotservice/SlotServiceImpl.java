@@ -10,7 +10,6 @@ import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -64,11 +63,11 @@ public class SlotServiceImpl implements SlotService {
         Integer nextThreeHour = threeHoursFromNow.getHour();
 
         Integer nextSlot = 1;
-        if (nextThreeHour <= 10){
+        if (nextThreeHour <= 10) {
             nextSlot = 2;
-        } else if (nextThreeHour <= 13){
+        } else if (nextThreeHour <= 13) {
             nextSlot = 3;
-        } else if (nextThreeHour <= 15){
+        } else if (nextThreeHour <= 15) {
             nextSlot = 4;
         } else {
             currentDate = currentDate.plusDays(1);
@@ -100,11 +99,11 @@ public class SlotServiceImpl implements SlotService {
         Integer nextThreeHour = threeHoursFromNow.getHour();
 
         Integer beginSlot = 1;
-        if (nextThreeHour <= 10){
+        if (nextThreeHour <= 10) {
             beginSlot = 2;
-        } else if (nextThreeHour <= 13){
+        } else if (nextThreeHour <= 13) {
             beginSlot = 3;
-        } else if (nextThreeHour <= 15){
+        } else if (nextThreeHour <= 15) {
             beginSlot = 4;
         } else {
             currentDate = currentDate.plusDays(1);

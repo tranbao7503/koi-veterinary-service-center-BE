@@ -95,13 +95,13 @@ public class AppointmentController {
             MedicalReport medicalReport = appointmentService.getMedicalReportByAppointmentId(appointmentId);
 
             if (user.getRole().getRoleKey().equals("CUS")) { // Validate customer
-                if(!appointment.getCustomer().getUserId().equals(user.getUserId())) {
+                if (!appointment.getCustomer().getUserId().equals(user.getUserId())) {
                     return new ResponseEntity<>(HttpStatus.FORBIDDEN);
                 }
             }
 
             if (user.getRole().getRoleKey().equals("VET")) { // validate veterinarian
-                if(!medicalReport.getVeterinarian().getUserId().equals(user.getUserId())) {
+                if (!medicalReport.getVeterinarian().getUserId().equals(user.getUserId())) {
                     return new ResponseEntity<>(HttpStatus.FORBIDDEN);
                 }
             }

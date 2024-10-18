@@ -1,9 +1,7 @@
 package org.ftf.koifishveterinaryservicecenter.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.*;
 import lombok.Data;
-import org.ftf.koifishveterinaryservicecenter.entity.Appointment;
 import org.ftf.koifishveterinaryservicecenter.enums.AppointmentStatus;
 
 import java.time.LocalDateTime;

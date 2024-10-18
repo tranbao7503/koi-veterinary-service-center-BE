@@ -3,13 +3,8 @@ package org.ftf.koifishveterinaryservicecenter.service.appointmentservice;
 import org.ftf.koifishveterinaryservicecenter.entity.*;
 import org.ftf.koifishveterinaryservicecenter.enums.AppointmentStatus;
 import org.ftf.koifishveterinaryservicecenter.exception.*;
-
-import org.ftf.koifishveterinaryservicecenter.exception.AppointmentServiceNotFoundException;
-import org.ftf.koifishveterinaryservicecenter.exception.MedicalReportNotFoundException;
-import org.ftf.koifishveterinaryservicecenter.exception.StatusNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.repository.AppointmentRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.MedicalReportRepository;
-
 import org.ftf.koifishveterinaryservicecenter.service.addressservice.AddressService;
 import org.ftf.koifishveterinaryservicecenter.service.feedbackservice.FeedbackService;
 import org.ftf.koifishveterinaryservicecenter.service.fishservice.FishService;

@@ -185,6 +185,7 @@ public class FishServiceImp implements FishService {
         // Sử dụng mapper để chuyển đổi entity sang DTO
         return imageMapper.convertEntityToDto(updatedImage);
     }
+
     @Override
     public FishDTO removeFish(int fishId, boolean enabled) {
         // Lấy thông tin con cá từ database

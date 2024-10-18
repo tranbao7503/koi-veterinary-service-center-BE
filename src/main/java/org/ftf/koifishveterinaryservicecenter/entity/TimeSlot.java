@@ -61,10 +61,10 @@ public class TimeSlot {
         int hour = 0;
         int minute = 0;
 
-        if(this.slotOrder == 1) hour = 8;
-        if(this.slotOrder == 2) hour = 10;
-        if(this.slotOrder == 3) hour = 13;
-        if(this.slotOrder == 4) hour = 15;
+        if (this.slotOrder == 1) hour = 8;
+        if (this.slotOrder == 2) hour = 10;
+        if (this.slotOrder == 3) hour = 13;
+        if (this.slotOrder == 4) hour = 15;
 
         LocalDateTime localDateTime = LocalDateTime.of(year, month, day, hour, minute);
 

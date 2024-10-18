@@ -43,8 +43,8 @@ public class PrescriptionMedicineController {
     }
 
     /*
-    * Actors: Manager, Customer, Veterinarian, Staff
-    * */
+     * Actors: Manager, Customer, Veterinarian, Staff
+     * */
     @GetMapping("/{prescriptionId}")
     public ResponseEntity<?> getMedicineById(@PathVariable Integer prescriptionId) {
         try {

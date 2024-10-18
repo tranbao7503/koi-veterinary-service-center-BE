@@ -11,7 +11,7 @@ import java.util.List;
 public interface AppointmentService {
 
 
-    void createMedicalReport(MedicalReport medicalReport,Integer appointmentId, Integer prescriptionId, Integer veterinarianId);
+    void createMedicalReport(MedicalReport medicalReport, Integer appointmentId, Integer prescriptionId, Integer veterinarianId);
 
     List<Status> findStatusByAppointmentId(Integer appointmentId);
 
