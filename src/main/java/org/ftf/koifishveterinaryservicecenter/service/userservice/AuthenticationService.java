@@ -18,6 +18,10 @@ public interface AuthenticationService {
 
     IntrospectResponse introspect(IntrospectRequestDTO request) throws ParseException, JOSEException;
 
+    String getAuthenticationRole();
+
+
+
     AuthenticationResponse authenticate(AuthenticationRequestDTO request);
 
     IntrospectResponse getUserInfoFromToken(IntrospectRequestDTO request) throws ParseException;

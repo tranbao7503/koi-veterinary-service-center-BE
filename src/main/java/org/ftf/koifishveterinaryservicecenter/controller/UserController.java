@@ -8,13 +8,16 @@ import org.ftf.koifishveterinaryservicecenter.dto.response.AuthenticationRespons
 import org.ftf.koifishveterinaryservicecenter.dto.response.IntrospectResponse;
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
+import org.ftf.koifishveterinaryservicecenter.entity.veterinarian_slots.VeterinarianSlots;
 import org.ftf.koifishveterinaryservicecenter.exception.AddressNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.AuthenticationException;
+import org.ftf.koifishveterinaryservicecenter.exception.TimeSlotNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.AddressMapper;
 import org.ftf.koifishveterinaryservicecenter.mapper.UserMapper;
 import org.ftf.koifishveterinaryservicecenter.service.appointmentservice.AppointmentService;
 import org.ftf.koifishveterinaryservicecenter.service.feedbackservice.FeedbackService;
+import org.ftf.koifishveterinaryservicecenter.service.slotservice.SlotService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationServiceImpl;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
 import org.springframework.http.HttpStatus;
@@ -38,13 +41,15 @@ public class UserController {
     private final AuthenticationServiceImpl authenticationService;
     private final FeedbackService feedbackService;
     private final AppointmentService appointmentService;
+    private final SlotService slotService;
 
-    public UserController(UserService userService, UserMapper userMapper, AuthenticationServiceImpl authenticationService, FeedbackService feedbackService, AppointmentService appointmentService) {
+    public UserController(UserService userService, UserMapper userMapper, AuthenticationServiceImpl authenticationService, FeedbackService feedbackService, AppointmentService appointmentService, SlotService slotService) {
         this.userService = userService;
         this.userMapper = userMapper;
         this.authenticationService = authenticationService;
         this.feedbackService = feedbackService;
         this.appointmentService = appointmentService;
+        this.slotService = slotService;
     }
 
 
@@ -56,6 +61,7 @@ public class UserController {
         UserDTO userDto = UserMapper.INSTANCE.convertEntityToDto(user);
         return ResponseEntity.ok(userDto);
     }
+
 // Already have API in AddressController
 //    @PutMapping("/address")
 //    public ResponseEntity<?> updateAddressForCustomer(@RequestParam Integer userId, @RequestBody AddressDTO addressFromRequest) {
@@ -178,6 +184,25 @@ public class UserController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+
+    // get all available VET based on slotId
+    // for Staff
+    @GetMapping("/veterinarian/{slotId}")
+    public ResponseEntity<?> getAllAvailableVeterinariansBasedOnSlotId(@PathVariable Integer slotId) {
+        try {
+            List<VeterinarianSlots> veterinarianSlots = slotService.getVeterinarianSlotsBySlotId(slotId);
+
+            // from vetId -> list veterinarian
+            List<User> veterinarians = veterinarianSlots.stream().map(vetSlot -> userService.getVeterinarianById(vetSlot.getVeterinarian().getUserId())).toList();
+
+            List<UserDTO> vetDtos = veterinarians.stream().map(UserMapper.INSTANCE::convertToVeterinarianDto).toList();
+            return new ResponseEntity<>(vetDtos, HttpStatus.OK);
+        } catch (TimeSlotNotFoundException exception) {
+            return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
+
 
     @PutMapping("/address")
     public ResponseEntity<?> updateAddress(@RequestParam Integer addressId) {

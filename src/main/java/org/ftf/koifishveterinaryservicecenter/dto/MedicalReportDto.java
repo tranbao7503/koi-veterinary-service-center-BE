@@ -24,4 +24,6 @@ public class MedicalReportDto {
 
     @JsonProperty("prescription_id")
     private Integer prescriptionId;
+
+
 }

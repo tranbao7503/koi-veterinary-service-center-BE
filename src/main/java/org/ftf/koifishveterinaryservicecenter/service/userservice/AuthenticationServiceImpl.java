@@ -74,6 +74,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return IntrospectResponse.builder().valid(isValid).build();
     }
 
+    @Override
+    public String getAuthenticationRole() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Jwt jwt = (Jwt) auth.getPrincipal();
+        Map<String, Object> claims = jwt.getClaims();
+        return (String) claims.get("role");
+    }
+
 
     @Override
     public AuthenticationResponse authenticate(AuthenticationRequestDTO request) {
