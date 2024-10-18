@@ -28,7 +28,6 @@ public class FishController {
     private final AuthenticationService authenticationService;
 
 
-
     @Autowired
     public FishController(FishService fishService, FishMapper fishMapper, AuthenticationService authenticationService) {
         this.fishService = fishService;

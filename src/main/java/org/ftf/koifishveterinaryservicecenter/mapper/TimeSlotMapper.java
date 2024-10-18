@@ -38,10 +38,11 @@ public interface TimeSlotMapper {
             @Mapping(source = "day", target = "day"),
             @Mapping(source = "month", target = "month"),
             @Mapping(source = "year", target = "year"),
-            @Mapping(target = "slotId", ignore = true),
-            @Mapping(target = "description", ignore = true)
+            @Mapping(source = "slotId", target = "slotId"),
+            @Mapping(source = "description", target = "description")
     })
-    TimeSlot convertToTimeSlot(TimeSlotDto timeSlotDto);
+    TimeSlotDto convertToTimeSlotDtoAvailable(TimeSlot timeSlotDto);
+
 
     @Mapping(target = "appointment", ignore = true)
     TimeSlotDto convertToAvailableTimeSlotDto(TimeSlot timeSlot);

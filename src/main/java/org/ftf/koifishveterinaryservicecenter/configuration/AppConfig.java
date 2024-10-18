@@ -15,6 +15,8 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -23,7 +25,7 @@ import javax.crypto.spec.SecretKeySpec;
 public class AppConfig {
 
     private final String[] PUBLIC_ENDPOINTS = {
-            "/api/v1/users/token", "/api/v1/users/introspect", "api/v1/users/customers", "api/v1/users/signup", "api/v1/users/**"
+            "/api/v1/users/token", "/api/v1/users/introspect", "api/v1/users/customers", "api/v1/users/signup",
 
     };
 
@@ -31,8 +33,8 @@ public class AppConfig {
     private String SIGNER_KEY;
     @Bean
     /*
-    * ModelMapper use for mapping Entity to DTO
-    * */
+     * ModelMapper use for mapping Entity to DTO
+     * */
     public ModelMapper modelMapper(){
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setAmbiguityIgnored(true);
@@ -59,6 +61,9 @@ public class AppConfig {
         httpSecurity
                 .csrf(csrfConfig -> csrfConfig
                         .ignoringRequestMatchers("/api/v1/users/token", "/api/v1/users/introspect", "/api/v1/users/customers", "/api/v1/users/signup", "/api/v1/fishes"))
+
+
+                .csrf(csrfConfig -> csrfConfig.ignoringRequestMatchers("/api/v1/users/token", "/api/v1/users/introspect", "api/v1/users/customers", "api/v1/users/signup", "api/v1/users/signup"))
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(Customizer.withDefaults())
                 .authorizeHttpRequests(request -> request
@@ -68,6 +73,10 @@ public class AppConfig {
                         // Chỉ cho phép role CUS truy cập PUT /api/v1/fishes/deletefish
 
                         // Các yêu cầu còn lại phải được xác thực
+                        .requestMatchers("/api/v1/users/signup").hasAnyAuthority("MAN")
+                        .requestMatchers("/api/v1/users/staff").hasAnyAuthority("MAN")
+                        .requestMatchers("/api/v1/users/staffs").hasAnyAuthority("MAN")
+                        .requestMatchers("/api/v1/users/customers").hasAnyAuthority("MAN")
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwtConfigurer -> jwtConfigurer
@@ -83,5 +92,17 @@ public class AppConfig {
         byte[] secretKeyBytes = SIGNER_KEY.getBytes();
         SecretKey secretKey = new SecretKeySpec(secretKeyBytes, "HmacSHA512");
         return NimbusJwtDecoder.withSecretKey(secretKey).macAlgorithm(MacAlgorithm.HS512).build();
+    }
+
+    @Bean
+    public UrlBasedCorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.addAllowedOrigin("http://localhost:3000"); // Allow requests from React app
+        configuration.addAllowedMethod("*"); // Allow all HTTP methods (GET, POST, PUT, DELETE, etc.)
+        configuration.addAllowedHeader("*"); // Allow all headers
+        configuration.setAllowCredentials(true); // Allow credentials (e.g., cookies, authorization headers)
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration); // Apply this CORS configuration to all endpoints
+        return source;
     }
 }

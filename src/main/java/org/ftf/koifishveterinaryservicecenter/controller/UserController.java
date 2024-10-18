@@ -7,13 +7,16 @@ import org.ftf.koifishveterinaryservicecenter.dto.response.AuthenticationRespons
 import org.ftf.koifishveterinaryservicecenter.dto.response.IntrospectResponse;
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
+import org.ftf.koifishveterinaryservicecenter.entity.veterinarian_slots.VeterinarianSlots;
 import org.ftf.koifishveterinaryservicecenter.exception.AddressNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.AuthenticationException;
+import org.ftf.koifishveterinaryservicecenter.exception.TimeSlotNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.AddressMapper;
 import org.ftf.koifishveterinaryservicecenter.mapper.UserMapper;
 import org.ftf.koifishveterinaryservicecenter.service.appointmentservice.AppointmentService;
 import org.ftf.koifishveterinaryservicecenter.service.feedbackservice.FeedbackService;
+import org.ftf.koifishveterinaryservicecenter.service.slotservice.SlotService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,14 +41,16 @@ public class UserController {
     private final AuthenticationService authenticationService;
     private final FeedbackService feedbackService;
     private final AppointmentService appointmentService;
+    private final SlotService slotService;
 
     @Autowired
-    public UserController(UserService userService, UserMapper userMapper, AuthenticationService authenticationService, FeedbackService feedbackService, AppointmentService appointmentService) {
+    public UserController(UserService userService, UserMapper userMapper, AuthenticationService authenticationService, FeedbackService feedbackService, AppointmentService appointmentService, SlotService slotService) {
         this.userService = userService;
         this.userMapper = userMapper;
         this.authenticationService = authenticationService;
         this.feedbackService = feedbackService;
         this.appointmentService = appointmentService;
+        this.slotService = slotService;
     }
 
     @GetMapping("/profile")
@@ -56,6 +61,7 @@ public class UserController {
         UserDTO userDto = UserMapper.INSTANCE.convertEntityToDto(user);
         return ResponseEntity.ok(userDto);
     }
+
 // Already have API in AddressController
 //    @PutMapping("/address")
 //    public ResponseEntity<?> updateAddressForCustomer(@RequestParam Integer userId, @RequestBody AddressDTO addressFromRequest) {
@@ -117,8 +123,8 @@ public class UserController {
         return ApiResponse.<AuthenticationResponse>builder().result(result).build();
     }
 
-    @PostMapping("/introspect")
 
+    @PostMapping("/introspect")
     ApiResponse<IntrospectResponse> authenticate(@RequestBody IntrospectRequestDTO request)
             throws ParseException {
         var result = authenticationService.introspect(request);
@@ -179,6 +185,25 @@ public class UserController {
         }
     }
 
+
+    // get all available VET based on slotId
+    // for Staff
+    @GetMapping("/veterinarian/{slotId}")
+    public ResponseEntity<?> getAllAvailableVeterinariansBasedOnSlotId(@PathVariable Integer slotId) {
+        try {
+            List<VeterinarianSlots> veterinarianSlots = slotService.getVeterinarianSlotsBySlotId(slotId);
+
+            // from vetId -> list veterinarian
+            List<User> veterinarians = veterinarianSlots.stream().map(vetSlot -> userService.getVeterinarianById(vetSlot.getVeterinarian().getUserId())).toList();
+
+            List<UserDTO> vetDtos = veterinarians.stream().map(UserMapper.INSTANCE::convertToVeterinarianDto).toList();
+            return new ResponseEntity<>(vetDtos, HttpStatus.OK);
+        } catch (TimeSlotNotFoundException exception){
+            return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
+
+
     @PutMapping("/address")
     public ResponseEntity<?> updateAddress(@RequestParam Integer addressId) {
         try {
@@ -197,6 +222,32 @@ public class UserController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // view list staffs
+    @GetMapping("/staffs")
+    public ResponseEntity<?> getAllStaffsAndVeterinarians() {
+        List<User> staffs = userService.getAllStaffs();
+
+        if (staffs.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } else {
+            List<UserDTO> userDTOS = staffs.stream()
+                    .map(UserMapper.INSTANCE::convertEntityToDto)
+                    .collect(Collectors.toList());
+            return new ResponseEntity<>(userDTOS, HttpStatus.OK);
+        }
+    }
+
+
+    @PostMapping("/staff")
+    public ResponseEntity<String> createStaff(@RequestBody UserDTO userDTO) {
+        UserDTO createdUser = userService.createStaff(userDTO.getUsername(), userDTO.getPassword(), userDTO.getFirstName(), userDTO.getLastName());
+        if (createdUser == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Thêm mới nhân viên thất bại.");
+        } else {
+            return ResponseEntity.status(HttpStatus.OK).body("Thêm mới nhân viên thành công.");
         }
     }
 }
