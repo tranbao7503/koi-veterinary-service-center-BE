@@ -13,7 +13,6 @@ import org.ftf.koifishveterinaryservicecenter.repository.AddressRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.RoleRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.UserRepository;
 import org.ftf.koifishveterinaryservicecenter.service.fileservice.FileUploadService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,20 +31,18 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final FileUploadService fileUploadService;
     private final UserMapper userMapper;
+    private final AuthenticationService authenticationService;
 
-    @Autowired
-    public UserServiceImpl(UserRepository userRepository
-            , AddressRepository addressRepository
-            , RoleRepository roleRepository
-            , PasswordEncoder passwordEncoder
-            , FileUploadService fileUploadService, UserMapper userMapper) {
+    public UserServiceImpl(UserRepository userRepository, AddressRepository addressRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, FileUploadService fileUploadService, UserMapper userMapper, AuthenticationService authenticationService) {
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.fileUploadService = fileUploadService;
         this.userMapper = userMapper;
+        this.authenticationService = authenticationService;
     }
+
 
     @Override
     public User getUserProfile(Integer userId) {
@@ -318,6 +315,7 @@ public class UserServiceImpl implements UserService {
         // Trả về danh sách users từ role "STA"
         return new ArrayList<>(staffRole.getUsers());
     }
+
     @Override
     public UserDTO updateUserInfo(int userId, boolean enabled) {
         // Lấy thông tin người dùng từ database
@@ -344,6 +342,40 @@ public class UserServiceImpl implements UserService {
 
 
 
+    @Override
+    public UserDTO updatePassword(String newPassword) {
+        // Lấy userId từ token
+        int userId = authenticationService.getAuthenticatedUserId();
+
+        User userFromDb = userRepository.findUsersByUserId(userId);
+
+        if (userFromDb == null) {
+            throw new UserNotFoundException("Không tìm thấy người dùng với Id: " + userId);
+        }
+
+        // Kiểm tra mật khẩu mới không được null hoặc trống
+        if (newPassword == null || newPassword.isBlank()) {
+            throw new AuthenticationException("Mật khẩu không được để trống");
+        }
+
+        // Kiểm tra độ dài mật khẩu mới
+        if (newPassword.length() < 8) {
+            throw new AuthenticationException("Mật khẩu không được ngắn hơn 8 ký tự");
+        }
+
+        // Kiểm tra mật khẩu có chứa ít nhất một ký tự đặc biệt
+        String passwordPattern = "^(?=.*[@#$%^&+=!{}]).{8,}$";
+        if (!newPassword.matches(passwordPattern)) {
+            throw new AuthenticationException("Mật khẩu phải chứa ít nhất một ký tự đặc biệt và có độ dài tối thiểu là 8 ký tự");
+        }
+
+        // Mã hóa mật khẩu mới và cập nhật
+        userFromDb.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(userFromDb);
+
+        // Chuyển đổi User sang UserDTO
+        return UserMapper.INSTANCE.convertEntityToDto(userFromDb); // Giả sử bạn có một mapper cho User
+    }
 }
 
 

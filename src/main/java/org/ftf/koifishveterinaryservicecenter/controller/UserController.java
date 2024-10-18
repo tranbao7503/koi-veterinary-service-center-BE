@@ -280,4 +280,21 @@ public class UserController {
         }
     }
 
+
+    //update password
+    @PutMapping("/password")
+    public ResponseEntity<String> updatePassword(@RequestBody UserDTO userDTO) {
+        try {
+            userService.updatePassword(userDTO.getPassword()); // Chỉ cần gọi dịch vụ mà không cần lưu trữ kết quả
+            return ResponseEntity.ok("Password updated successfully."); // Trả về thông báo thành công
+        } catch (UserNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND); // Trả về thông báo lỗi nếu không tìm thấy người dùng
+        } catch (AuthenticationException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST); // Trả về thông báo lỗi cho các vấn đề xác thực
+        } catch (Exception e) {
+            e.printStackTrace(); // Ghi log chi tiết thông tin ngoại lệ
+            return new ResponseEntity<>("An error occurred while updating the password.", HttpStatus.INTERNAL_SERVER_ERROR); // Thông báo lỗi chung
+        }
+
+    }
 }

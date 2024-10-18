@@ -46,4 +46,6 @@ public interface UserService {
 
     List<User> getAllStaffs();
 
+    UserDTO updatePassword(String newPassword);
+
 }
