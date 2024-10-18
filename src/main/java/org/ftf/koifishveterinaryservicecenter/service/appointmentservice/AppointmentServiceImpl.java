@@ -327,7 +327,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public MedicalReport getMedicalReportByAppointmentId(Integer appointmentId) throws AppointmentNotFoundException {
         Appointment appointment = getAppointmentById(appointmentId);
-        MedicalReport medicalReport = medicalReportRepository.findByReportId(appointment.getMedicalReport().getReportId());
+        MedicalReport medicalReport = appointment.getMedicalReport();
         if (medicalReport == null) {
             throw new MedicalReportNotFoundException("Not found Medical Report with appointment id: " + appointmentId);
         }
