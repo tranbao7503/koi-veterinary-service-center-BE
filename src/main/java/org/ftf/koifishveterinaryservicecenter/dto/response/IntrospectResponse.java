@@ -11,4 +11,6 @@ import lombok.experimental.FieldDefaults;
 public class IntrospectResponse {
     Integer userId;
     String roleId;
+    private Integer timeout;
+    boolean valid;
 }

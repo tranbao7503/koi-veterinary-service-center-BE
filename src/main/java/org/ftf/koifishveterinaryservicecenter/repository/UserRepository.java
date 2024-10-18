@@ -16,6 +16,10 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     @Query("SELECT u FROM User u WHERE u.userId = :veterinarianId AND u.role.roleKey = 'VET'")
     User findVeterinarianById(@Param("veterinarianId") Integer veterinarianId);
 
+    @Query("SELECT u FROM User u WHERE u.userId = :customerId AND u.role.roleKey = 'CUS'")
+    User findCustomerById(@Param("customerId") Integer customerId);
+
+
     boolean existsUserByPhoneNumber(String phoneNumber);
 
     List<User> findAllByRole(Role role);
@@ -27,5 +31,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     User findUserByUsername(String username);
 
-  }
+    User findUserByEmail(String email);
+
+}
 

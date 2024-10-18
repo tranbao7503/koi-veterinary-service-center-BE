@@ -4,6 +4,7 @@ import org.ftf.koifishveterinaryservicecenter.dto.UserDTO;
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
 import org.ftf.koifishveterinaryservicecenter.entity.Role;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
+import org.ftf.koifishveterinaryservicecenter.exception.AddressNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.AuthenticationException;
 import org.ftf.koifishveterinaryservicecenter.exception.RoleException;
 import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
@@ -31,7 +32,6 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final FileUploadService fileUploadService;
     private final UserMapper userMapper;
-
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository
@@ -69,12 +69,12 @@ public class UserServiceImpl implements UserService {
         }
 
         // set addressId for Address input
-        Integer addressId = userFromDb.getAddress().getAddressId();
+        Integer addressId = userFromDb.getCurrentAddress().getAddressId();
         convertedAddress.setAddressId(addressId);
 
         // update Address property for User instance
         Address updatedAddress = addressRepository.save(convertedAddress);
-        userFromDb.setAddress(updatedAddress);
+        userFromDb.setCurrentAddress(updatedAddress);
         return userFromDb;
     }
 
@@ -124,35 +124,55 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void signUp(String username, String password, String first_Name, String last_Name) {
+    public void signUp(String username, String password, String email, String first_Name, String last_Name) {
 
+        // Kiểm tra username
         if (username == null || username.isBlank()) {
             throw new AuthenticationException("Username can not be empty");
         }
         if (username.contains(" ")) {
             throw new AuthenticationException("Username can not contain white space");
         }
+        if (userRepository.findUserByUsername(username) != null) {
+            throw new AuthenticationException("Username is existed");
+        }
+
+
+        // Kiểm tra password
         if (password == null || password.isBlank()) {
             throw new AuthenticationException("Password can not be empty");
         }
         if (password.length() < 8) {
-            throw new AuthenticationException("Password can not < 8 characters");
+            throw new AuthenticationException("Password can not be less than 8 characters");
         }
         String passwordPattern = "^(?=.*[@#$%^&+=!{}]).{8,}$";
         if (!password.matches(passwordPattern)) {
             throw new AuthenticationException("Password must contain at least one special character and be at least 8 characters long");
         }
 
+        // Kiểm tra email
+        if (email == null || email.isBlank()) {
+            throw new AuthenticationException("Email can not be empty");
+        }
+        String emailPattern = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
+        if (!email.matches(emailPattern)) {
+            throw new AuthenticationException("Email is not valid");
+        }
+        if (userRepository.findUserByEmail(email) != null) {
+            throw new AuthenticationException("Email is already registered");
+        }
+
+        // Kiểm tra first_name
         if (first_Name == null || first_Name.isBlank()) {
             throw new AuthenticationException("first_Name can not be empty");
         }
+
+        // Kiểm tra last_name
         if (last_Name == null || last_Name.isBlank()) {
             throw new AuthenticationException("last_Name can not be empty");
         }
-        if (userRepository.findUserByUsername(username) != null) {
-            throw new AuthenticationException("Username is existed");
-        }
 
+        // Tạo user mới và lưu vào database
         User user = new User();
         user.setUsername(username);
         user.setPassword(passwordEncoder.encode(password));
@@ -160,6 +180,7 @@ public class UserServiceImpl implements UserService {
         user.setRole(role);
         user.setFirstName(first_Name);
         user.setLastName(last_Name);
+        user.setEmail(email); // Gán email cho user
         userRepository.save(user);
     }
 
@@ -174,6 +195,31 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User getCustomerById(Integer customerId) {
+        User customer = userRepository.findCustomerById(customerId);
+        if (customer == null) {
+            throw new UserNotFoundException("Customer not found with Id: " + customerId);
+        }
+        return customer;
+    }
+
+
+    public UserDTO createStaff(String userName, String passWord, String firstName, String lastName) {
+        User user = new User();
+
+        user.setUsername(userName);
+        user.setPassword(passWord);
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setRole(roleRepository.findByRoleKey("STA")); // Set role trực tiếp tại đây
+        // encrypt password
+        userRepository.save(user);
+
+        // Sử dụng MapStruct để chuyển đổi từ User sang UserDTO
+        return userMapper.convertEntityToDto(user); // Giả sử userMapper là một instance của MapStruct
+    }
+
+    @Override
     public User updateUserAvatar(Integer userId, MultipartFile image) throws IOException {
         User user = userRepository.findUsersByUserId(userId);
         if (user == null) {
@@ -185,6 +231,93 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
+    @Override
+    public List<Address> getAllAddresses(Integer customerId) {
+        List<Address> addresses = addressRepository.findByCustomerId(customerId);
+        if (addresses.isEmpty()) {
+            throw new AddressNotFoundException("Address not found with customer ID: " + customerId);
+        }
+        return addresses;
+    }
+
+    @Override
+    public Address getAddressById(Integer addressId) {
+        Address address = addressRepository.findById(addressId).orElse(null);
+        if (address == null) {
+            throw new AddressNotFoundException("Address not found with ID: " + addressId);
+        }
+        return address;
+    }
+
+    @Override
+    public Address updateAddressDetails(Integer addressId, Address newAddress) {
+        Address existedAddress = addressRepository.findById(addressId).orElse(null);
+        if (existedAddress == null) {
+            throw new AddressNotFoundException("Address not found with ID: " + addressId);
+        } else {
+            existedAddress.setCity(newAddress.getCity());
+            existedAddress.setWard(newAddress.getWard());
+            existedAddress.setDistrict(newAddress.getDistrict());
+            existedAddress.setHomeNumber(newAddress.getHomeNumber());
+
+            newAddress = addressRepository.save(existedAddress);
+
+            return newAddress;
+        }
+    }
+
+    @Override
+    public Address setCurrentAddress(Integer customerId, Integer addressId) throws UserNotFoundException {
+        User customer = this.getCustomerById(customerId);
+        Address address = addressRepository.findById(addressId).orElse(null);
+        if (address == null) {
+            throw new AddressNotFoundException("Address not found with ID: " + addressId);
+        } else {
+            customer.setCurrentAddress(address);
+            userRepository.save(customer);
+            return address;
+        }
+    }
+
+    @Override
+    public Address addAddress(Integer customerId, Address address) throws UserNotFoundException {
+        User customer = this.getCustomerById(customerId);
+
+        // Save address into database
+        address.setEnabled(true);
+        address.setCustomer(customer);
+        address = addressRepository.save(address);
+
+        // Set new address as main current address
+        this.setCurrentAddress(customerId, address.getAddressId());
+
+        return address;
+    }
+
+    @Override
+    public Address disableAddress(Integer addressId) {
+        Address address = addressRepository.findById(addressId).orElse(null);
+        if (address == null) {
+            throw new AddressNotFoundException("Address not found with ID: " + addressId);
+        }
+        address.setEnabled(false);
+        address = addressRepository.save(address);
+        return address;
+    }
+
+    @Override
+    public List<User> getAllStaffs() {
+        // Lấy danh sách staffs dựa vào Role
+        Role staffRole = roleRepository.findByRoleKey("STA");
+
+        // Kiểm tra nếu role không tồn tại
+        if (staffRole == null) {
+            return new ArrayList<>(); // Trả về danh sách rỗng nếu không tìm thấy role
+        }
+
+        // Trả về danh sách users từ role "STA"
+        return new ArrayList<>(staffRole.getUsers());
+    }
     @Override
     public UserDTO updateUserInfo(int userId, boolean enabled) {
         // Lấy thông tin người dùng từ database
@@ -212,6 +345,10 @@ public class UserServiceImpl implements UserService {
 
 
 }
+
+
+
+
 
 
 

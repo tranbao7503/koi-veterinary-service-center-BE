@@ -1,23 +1,27 @@
 package org.ftf.koifishveterinaryservicecenter.service.surchargeservice;
 
+import org.ftf.koifishveterinaryservicecenter.entity.Address;
 import org.ftf.koifishveterinaryservicecenter.entity.MovingSurcharge;
+import org.ftf.koifishveterinaryservicecenter.exception.AddressNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.MovingSurchargeNotFoundException;
+import org.ftf.koifishveterinaryservicecenter.repository.AddressRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.MovingSurchargeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class SurchargeServiceImpl implements SurchargeService {
 
     private final MovingSurchargeRepository movingSurchargeRepository;
-//    private final MovingSurchargeMapper movingSurchargeMapper;
+    private final AddressRepository addressRepository;
 
     @Autowired
-    public SurchargeServiceImpl(MovingSurchargeRepository movingSurchargeRepository/*, MovingSurchargeMapper movingSurchargeMapper*/) {
+    public SurchargeServiceImpl(MovingSurchargeRepository movingSurchargeRepository, AddressRepository addressRepository/*, MovingSurchargeMapper movingSurchargeMapper*/) {
         this.movingSurchargeRepository = movingSurchargeRepository;
-//        this.movingSurchargeMapper = movingSurchargeMapper;
+        this.addressRepository = addressRepository;
     }
 
     /*
@@ -63,5 +67,12 @@ public class SurchargeServiceImpl implements SurchargeService {
             movingSurchargeRepository.save(movingSurchargeFromRequest); // Update into database
             return movingSurchargeFromRequest;
         }
+    }
+
+    @Override
+    public MovingSurcharge getMovingSurchargeFromAddressId(Integer addressId) {
+        Optional<Address> address = addressRepository.findById(addressId);
+        if (address.isEmpty()) throw new AddressNotFoundException("Address not found with id: " + addressId);
+        return movingSurchargeRepository.getMovingSurchargeByAddressId(addressId);
     }
 }

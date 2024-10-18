@@ -19,7 +19,7 @@ public interface UserMapper {
             @Mapping(source = "email", target = "email"),
             @Mapping(source = "phoneNumber", target = "phoneNumber"),
             @Mapping(source = "avatar", target = "avatar"),
-            @Mapping(source = "address", target = "address")
+            @Mapping(source = "currentAddress", target = "address")
     })
     UserDTO convertEntityToDto(User user);
 
@@ -27,6 +27,7 @@ public interface UserMapper {
      * Convert User entity to DTO without Address field
      * */
     @Mapping(target = "address", ignore = true)
+    @Mapping(target = "password", ignore = true)
     UserDTO convertEntityToDtoIgnoreAddress(User user);
 
 
@@ -36,9 +37,22 @@ public interface UserMapper {
             @Mapping(source = "email", target = "email"),
             @Mapping(source = "phoneNumber", target = "phoneNumber"),
             @Mapping(source = "avatar", target = "avatar"),
-            @Mapping(source = "address", target = "address")
+            @Mapping(source = "address", target = "currentAddress")
     })
     User convertDtoToEntity(UserDTO userDto);
 
+
+    @Mappings({
+            @Mapping(source = "userId", target = "userId"),
+            @Mapping(source = "firstName", target = "firstName"),
+            @Mapping(source = "lastName", target = "lastName"),
+            @Mapping(target = "username", ignore = true),
+            @Mapping(target = "password", ignore = true),
+            @Mapping(target = "email", ignore = true),
+            @Mapping(target = "phoneNumber", ignore = true),
+            @Mapping(target = "avatar", ignore = true),
+            @Mapping(target = "address", ignore = true)
+    })
+    UserDTO convertToVeterinarianDto(User user);
 
 }

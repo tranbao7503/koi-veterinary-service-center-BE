@@ -23,12 +23,11 @@ public class UserDTO {
     @JsonProperty("last_name")
     public String lastName;
 
-    @JsonProperty("password")
-    public String password;
-
-
     @JsonProperty("username")
     public String username;
+
+    @JsonProperty("password")
+    public String password;
 
     @JsonProperty("email")
     public String email;
@@ -50,4 +49,13 @@ public class UserDTO {
     public boolean isEnabled() {
         return enable;
     }
+
+    public UserDTO(String firstName, String lastName, String username, String password) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.username = username;
+        this.password = password;
+    }
+
+
 }

@@ -15,7 +15,9 @@ public interface MedicalReportMapper {
     @Mappings({
             @Mapping(source = "reportId", target = "reportId"),
             @Mapping(source = "conclusion", target = "conclusion"),
-            @Mapping(source = "advise", target = "advise")
+            @Mapping(source = "advise", target = "advise"),
+            @Mapping(source = "prescriptionId", target = "prescription.prescriptionId", conditionExpression = "java(medicalReportDto.getPrescriptionId() != null)"),
+            @Mapping(target = "veterinarian", ignore = true)
     })
     MedicalReport convertToEntity(MedicalReportDto medicalReportDto);
 

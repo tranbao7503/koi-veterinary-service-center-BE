@@ -30,4 +30,12 @@ public class Address {
     @Column(name = "home_number", length = 50, nullable = false)
     private String homeNumber;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "customer_id", nullable = false, referencedColumnName = "user_id")
+    // or whatever your foreign key column is
+    private User customer;
+
+    @Column(name = "enabled", nullable = false)
+    private Boolean enabled;
+
 }

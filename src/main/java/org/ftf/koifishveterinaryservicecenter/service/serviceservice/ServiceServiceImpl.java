@@ -1,11 +1,8 @@
 package org.ftf.koifishveterinaryservicecenter.service.serviceservice;
 
 import org.ftf.koifishveterinaryservicecenter.entity.Service;
-import org.ftf.koifishveterinaryservicecenter.exception.AppointmentServiceNotFoundException;
-import org.ftf.koifishveterinaryservicecenter.mapper.ServiceMapper;
+import org.ftf.koifishveterinaryservicecenter.exception.AppointmentNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.repository.ServiceRepository;
-import org.ftf.koifishveterinaryservicecenter.repository.UserRepository;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -15,14 +12,11 @@ import java.util.List;
 public class ServiceServiceImpl implements ServiceService {
 
 
-    private final UserRepository userRepository;
     private final ServiceRepository serviceRepository;
 
-
     @Autowired
-    public ServiceServiceImpl(UserRepository userRepository, ServiceRepository serviceRepository, ServiceMapper serviceMapper, ModelMapper modelMapper, ServiceRepository serviceRepository1) {
-        this.userRepository = userRepository;
-        this.serviceRepository = serviceRepository1;
+    public ServiceServiceImpl(ServiceRepository serviceRepository) {
+        this.serviceRepository = serviceRepository;
     }
 
     /*
@@ -35,10 +29,10 @@ public class ServiceServiceImpl implements ServiceService {
 
 
     @Override
-    public Service getServiceById(Integer serviceId) throws AppointmentServiceNotFoundException {
+    public Service getServiceById(Integer serviceId) throws AppointmentNotFoundException {
         Service service = serviceRepository.findById(serviceId).orElse(null);
         if (service == null) {
-            throw new AppointmentServiceNotFoundException("Service not found with ID: " + serviceId);
+            throw new AppointmentNotFoundException("Service not found with ID: " + serviceId);
         }
         return service;
     }
@@ -48,22 +42,16 @@ public class ServiceServiceImpl implements ServiceService {
      * Update price of service
      * */
     @Override
-    public Service updateService(Integer serviceId, Service serviceFromRequest) throws AppointmentServiceNotFoundException {
+    public Service updateService(Integer serviceId, Service serviceFromRequest) throws AppointmentNotFoundException {
 
         // check service existed from db
         Service serviceFromDb = serviceRepository.findById(serviceId).orElse(null);
         if (serviceFromDb == null) {
-            throw new AppointmentServiceNotFoundException("Service not found with ID: " + serviceId);
+            throw new AppointmentNotFoundException("Service not found with ID: " + serviceId);
         }
         serviceFromDb = serviceRepository.save(serviceFromRequest);
         return serviceFromDb;
 
     }
 
-
-
-
-
 }
-
-
