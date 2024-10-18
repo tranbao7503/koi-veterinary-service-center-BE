@@ -23,7 +23,7 @@ import javax.crypto.spec.SecretKeySpec;
 public class AppConfig {
 
     private final String[] PUBLIC_ENDPOINTS = {
-            "/api/v1/users/token", "/api/v1/users/introspect", "api/v1/users/customers", "api/v1/users/signup", "api/v1/users/**"
+            "/api/v1/users/token", "/api/v1/users/introspect", "api/v1/users/customers", "api/v1/users/signup",
 
     };
 
@@ -31,8 +31,8 @@ public class AppConfig {
     private String SIGNER_KEY;
     @Bean
     /*
-    * ModelMapper use for mapping Entity to DTO
-    * */
+     * ModelMapper use for mapping Entity to DTO
+     * */
     public ModelMapper modelMapper(){
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setAmbiguityIgnored(true);
@@ -59,6 +59,9 @@ public class AppConfig {
         httpSecurity
                 .csrf(csrfConfig -> csrfConfig
                         .ignoringRequestMatchers("/api/v1/users/token", "/api/v1/users/introspect", "/api/v1/users/customers", "/api/v1/users/signup", "/api/v1/fishes"))
+
+
+                .csrf(csrfConfig -> csrfConfig.ignoringRequestMatchers("/api/v1/users/token", "/api/v1/users/introspect", "api/v1/users/customers", "api/v1/users/signup", "api/v1/users/signup"))
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(Customizer.withDefaults())
                 .authorizeHttpRequests(request -> request
@@ -68,6 +71,10 @@ public class AppConfig {
                         // Chỉ cho phép role CUS truy cập PUT /api/v1/fishes/deletefish
 
                         // Các yêu cầu còn lại phải được xác thực
+                        .requestMatchers("/api/v1/users/signup").hasAnyAuthority("MAN")
+                        .requestMatchers("/api/v1/users/staff").hasAnyAuthority("MAN")
+                        .requestMatchers("/api/v1/users/staffs").hasAnyAuthority("MAN")
+                        .requestMatchers("/api/v1/users/customers").hasAnyAuthority("MAN")
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwtConfigurer -> jwtConfigurer

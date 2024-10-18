@@ -31,7 +31,6 @@ public interface UserMapper {
     UserDTO convertEntityToDtoIgnoreAddress(User user);
 
 
-
     @Mappings({
             @Mapping(source = "firstName", target = "firstName"),
             @Mapping(source = "lastName", target = "lastName"),
@@ -55,6 +54,5 @@ public interface UserMapper {
             @Mapping(target = "address", ignore = true)
     })
     UserDTO convertToVeterinarianDto(User user);
-
 
 }

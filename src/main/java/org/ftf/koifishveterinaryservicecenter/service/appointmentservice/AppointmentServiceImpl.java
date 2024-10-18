@@ -20,6 +20,7 @@ import org.ftf.koifishveterinaryservicecenter.service.serviceservice.ServiceServ
 import org.ftf.koifishveterinaryservicecenter.service.slotservice.SlotService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
 import org.ftf.koifishveterinaryservicecenter.service.surchargeservice.SurchargeService;
+import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
@@ -83,17 +84,22 @@ public class AppointmentServiceImpl implements AppointmentService {
 
 
     @Override
-    public void createMedicalReport(MedicalReport medicalReport, Integer appointmentId, Integer prescriptionId, Integer veterinarianId) {
+    public void createMedicalReport(MedicalReport medicalReport, Integer appointmentId) {
 
-        // get prescription on db by id
-        Prescription prescription = medicalReportService.findPrescriptionById(prescriptionId);
+        Integer prescriptionId = medicalReport.getPrescription().getPrescriptionId();
+        if (prescriptionId != null) {
+            // get prescription on db by id
+            Prescription prescription = medicalReportService.findPrescriptionById(prescriptionId);
 
-        // set prop for medicalReport
-        medicalReport.setPrescription(prescription);
+            // set prop for medicalReport
+            medicalReport.setPrescription(prescription);
 
+        } else medicalReport.setPrescription(null);
+
+        Integer veterinarianId = authenticationService.getAuthenticatedUserId();
         User veterinarian = userService.getVeterinarianById(veterinarianId);
-        medicalReport.setVeterinarian(veterinarian);
 
+        medicalReport.setVeterinarian(veterinarian);
         MedicalReport savedMedicalReport = medicalReportRepository.save(medicalReport);
 
         Appointment appointment = getAppointmentById(appointmentId);

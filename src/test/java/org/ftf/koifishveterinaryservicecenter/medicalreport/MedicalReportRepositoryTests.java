@@ -2,9 +2,8 @@ package org.ftf.koifishveterinaryservicecenter.medicalreport;
 
 import org.assertj.core.api.Assertions;
 import org.ftf.koifishveterinaryservicecenter.entity.MedicalReport;
-import org.ftf.koifishveterinaryservicecenter.entity.Medicine;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
-import org.ftf.koifishveterinaryservicecenter.repository.MedicineRepository;
+import org.ftf.koifishveterinaryservicecenter.repository.MedicalReportRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,27 +11,19 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.annotation.Rollback;
 
-import java.util.List;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Rollback
-public class MedicineRepositoryTests {
+@Rollback(value = true)
+public class MedicalReportRepositoryTests {
 
-    @Autowired
-    private MedicineRepository medicineRepository;
 
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private MedicalReportRepository medicalReportRepository;
 
-
-    @Test
-    public void testGetAllMedicineSuccess() {
-        List<Medicine> medicines = medicineRepository.findAll();
-        Assertions.assertThat(medicines).isNotEmpty();
-        medicines.forEach(System.out::println);
-    }
 
     @Test
     public void testCreateMedicalReport() {
@@ -44,7 +35,9 @@ public class MedicineRepositoryTests {
         medicalReport.setAdvise("Install heaters for temperature control.");
         medicalReport.setConclusion("Pond temperature fluctuation noted.");
 
+        MedicalReport savedMedicalReport = medicalReportRepository.save(medicalReport);
 
+        Assertions.assertThat(savedMedicalReport.getVeterinarian()).isEqualTo(veterinarian);
+        Assertions.assertThat(savedMedicalReport.getPrescription()).isNull();
     }
-
 }

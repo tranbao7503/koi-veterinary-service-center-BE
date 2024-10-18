@@ -53,23 +53,10 @@ public class AppointmentController {
     // for Veterinarian
     @PostMapping("/{appointmentId}/report")
     public ResponseEntity<?> createMedicalReport(@PathVariable Integer appointmentId, @RequestBody MedicalReportDto reportDto) {
-        // Check veterinarianId == userId from Authentication (in SecurityContext)
-        int userIdFromContext = 3;
-
-        Integer veterinarianId = reportDto.getVeterinarianId();
-        Integer prescriptionId = reportDto.getPrescriptionId();
-
-        if (veterinarianId == null || prescriptionId == null) {
-            return ResponseEntity.badRequest().body("Veterinarian id or prescription id is required !!");
-        }
-
-        if (userIdFromContext != veterinarianId) {
-            return ResponseEntity.badRequest().body("Invalid veterinarian Id");
-        }
 
         try {
             MedicalReport convertedMedicalReport = MedicalReportMapper.INSTANCE.convertToEntity(reportDto);
-            appointmentService.createMedicalReport(convertedMedicalReport, appointmentId, prescriptionId, veterinarianId);
+            appointmentService.createMedicalReport(convertedMedicalReport, appointmentId);
             return ResponseEntity.ok().body("Added medical report successfully");
         } catch (PrescriptionNotFoundException | AppointmentNotFoundException exception) {
             return ResponseEntity.badRequest().body(exception.getMessage());
@@ -161,8 +148,7 @@ public class AppointmentController {
      * Actors: Veterinarian
      * */
     @GetMapping("/{appointmentId}/veterinarian")
-    public ResponseEntity<?> getAppointmentForVeterinarian(
-            @PathVariable("appointmentId") Integer appointmentId) {
+    public ResponseEntity<?> getAppointmentForVeterinarian(@PathVariable("appointmentId") Integer appointmentId) {
         try {
             User veterinarian = userService.getVeterinarianById(authenticationService.getAuthenticatedUserId());
             Appointment appointment = appointmentService.getAppointmentById(appointmentId);
@@ -185,8 +171,7 @@ public class AppointmentController {
      * */
 
     @GetMapping("/{appointmentId}/customer")
-    public ResponseEntity<?> getAppointmentForCustomer(
-            @PathVariable("appointmentId") Integer appointmentId) {
+    public ResponseEntity<?> getAppointmentForCustomer(@PathVariable("appointmentId") Integer appointmentId) {
         try {
             User customer = userService.getCustomerById(authenticationService.getAuthenticatedUserId());
             Appointment appointment = appointmentService.getAppointmentById(appointmentId);

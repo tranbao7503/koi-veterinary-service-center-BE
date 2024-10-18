@@ -31,8 +31,13 @@ public class ServiceServiceImpl implements ServiceService {
     @Override
     public Service getServiceById(Integer serviceId) throws AppointmentNotFoundException {
         Service service = serviceRepository.findById(serviceId).orElse(null);
+<<<<<<< HEAD
         if (service == null){
             throw new AppointmentNotFoundException("Service not found with ID: " + serviceId);
+=======
+        if (service == null) {
+            throw new AppointmentServiceNotFoundException("Service not found with ID: " + serviceId);
+>>>>>>> dev
         }
         return service;
     }

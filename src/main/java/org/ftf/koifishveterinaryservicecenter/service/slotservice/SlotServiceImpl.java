@@ -65,6 +65,7 @@ public class SlotServiceImpl implements SlotService {
 
         List<TimeSlot> availableTimeSlot = timeSlotRepository.getAvailableTimeSlot();
         return availableTimeSlot.stream().filter(timeSlot -> timeSlot.getDateTimeBasedOnSlot().isAfter(threeHoursFromNow) && timeSlot.getDateTimeBasedOnSlot().isBefore(threeMonthsFromNow)).toList();
+
     }
 
     @Override
@@ -85,11 +86,11 @@ public class SlotServiceImpl implements SlotService {
         Integer nextThreeHour = threeHoursFromNow.getHour();
 
         Integer beginSlot = 1;
-        if (nextThreeHour <= 10){
+        if (nextThreeHour <= 10) {
             beginSlot = 2;
-        } else if (nextThreeHour <= 13){
+        } else if (nextThreeHour <= 13) {
             beginSlot = 3;
-        } else if (nextThreeHour <= 15){
+        } else if (nextThreeHour <= 15) {
             beginSlot = 4;
         } else {
             currentDate = currentDate.plusDays(1);

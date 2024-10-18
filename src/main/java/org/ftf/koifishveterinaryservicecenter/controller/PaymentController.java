@@ -1,6 +1,5 @@
 package org.ftf.koifishveterinaryservicecenter.controller;
 
-import org.ftf.koifishveterinaryservicecenter.dto.ApiResponse;
 import org.ftf.koifishveterinaryservicecenter.dto.PaymentDto;
 import org.ftf.koifishveterinaryservicecenter.entity.Appointment;
 import org.ftf.koifishveterinaryservicecenter.entity.Payment;
@@ -43,7 +42,7 @@ public class PaymentController {
             Appointment appointment = appointmentService.getAppointmentById(appointmentId);
 
             if (authenticationService.getAuthenticatedUserRoleKey().equals("CUS")) { // Validate Customer
-                if(!appointment.getCustomer().getUserId().equals(authenticationService.getAuthenticatedUserId())) {
+                if (!appointment.getCustomer().getUserId().equals(authenticationService.getAuthenticatedUserId())) {
                     return new ResponseEntity<>(HttpStatus.FORBIDDEN);
                 }
             }
