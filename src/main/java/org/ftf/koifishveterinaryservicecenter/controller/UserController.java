@@ -265,4 +265,19 @@ public class UserController {
                 .build();
     }
 
+    @DeleteMapping("/deleteuser")
+    public ResponseEntity<String> updateUser(@RequestBody UserDTO userDTO) {
+        try {
+            // Gọi phương thức updateUser từ service với dữ liệu từ UserDTO
+            userService.updateUserInfo(userDTO.getUserId(), userDTO.isEnabled());
+
+            // Trả về thông báo thành công
+            return ResponseEntity.ok("User updated successfully.");
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("Error updating user.");
+        }
+    }
+
 }

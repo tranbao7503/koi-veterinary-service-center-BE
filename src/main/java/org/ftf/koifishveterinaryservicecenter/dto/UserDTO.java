@@ -35,12 +35,20 @@ public class UserDTO {
     @JsonProperty("phone_number")
     public String phoneNumber;
 
-    @JsonProperty("avatar")
-    public String avatar;
+
+    @JsonProperty("enable")
+    public boolean enable;
 
     @JsonProperty("address")
     public AddressDTO address;
 
+    @JsonProperty("avatar")
+    public String avatar;
+
+
+    public boolean isEnabled() {
+        return enable;
+    }
 
     public UserDTO(String firstName, String lastName, String username, String password) {
         this.firstName = firstName;

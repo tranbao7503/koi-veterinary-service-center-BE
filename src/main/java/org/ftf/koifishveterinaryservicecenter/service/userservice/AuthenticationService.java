@@ -21,7 +21,6 @@ public interface AuthenticationService {
     String getAuthenticationRole();
 
 
-
     AuthenticationResponse authenticate(AuthenticationRequestDTO request);
 
     IntrospectResponse getUserInfoFromToken(IntrospectRequestDTO request) throws ParseException;

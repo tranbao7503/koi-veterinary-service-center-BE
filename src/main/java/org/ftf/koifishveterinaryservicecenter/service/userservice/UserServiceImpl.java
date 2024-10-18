@@ -6,6 +6,7 @@ import org.ftf.koifishveterinaryservicecenter.entity.Role;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.ftf.koifishveterinaryservicecenter.exception.AddressNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.AuthenticationException;
+import org.ftf.koifishveterinaryservicecenter.exception.RoleException;
 import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.UserMapper;
 import org.ftf.koifishveterinaryservicecenter.repository.AddressRepository;
@@ -317,7 +318,39 @@ public class UserServiceImpl implements UserService {
         // Trả về danh sách users từ role "STA"
         return new ArrayList<>(staffRole.getUsers());
     }
+    @Override
+    public UserDTO updateUserInfo(int userId, boolean enabled) {
+        // Lấy thông tin người dùng từ database
+        User userFromDb = userRepository.findById(userId).orElse(null);
+
+
+        if (userFromDb == null) {
+            throw new UserNotFoundException("User not found with ID: " + userId);
+        }
+        Role role = userFromDb.getRole();
+        if (role.getRoleId() == 1 || role.getRoleId() == 2) {
+            throw new RoleException("This role don't need to change status");
+        }
+
+        // Cập nhật thông tin người dùng
+        userFromDb.setEnabled(enabled);
+
+        // Lưu người dùng đã cập nhật
+        User updatedUser = userRepository.save(userFromDb);
+
+        // Sử dụng mapper để chuyển đổi entity sang DTO
+        return userMapper.convertEntityToDto(updatedUser);
+    }
 
 
 
 }
+
+
+
+
+
+
+
+
+

@@ -27,6 +27,8 @@ public interface UserService {
 
     User updateUserAvatar(Integer userId, MultipartFile image) throws IOException;
 
+    UserDTO updateUserInfo(int userId, boolean enabled);
+
     List<Address> getAllAddresses(Integer customerId);
 
     Address getAddressById(Integer addressId);

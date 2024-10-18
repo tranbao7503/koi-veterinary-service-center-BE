@@ -43,7 +43,6 @@ public class AppointmentRepositoryTest {
     private PaymentRepository paymentRepository;
 
 
-
     @Disabled
     @Test
     public void testCreateMedicalReportSuccess() {
