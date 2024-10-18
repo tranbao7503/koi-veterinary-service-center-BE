@@ -46,8 +46,8 @@ public class ServiceController {
     }
 
     /*
-    * Find a service by ID
-    * */
+     * Find a service by ID
+     * */
     @GetMapping("/{serviceID}")
     public ResponseEntity<?> getServiceById(@PathVariable("serviceID") Integer serviceId) {
         try {

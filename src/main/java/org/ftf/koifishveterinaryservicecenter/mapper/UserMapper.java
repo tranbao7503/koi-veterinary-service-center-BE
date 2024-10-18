@@ -31,7 +31,6 @@ public interface UserMapper {
     UserDTO convertEntityToDtoIgnoreAddress(User user);
 
 
-
     @Mappings({
             @Mapping(source = "firstName", target = "firstName"),
             @Mapping(source = "lastName", target = "lastName"),
@@ -41,7 +40,6 @@ public interface UserMapper {
             @Mapping(source = "address", target = "currentAddress")
     })
     User convertDtoToEntity(UserDTO userDto);
-
 
 
 }

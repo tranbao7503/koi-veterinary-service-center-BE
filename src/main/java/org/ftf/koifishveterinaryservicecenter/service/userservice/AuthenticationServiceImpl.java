@@ -101,15 +101,22 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     private String generateToken(User user) {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
+
+        // Định nghĩa timeout (3 giờ)
+        int timeoutInSeconds = 3 * 60 * 60; // 3 giờ
+
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .subject("KoiFish")
                 .issuer("KoiFish.com")
                 .issueTime(Date.from(Instant.now()))
                 .claim("userId", user.getUserId())
                 .claim("scope", user.getRole().getRoleKey())
+                .claim("timeout", timeoutInSeconds) // Thêm trường timeout
                 .expirationTime(Date.from(Instant.now().plus(3, ChronoUnit.HOURS)))
                 .build();
+
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
+
         JWSObject jwsObject = new JWSObject(header, payload);
         try {
             jwsObject.sign(new MACSigner(SIGNER_KEY.getBytes()));

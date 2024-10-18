@@ -215,4 +215,14 @@ public class UserController {
     }
 
 
+    @PostMapping("/staff")
+    public ResponseEntity<String> createStaff(@RequestBody UserDTO userDTO) {
+        UserDTO createdUser = userService.createStaff(userDTO.getUsername(), userDTO.getPassword(), userDTO.getFirstName(), userDTO.getLastName());
+        if (createdUser == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Thêm mới nhân viên thất bại.");
+        } else {
+            return ResponseEntity.status(HttpStatus.OK).body("Thêm mới nhân viên thành công.");
+        }
+    }
+
 }
