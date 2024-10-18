@@ -10,11 +10,9 @@ import java.text.ParseException;
 
 public interface AuthenticationService {
     Integer getAuthenticatedUserId();
-<<<<<<< HEAD
-    String getAuthenticationRole();
-=======
 
->>>>>>> dev
+    String getAuthenticationRole();
+
     IntrospectResponse introspect(IntrospectRequestDTO request) throws ParseException;
 
     AuthenticationResponse authenticate(AuthenticationRequestDTO request);
