@@ -57,8 +57,8 @@ public class SurchargeController {
     }
 
     /*
-    * Update price of a moving surcharge
-    * */
+     * Update price of a moving surcharge
+     * */
     @PutMapping("/{surchargeID}")
     public ResponseEntity<?> updateMovingSurcharge(
             @PathVariable("surchargeID") Integer surchargeID,

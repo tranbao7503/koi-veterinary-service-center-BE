@@ -10,16 +10,13 @@ import org.ftf.koifishveterinaryservicecenter.entity.Address;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.ftf.koifishveterinaryservicecenter.exception.AddressNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.AuthenticationException;
-import org.ftf.koifishveterinaryservicecenter.exception.FeedbackNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.AddressMapper;
 import org.ftf.koifishveterinaryservicecenter.mapper.UserMapper;
 import org.ftf.koifishveterinaryservicecenter.service.appointmentservice.AppointmentService;
 import org.ftf.koifishveterinaryservicecenter.service.feedbackservice.FeedbackService;
-import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationServiceImpl;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -38,19 +35,18 @@ public class UserController {
 
     private final UserService userService;
     private final UserMapper userMapper;
+    private final AuthenticationServiceImpl authenticationService;
     private final FeedbackService feedbackService;
     private final AppointmentService appointmentService;
-    private final AuthenticationServiceImpl authenticationService;
 
-    @Autowired
-    public UserController(UserService userService, UserMapper userMapper, AuthenticationService authenticationService, FeedbackService feedbackService, AppointmentService appointmentService, AuthenticationServiceImpl authenticationService1) {
+    public UserController(UserService userService, UserMapper userMapper, AuthenticationServiceImpl authenticationService, FeedbackService feedbackService, AppointmentService appointmentService) {
         this.userService = userService;
         this.userMapper = userMapper;
-
+        this.authenticationService = authenticationService;
         this.feedbackService = feedbackService;
         this.appointmentService = appointmentService;
-        this.authenticationService = authenticationService1;
     }
+
 
     @GetMapping("/profile")
     public ResponseEntity<?> getProfile(@RequestParam Integer userId) {
@@ -60,33 +56,20 @@ public class UserController {
         UserDTO userDto = UserMapper.INSTANCE.convertEntityToDto(user);
         return ResponseEntity.ok(userDto);
     }
-
-    @GetMapping("/veterinarians")
-    public ResponseEntity<List<UserDTO>> getAllVeterianrians() {
-        List<User> users = userService.getAllVeterinarians();
-        if (users.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } else {
-            List<UserDTO> userDtos = users.stream()
-                    .map(UserMapper.INSTANCE::convertEntityToDtoIgnoreAddress)
-                    .collect(Collectors.toList());
-            return new ResponseEntity<>(userDtos, HttpStatus.OK);
-        }
-    }
-
-    @PutMapping("/address")
-    public ResponseEntity<?> updateAddressForCustomer(@RequestParam Integer userId, @RequestBody AddressDTO addressFromRequest) {
-
-        Address convertedAddress = AddressMapper.INSTANCE.convertDtoToEntity(addressFromRequest);
-
-        Integer userIdFromToken = 1; // the userId takes from Authentication object in SecurityContext
-
-        // check(userIdFromToken, userId)
-
-        User updatedCustomer = userService.updateAddress(userId, convertedAddress);
-        UserDTO userDto = UserMapper.INSTANCE.convertEntityToDto(updatedCustomer);
-        return ResponseEntity.ok(userDto);
-    }
+// Already have API in AddressController
+//    @PutMapping("/address")
+//    public ResponseEntity<?> updateAddressForCustomer(@RequestParam Integer userId, @RequestBody AddressDTO addressFromRequest) {
+//
+//        Address convertedAddress = AddressMapper.INSTANCE.convertDtoToEntity(addressFromRequest);
+//
+//        Integer userIdFromToken = 1; // the userId takes from Authentication object in SecurityContext
+//
+//        // check(userIdFromToken, userId)
+//
+//        User updatedCustomer = userService.updateAddress(userId, convertedAddress);
+//        UserDTO userDto = UserMapper.INSTANCE.convertEntityToDto(updatedCustomer);
+//        return ResponseEntity.ok(userDto);
+//    }
 
     @PutMapping("/profile")
     public ResponseEntity<?> updateUserProfile(@RequestParam Integer userId, @RequestBody UserDTO userFromRequest) {
@@ -120,7 +103,6 @@ public class UserController {
         log.info("Userid: {}", authentication.getName()); // Đúng cú pháp cho log.info
         authentication.getAuthorities().forEach(grantedAuthority -> log.info("role: {}", grantedAuthority.getAuthority()));
         List<User> customers = userService.getAllCustomers();
-
         if (customers.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } else {
@@ -135,10 +117,14 @@ public class UserController {
         return ApiResponse.<AuthenticationResponse>builder().result(result).build();
     }
 
+
     @PostMapping("/introspect")
     ApiResponse<IntrospectResponse> authenticate(@RequestBody IntrospectRequestDTO request)
             throws ParseException, JOSEException {
         var result = authenticationService.introspect(request);
+        if (result == null) {
+            return ApiResponse.<IntrospectResponse>builder().code(404).build();
+        }
         return ApiResponse.<IntrospectResponse>builder().result(result).build();
     }
 
@@ -172,8 +158,6 @@ public class UserController {
             return new ResponseEntity<>(userDto, HttpStatus.OK);
         } catch (UserNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (FeedbackNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -182,11 +166,23 @@ public class UserController {
     /*
      * Actors: Manager
      * */
-
-
-    @PutMapping("/{customerId}/address")
-    public ResponseEntity<?> updateAddress(@PathVariable Integer customerId, @RequestParam Integer addressId) {
+    @GetMapping("/veterinarians")
+    public ResponseEntity<?> getAllVeterinarians() {
         try {
+            List<User> veterinarians = userService.getAllVeterinarians();
+            List<UserDTO> userDTOs = veterinarians.stream().map(UserMapper.INSTANCE::convertEntityToDtoIgnoreAddress).collect(Collectors.toList());
+            return new ResponseEntity<>(userDTOs, HttpStatus.OK);
+        } catch (UserNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping("/address")
+    public ResponseEntity<?> updateAddress(@RequestParam Integer addressId) {
+        try {
+            Integer customerId = authenticationService.getAuthenticatedUserId();
             Address address = userService.getAddressById(addressId);
             if (address.getCustomer().getUserId().equals(customerId)) {
                 address = userService.setCurrentAddress(customerId, addressId);
@@ -204,6 +200,31 @@ public class UserController {
         }
     }
 
+    // view list staffs
+    @GetMapping("/staffs")
+    public ResponseEntity<?> getAllStaffsAndVeterinarians() {
+        List<User> staffs = userService.getAllStaffs();
+
+        if (staffs.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } else {
+            List<UserDTO> userDTOS = staffs.stream()
+                    .map(UserMapper.INSTANCE::convertEntityToDto)
+                    .collect(Collectors.toList());
+            return new ResponseEntity<>(userDTOS, HttpStatus.OK);
+        }
+    }
+
+
+    @PostMapping("/staff")
+    public ResponseEntity<String> createStaff(@RequestBody UserDTO userDTO) {
+        UserDTO createdUser = userService.createStaff(userDTO.getUsername(), userDTO.getPassword(), userDTO.getFirstName(), userDTO.getLastName());
+        if (createdUser == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Thêm mới nhân viên thất bại.");
+        } else {
+            return ResponseEntity.status(HttpStatus.OK).body("Thêm mới nhân viên thành công.");
+        }
+    }
 
     @PostMapping("/logout")
     ApiResponse<Void> logout(@RequestBody LogoutRequest request) throws ParseException, JOSEException {
@@ -218,4 +239,5 @@ public class UserController {
                 .result(result)
                 .build();
     }
+
 }

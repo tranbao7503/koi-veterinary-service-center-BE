@@ -102,6 +102,7 @@ public class User {
     @JoinColumn(name = "current_address_id", nullable = true)
     private Address currentAddress;
 
+
     @Override
     public String toString() {
         return "User{" +

@@ -19,7 +19,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class AppConfig {
 
     private final String[] PUBLIC_ENDPOINTS = {
-            "/api/v1/users/token", "/api/v1/users/introspect", "api/v1/users/customers", "api/v1/users/signup", "api/v1/users/**", "api/v1/users/logout", "api/v1/users/refresh"
+            "/api/v1/users/token", "/api/v1/users/introspect", "api/v1/users/customers", "api/v1/users/signup", "api/v1/users/**"
 
     };
 
@@ -60,12 +60,15 @@ public class AppConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(Customizer.withDefaults())
                 .authorizeHttpRequests(request -> request
-                        // Cho phép truy cập công khai đối với các endpoint được chỉ định
                         .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.PUT, "/api/v1/fish/update/**").permitAll()
                         // Chỉ cho phép role CUS truy cập PUT /api/v1/fishes/deletefish
 
                         // Các yêu cầu còn lại phải được xác thực
+                        .requestMatchers("/api/v1/users/signup").hasAnyAuthority("MAN")
+                        .requestMatchers("/api/v1/users/staff").hasAnyAuthority("MAN")
+                        .requestMatchers("/api/v1/users/staffs").hasAnyAuthority("MAN")
+                        .requestMatchers("/api/v1/users/customers").hasAnyAuthority("MAN")
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwtConfigurer -> jwtConfigurer

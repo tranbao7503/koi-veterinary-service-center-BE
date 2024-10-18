@@ -60,6 +60,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return longValue.intValue();
     }
 
+    @Override
     public IntrospectResponse introspect(IntrospectRequestDTO request) throws JOSEException, ParseException {
         var token = request.getToken();
         boolean isValid = true;
@@ -87,7 +88,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return AuthenticationResponse.builder().token(token).authenticated(true).build();
     }
 
-
+    @Override
     public IntrospectResponse getUserInfoFromToken(IntrospectRequestDTO request) throws AuthenticationException, ParseException {
         var token = request.getToken();
         if (!isSignatureValid(token)) {
@@ -101,8 +102,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .build();
     }
 
+    @Override
+    public String getAuthenticatedUserRoleKey() {
+        Integer userId = getAuthenticatedUserId();
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found"));
+        return user.getRole().getRoleKey();
+    }
 
-    private String generateToken(User user) {
+    @Override
+    public String generateToken(User user) {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .subject(user.getUsername())
@@ -125,7 +133,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
     }
 
-    private boolean isSignatureValid(String token) {
+    @Override
+    public boolean isSignatureValid(String token) {
         // Parse the JWS and verify its RSA signature
         SignedJWT signedJWT;
         try {
@@ -137,6 +146,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
     }
 
+    @Override
     public void logout(LogoutRequest request) throws ParseException, JOSEException {
         try {
             var signToken = verifyToken(request.getToken());
@@ -153,6 +163,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
     }
 
+    @Override
     public AuthenticationResponse refreshToken(RefreshRequest request) throws JOSEException, ParseException {
         //Kiem tra token con hieu luc hay k
         var signJWT = verifyToken(request.getToken());
@@ -180,7 +191,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     }
 
-    private SignedJWT verifyToken(String token) throws JOSEException, ParseException {
+    @Override
+    public SignedJWT verifyToken(String token) throws JOSEException, ParseException {
         JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
 
         SignedJWT signedJWT = SignedJWT.parse(token);

@@ -28,7 +28,7 @@ public interface AppointmentMapper {
     @Mapping(source = "email", target = "email")
     @Mapping(source = "fishId", target = "fish.fishId", conditionExpression = "java(appointmentDto.getFishId() != null)")
     @Mapping(source = "description", target = "description")
-    @Mapping(source = "payment", target = "payment")
+    @Mapping(source = "payment", target = "payment", qualifiedByName = "convertToEntity")
     Appointment convertedToAppointment(AppointmentDto appointmentDto);
 
 
@@ -54,6 +54,7 @@ public interface AppointmentMapper {
     @Mapping(target = "serviceName", source = "service.serviceName")
     @Mapping(target = "veterinarianName", source = "veterinarian.firstName")
     @Mapping(target = "paymentStatus", source = "payment.status")
+    @Mapping(target = "appointmentStatus", source = "currentStatus")
     @Mapping(target = "timeSlot.appointment", ignore = true)
     AppointmentForListDto convertedToAppointmentDtoForList(Appointment appointment);
 

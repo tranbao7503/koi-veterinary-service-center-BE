@@ -2,12 +2,11 @@ package org.ftf.koifishveterinaryservicecenter.service.appointmentservice;
 
 import org.ftf.koifishveterinaryservicecenter.entity.*;
 import org.ftf.koifishveterinaryservicecenter.enums.AppointmentStatus;
-import org.ftf.koifishveterinaryservicecenter.exception.AppointmentServiceNotFoundException;
-import org.ftf.koifishveterinaryservicecenter.exception.MedicalReportNotFoundException;
-import org.ftf.koifishveterinaryservicecenter.exception.StatusNotFoundException;
+import org.ftf.koifishveterinaryservicecenter.exception.*;
 import org.ftf.koifishveterinaryservicecenter.repository.AppointmentRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.MedicalReportRepository;
 import org.ftf.koifishveterinaryservicecenter.service.addressservice.AddressService;
+import org.ftf.koifishveterinaryservicecenter.service.feedbackservice.FeedbackService;
 import org.ftf.koifishveterinaryservicecenter.service.fishservice.FishService;
 import org.ftf.koifishveterinaryservicecenter.service.medicalreportservice.MedicalReportService;
 import org.ftf.koifishveterinaryservicecenter.service.paymentservice.PaymentService;
@@ -38,6 +37,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final AddressService addressService;
     private final SurchargeService surchargeService;
     private final FishService fishService;
+    private final FeedbackService feedbackService;
 
     @Autowired
     public AppointmentServiceImpl(AppointmentRepository appointmentRepository
@@ -49,7 +49,8 @@ public class AppointmentServiceImpl implements AppointmentService {
             , PaymentService paymentService
             , AddressService addressService
             , SurchargeService surchargeService
-            , FishService fishService) {
+            , FishService fishService
+            , FeedbackService feedbackService) {
         this.appointmentRepository = appointmentRepository;
         this.medicalReportService = medicalReportService;
         this.userService = userService;
@@ -60,6 +61,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         this.addressService = addressService;
         this.surchargeService = surchargeService;
         this.fishService = fishService;
+        this.feedbackService = feedbackService;
     }
 
 
@@ -201,6 +203,23 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointments.sort(Comparator.comparing(Appointment::getAppointmentId).reversed());
 
         return appointments;
+    }
+
+    @Override
+    public Feedback createFeedback(Integer appointmentId, Feedback feedback) throws AppointmentServiceNotFoundException, UserNotFoundException {
+        Appointment appointment = this.getAppointmentById(appointmentId);
+
+        if (appointment.getFeedback() != null) {
+            throw new FeedbackExistedException("Feedback already existed for appointment with id: " + appointmentId);
+        } else {
+            Feedback newFeedback = feedbackService.createFeedback(feedback, appointment);
+
+            appointment.setFeedback(newFeedback);
+
+            appointmentRepository.save(appointment);
+
+            return newFeedback;
+        }
     }
 
     @Override
