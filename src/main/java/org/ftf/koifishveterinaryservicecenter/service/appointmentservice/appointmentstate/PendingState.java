@@ -52,7 +52,7 @@ public class PendingState implements AppointmentState {
         status.setAppointment(appointment);
         status.setStatusName(appointment.getCurrentStatus());
         status.setTime(LocalDateTime.now());
-        status.setNote("Staff - " + String.join(" " + staff.getFirstName(), staff.getLastName()) + " update CONFIRMED successfully");
+        status.setNote("Staff - " + staff.getFirstName() + " " + staffon.getLastName() +" update CONFIRMED successfully");
         appointment.addStatus(status);
     }
 }

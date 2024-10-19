@@ -48,7 +48,7 @@ public class OngoingState implements AppointmentState {
         status.setAppointment(appointment);
         status.setStatusName(appointment.getCurrentStatus());
         status.setTime(LocalDateTime.now());
-        status.setNote("Veterinarian - " + String.join(" " + veterinarian.getFirstName(), veterinarian.getLastName()) + " marked DONE the appointment successfully");
+        status.setNote("Veterinarian - " + veterinarian.getFirstName() + " " + veterinarian.getLastName() + " marked DONE the appointment successfully");
         appointment.addStatus(status);
     }
 }
