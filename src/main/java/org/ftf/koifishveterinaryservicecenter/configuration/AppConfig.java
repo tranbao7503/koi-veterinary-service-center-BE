@@ -68,6 +68,8 @@ public class AppConfig {
                         .requestMatchers("/api/v1/users/staffs").hasAnyAuthority("MAN")
                         .requestMatchers("/api/v1/users/customers").hasAnyAuthority("MAN")
                         .requestMatchers("/api/v1/users/deleteuser").hasAnyAuthority("MAN")
+                        .requestMatchers("certificates/**").permitAll()
+                        .requestMatchers("images/**").permitAll()
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwtConfigurer -> jwtConfigurer

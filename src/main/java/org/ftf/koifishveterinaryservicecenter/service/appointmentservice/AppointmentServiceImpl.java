@@ -317,6 +317,11 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
+    public Appointment createFollowUpAppointment(Integer appointmentId, Integer slotId) {
+        return null;
+    }
+
+    @Override
     public Appointment getAppointmentById(Integer appointmentId) {
         Optional<Appointment> appointmentOptional = appointmentRepository.findById(appointmentId);
         if (appointmentOptional.isEmpty())
