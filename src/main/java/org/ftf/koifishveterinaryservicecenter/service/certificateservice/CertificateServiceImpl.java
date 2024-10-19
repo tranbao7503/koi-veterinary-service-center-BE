@@ -5,6 +5,7 @@ import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.ftf.koifishveterinaryservicecenter.exception.CertificateNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.repository.CertificateRepository;
+import org.ftf.koifishveterinaryservicecenter.service.fileservice.FileDownloadService;
 import org.ftf.koifishveterinaryservicecenter.service.fileservice.FileUploadService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,15 +22,18 @@ public class CertificateServiceImpl implements CertificateService {
     private final CertificateRepository certificateRepository;
     private final FileUploadService fileUploadService;
     private final UserService userService;
+    private final FileDownloadService fileDownloadService;
 
     @Autowired
     public CertificateServiceImpl(
             CertificateRepository certificateRepository
             , FileUploadService fileUploadService
-            , UserService userService) {
+            , UserService userService
+            , FileDownloadService fileDownloadService) {
         this.certificateRepository = certificateRepository;
         this.fileUploadService = fileUploadService;
         this.userService = userService;
+        this.fileDownloadService = fileDownloadService;
     }
 
     @Override
@@ -54,6 +58,10 @@ public class CertificateServiceImpl implements CertificateService {
         if (certificates.isEmpty()) {
             throw new CertificateNotFoundException("Certificate not found for Veterinarian with Id: " + veterinarianId);
         }
+
+        // Update full path for certificate
+        certificates.forEach(certificate -> certificate.setFilePath(fileDownloadService.getCertificateUrl(certificate.getFilePath())));
+
         return certificates;
     }
 
