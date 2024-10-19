@@ -32,10 +32,13 @@ public class PendingState implements AppointmentState {
         String roleKey = authenticationService.getAuthenticatedUserRoleKey();
 
         if (roleKey.equals("STA")) {
+            // set new status for the appointment
+            appointment.setCurrentStatus(AppointmentStatus.CONFIRMED);
+
+            // get staff Id from authenticated User in order to log
             Integer staffId = authenticationService.getAuthenticatedUserId();
             User staff = userService.getUserProfile(staffId);
 
-            appointment.setCurrentStatus(AppointmentStatus.CONFIRMED);
 
             // insert to Status table
             logToStatus(appointment, staff);
@@ -49,7 +52,7 @@ public class PendingState implements AppointmentState {
         status.setAppointment(appointment);
         status.setStatusName(appointment.getCurrentStatus());
         status.setTime(LocalDateTime.now());
-        status.setNote("Staff - " + String.join(" " + staff.getFirstName(), staff.getLastName()) + "update CONFIRMED successfully");
+        status.setNote("Staff - " + String.join(" " + staff.getFirstName(), staff.getLastName()) + " update CONFIRMED successfully");
         appointment.addStatus(status);
     }
 }

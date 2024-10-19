@@ -1,10 +1,16 @@
 package org.ftf.koifishveterinaryservicecenter.service.appointmentservice.appointmentstate;
 
 import org.ftf.koifishveterinaryservicecenter.entity.Appointment;
+import org.ftf.koifishveterinaryservicecenter.entity.Status;
+import org.ftf.koifishveterinaryservicecenter.entity.User;
+import org.ftf.koifishveterinaryservicecenter.enums.AppointmentStatus;
+import org.ftf.koifishveterinaryservicecenter.exception.IllegalStateException;
 import org.ftf.koifishveterinaryservicecenter.repository.AppointmentRepository;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 
 @Service
 public class OngoingState implements AppointmentState {
@@ -21,6 +27,28 @@ public class OngoingState implements AppointmentState {
 
     @Override
     public void updateState(Appointment appointment) {
+        String roleKey = authenticationService.getAuthenticatedUserRoleKey();
 
+        if (roleKey.equals("VET")) {
+            // set a new status for the appointment
+            appointment.setCurrentStatus(AppointmentStatus.DONE);
+
+            // get vetId from the appointment
+            Integer veterinarianId = appointment.getVeterinarian().getUserId();
+            User veterinarian = userService.getVeterinarianById(veterinarianId);
+
+            // logging to Status table
+            logToStatus(appointment, veterinarian);
+            appointmentRepository.save(appointment);
+        } else throw new IllegalStateException("Only Veterinarian can update appointments from ON_GOING to DONE");
+    }
+
+    private void logToStatus(Appointment appointment, User veterinarian) {
+        Status status = new Status();
+        status.setAppointment(appointment);
+        status.setStatusName(appointment.getCurrentStatus());
+        status.setTime(LocalDateTime.now());
+        status.setNote("Veterinarian - " + String.join(" " + veterinarian.getFirstName(), veterinarian.getLastName()) + " marked DONE the appointment successfully");
+        appointment.addStatus(status);
     }
 }
