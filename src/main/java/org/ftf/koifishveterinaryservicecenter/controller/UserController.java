@@ -204,6 +204,10 @@ public class UserController {
     }
 
 
+    /*
+    * Update an address information
+    * Actors: Customer
+    * */
     @PutMapping("/address")
     public ResponseEntity<?> updateAddress(@RequestParam Integer addressId) {
         try {

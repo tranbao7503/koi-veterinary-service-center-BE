@@ -54,6 +54,7 @@ public class FeedbackController {
     }
 
     /*
+     * View all feedback
      * Actors: Manager
      * */
     @GetMapping("/all")
@@ -70,6 +71,7 @@ public class FeedbackController {
     }
 
     /*
+     * View feedback details
      * Actors: Manager
      * */
     @GetMapping("/{feedbackId}")
@@ -84,6 +86,7 @@ public class FeedbackController {
     }
 
     /*
+     * View feedback list of a veterinarian
      * Actors: Veterinarian
      * */
     @GetMapping("/veterinarian")
@@ -104,6 +107,7 @@ public class FeedbackController {
     }
 
     /*
+     * View feedback details of a veterinarian
      * Actors: Veterinarian
      * */
     @GetMapping("/{feedbackId}/veterinarian")
@@ -126,6 +130,10 @@ public class FeedbackController {
         }
     }
 
+    /*
+    * Create feedback of an appointment
+    * Actors: Customer
+    * */
     @PostMapping()
     public ResponseEntity<?> createFeedback(
             @RequestParam Integer appointmentId
