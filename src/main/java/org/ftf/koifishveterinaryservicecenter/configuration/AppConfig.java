@@ -72,6 +72,7 @@ public class AppConfig {
                         .requestMatchers("/api/v1/users/staffs").hasAnyAuthority("MAN")
                         .requestMatchers("/api/v1/users/customers").hasAnyAuthority("MAN")
                         .requestMatchers("/api/v1/users/deleteuser").hasAnyAuthority("MAN")
+                        .requestMatchers("/api/v1/email/sendNotification").hasAnyAuthority("STA")
 
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2
