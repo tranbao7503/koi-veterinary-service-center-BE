@@ -18,6 +18,7 @@ public interface TimeSlotMapper {
     TimeSlotMapper INSTANCE = Mappers.getMapper(TimeSlotMapper.class);
 
     // Map TimeSlot to TimeSlotDto, using a custom method to map the first appointment
+    @Named("convertToTimeSlotDto")
     @Mapping(source = "appointments", target = "appointment", qualifiedByName = "mapFirstAppointment")
 //    @Mapping(target = "appointment.timeSlot", ignore = true)
     TimeSlotDto convertToTimeSlotDto(TimeSlot timeSlot);
@@ -33,6 +34,7 @@ public interface TimeSlotMapper {
         return appointmentFeedbackDto;
     }
 
+    @Named("convertToTimeSlotDtoAvailable")
     @Mappings({
             @Mapping(source = "slotOrder", target = "slotOrder"),
             @Mapping(source = "day", target = "day"),
@@ -43,7 +45,7 @@ public interface TimeSlotMapper {
     })
     TimeSlotDto convertToTimeSlotDtoAvailable(TimeSlot timeSlotDto);
 
-
+    @Named("convertToAvailableTimeSlotDto")
     @Mapping(target = "appointment", ignore = true)
     TimeSlotDto convertToAvailableTimeSlotDto(TimeSlot timeSlot);
 

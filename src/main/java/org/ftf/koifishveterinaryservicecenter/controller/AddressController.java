@@ -125,6 +125,10 @@ public class AddressController {
         }
     }
 
+    /*
+    * Customer delete their address in the list. Can not delete current address
+    * Actors: Customer
+    * */
     @DeleteMapping()
     public ResponseEntity<?> deleteAddress(
             @RequestParam Integer addressId) {
