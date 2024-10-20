@@ -366,7 +366,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         followUpAppointment.setCustomerName(appointment.getCustomerName());
 
         // description
-        followUpAppointment.setDescription(appointment.getDescription());
+        followUpAppointment.setDescription(newAppointment.getDescription());
 
         // Total price
         BigDecimal totalPrice = servicePrice.add(surchargePrice);
