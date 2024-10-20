@@ -85,9 +85,9 @@ public class UserController {
             User convertedCustomer = UserMapper.INSTANCE.convertDtoToEntity(userFromRequest);
             Integer userIdFromToken = 1; // the userId takes from Authentication object in SecurityContext
 
-            if (!userId.equals(userIdFromToken)) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-            }
+//            if (!userId.equals(userIdFromToken)) {
+//                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+//            }
 
             // check(userIdFromToken, userId)
             User updatedCustomer = userService.updateUserProfile(userId, convertedCustomer);
