@@ -15,8 +15,8 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 public class AppConfig {
@@ -57,7 +57,7 @@ public class AppConfig {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .csrf(csrfConfig -> csrfConfig
-                        .ignoringRequestMatchers("/api/v1/users/token", "/api/v1/users/introspect", "/api/v1/users/customers", "/api/v1/users/signup", "/api/v1/fishes", "api/v1/users/logout", "api/v1/users/refresh"))
+                        .ignoringRequestMatchers("/api/v1/users/token", "/api/v1/users/introspect", "/api/v1/users/customers", "/api/v1/users/signup", "/api/v1/fishes", "api/v1/users/logout", "api/v1/users/refresh", "api/v1/users/dashboard"))
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(Customizer.withDefaults())
                 .authorizeHttpRequests(request -> request

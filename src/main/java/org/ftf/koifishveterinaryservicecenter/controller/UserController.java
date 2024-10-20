@@ -29,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.text.ParseException;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -273,7 +274,7 @@ public class UserController {
     public ResponseEntity<String> updateUser(@RequestBody UserDTO userDTO) {
         try {
             // Gọi phương thức updateUser từ service với dữ liệu từ UserDTO
-            userService.updateUserInfo(userDTO.getUserId(), userDTO.isEnabled());
+            userService.updateUserInfo(userDTO.getUserId(), userDTO.isEnable());
 
             // Trả về thông báo thành công
             return ResponseEntity.ok("User updated successfully.");
@@ -300,5 +301,10 @@ public class UserController {
             return new ResponseEntity<>("An error occurred while updating the password.", HttpStatus.INTERNAL_SERVER_ERROR); // Thông báo lỗi chung
         }
 
+    }
+
+    @GetMapping("/dashboard")
+    public Map<String, String> getStatistics() {
+        return userService.getStatistics();
     }
 }

@@ -46,9 +46,9 @@ public class UserDTO {
     public String avatar;
 
 
-    public boolean isEnabled() {
+    /*public boolean isEnabled() {
         return enable;
-    }
+    }*/
 
     public UserDTO(String firstName, String lastName, String username, String password) {
         this.firstName = firstName;

@@ -9,9 +9,7 @@ import org.ftf.koifishveterinaryservicecenter.exception.AuthenticationException;
 import org.ftf.koifishveterinaryservicecenter.exception.RoleException;
 import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.UserMapper;
-import org.ftf.koifishveterinaryservicecenter.repository.AddressRepository;
-import org.ftf.koifishveterinaryservicecenter.repository.RoleRepository;
-import org.ftf.koifishveterinaryservicecenter.repository.UserRepository;
+import org.ftf.koifishveterinaryservicecenter.repository.*;
 import org.ftf.koifishveterinaryservicecenter.service.fileservice.FileUploadService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,7 +18,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -32,8 +32,12 @@ public class UserServiceImpl implements UserService {
     private final FileUploadService fileUploadService;
     private final UserMapper userMapper;
     private final AuthenticationService authenticationService;
+    private final FishRepository fishRepository;
+    private final AppointmentRepository appointmentRepository;
+    private final PaymentRepository paymentRepository;
 
-    public UserServiceImpl(UserRepository userRepository, AddressRepository addressRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, FileUploadService fileUploadService, UserMapper userMapper, AuthenticationService authenticationService) {
+
+    public UserServiceImpl(UserRepository userRepository, AddressRepository addressRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, FileUploadService fileUploadService, UserMapper userMapper, AuthenticationService authenticationService, FishRepository fishRepository, AppointmentRepository appointmentRepository, PaymentRepository paymentRepository) {
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
         this.roleRepository = roleRepository;
@@ -41,6 +45,9 @@ public class UserServiceImpl implements UserService {
         this.fileUploadService = fileUploadService;
         this.userMapper = userMapper;
         this.authenticationService = authenticationService;
+        this.fishRepository = fishRepository;
+        this.appointmentRepository = appointmentRepository;
+        this.paymentRepository = paymentRepository;
     }
 
 
@@ -376,6 +383,32 @@ public class UserServiceImpl implements UserService {
         // Chuyển đổi User sang UserDTO
         return UserMapper.INSTANCE.convertEntityToDto(userFromDb); // Giả sử bạn có một mapper cho User
     }
+
+    @Override
+    public Map<String, String> getStatistics() {
+        Map<String, String> statistics = new HashMap<>();
+
+        long totalFish = fishRepository.count();
+        long totalStaff = userRepository.countStaff();
+        long totalVets = userRepository.countVets();
+        long totalCustomers = userRepository.countCustomers();
+        long totalAppointments = appointmentRepository.count();
+        long totalAppointmentsToday = appointmentRepository.countAppointmentsToday();
+        long totalPayments = paymentRepository.count();  // Thêm dòng này
+
+        statistics.put("totalFish", String.valueOf(totalFish));
+        statistics.put("totalStaff", String.valueOf(totalStaff));
+        statistics.put("totalVets", String.valueOf(totalVets));
+        statistics.put("totalCustomers", String.valueOf(totalCustomers));
+        statistics.put("totalAppointments", String.valueOf(totalAppointments));
+        statistics.put("totalAppointmentsToday", String.valueOf(totalAppointmentsToday));
+        statistics.put("totalPayments", String.valueOf(totalPayments));  // Thêm dòng này
+
+        return statistics;
+    }
+
+
+
 }
 
 
