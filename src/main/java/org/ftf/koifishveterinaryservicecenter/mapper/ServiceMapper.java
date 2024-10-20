@@ -5,7 +5,8 @@ import org.ftf.koifishveterinaryservicecenter.entity.Service;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(uses = ServiceMapper.class)
+
+@Mapper(componentModel = "spring", uses = ServiceMapper.class)
 public interface ServiceMapper {
 
     ServiceMapper INSTANCE = Mappers.getMapper(ServiceMapper.class);
@@ -13,4 +14,6 @@ public interface ServiceMapper {
     ServiceDTO convertToServiceDto(Service service);
 
     Service convertToServiceEntity(ServiceDTO serviceDTO);
+
+
 }

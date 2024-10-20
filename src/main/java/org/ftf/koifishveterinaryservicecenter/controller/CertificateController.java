@@ -28,6 +28,7 @@ public class CertificateController {
     }
 
     /*
+     * Add certificate information of a veterinarian into system
      * Actors: Manager
      * */
     @PostMapping("/veterinarians/{veterinarianId}")
@@ -46,6 +47,7 @@ public class CertificateController {
     }
 
     /*
+     * View certificate list of a veterinarian
      * Actors: Manager
      * */
     @GetMapping("/veterinarians/{veterinarianId}")

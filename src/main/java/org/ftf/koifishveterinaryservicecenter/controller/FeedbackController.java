@@ -5,7 +5,7 @@ import org.ftf.koifishveterinaryservicecenter.dto.FeedbackDto;
 import org.ftf.koifishveterinaryservicecenter.entity.Appointment;
 import org.ftf.koifishveterinaryservicecenter.entity.Feedback;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
-import org.ftf.koifishveterinaryservicecenter.exception.AppointmentServiceNotFoundException;
+import org.ftf.koifishveterinaryservicecenter.exception.AppointmentNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.FeedbackExistedException;
 import org.ftf.koifishveterinaryservicecenter.exception.FeedbackNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
@@ -54,6 +54,7 @@ public class FeedbackController {
     }
 
     /*
+     * View all feedback
      * Actors: Manager
      * */
     @GetMapping("/all")
@@ -70,6 +71,7 @@ public class FeedbackController {
     }
 
     /*
+     * View feedback details
      * Actors: Manager
      * */
     @GetMapping("/{feedbackId}")
@@ -84,6 +86,7 @@ public class FeedbackController {
     }
 
     /*
+     * View feedback list of a veterinarian
      * Actors: Veterinarian
      * */
     @GetMapping("/veterinarian")
@@ -104,6 +107,7 @@ public class FeedbackController {
     }
 
     /*
+     * View feedback details of a veterinarian
      * Actors: Veterinarian
      * */
     @GetMapping("/{feedbackId}/veterinarian")
@@ -126,6 +130,10 @@ public class FeedbackController {
         }
     }
 
+    /*
+     * Create feedback of an appointment
+     * Actors: Customer
+     * */
     @PostMapping()
     public ResponseEntity<?> createFeedback(
             @RequestParam Integer appointmentId
@@ -139,7 +147,7 @@ public class FeedbackController {
             Feedback newFeedback = appointmentService.createFeedback(appointmentId, feedback);
             FeedbackDto newFeedbackDto = FeedbackMapper.INSTANCE.feedbackToFeedbackDto(newFeedback);
             return new ResponseEntity<>(newFeedbackDto, HttpStatus.CREATED);
-        } catch (AppointmentServiceNotFoundException e) {
+        } catch (AppointmentNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (UserNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);

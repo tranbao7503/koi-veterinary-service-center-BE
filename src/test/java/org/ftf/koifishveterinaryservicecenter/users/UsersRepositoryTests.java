@@ -19,7 +19,7 @@ public class UsersRepositoryTests {
     private UserRepository userRepository;
 
     @Test
-    public void testGetUserSuccess(){
+    public void testGetUserSuccess() {
         int userId = 1;
         User user = userRepository.findUsersByUserId(userId);
 
@@ -28,7 +28,7 @@ public class UsersRepositoryTests {
     }
 
     @Test
-    public void testUpdateUserSuccess(){
+    public void testUpdateUserSuccess() {
         String firstName = "John_New";
 
         int userId = 1;

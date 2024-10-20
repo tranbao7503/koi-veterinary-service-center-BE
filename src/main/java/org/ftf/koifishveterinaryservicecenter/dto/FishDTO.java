@@ -43,8 +43,6 @@ public class FishDTO {
     private boolean enabled = true; // Khởi tạo mặc định là true
 
 
-
-
 }
 
 

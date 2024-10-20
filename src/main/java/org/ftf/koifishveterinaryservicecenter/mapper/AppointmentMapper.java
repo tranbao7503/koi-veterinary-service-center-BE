@@ -34,6 +34,9 @@ public interface AppointmentMapper {
 
     @Mapping(target = "service.description", ignore = true)
     @Mapping(source = "currentStatus", target = "currentStatus")
+    //@Mapping(source = "timeSlot.slotId", target = "slotId")
+    @Mapping(source = "timeSlot", target = "timeSlot", qualifiedByName = "convertToAvailableTimeSlotDto")
+    @Mapping(source = "followUpAppointment.appointmentId", target = "followUpAppointmentId")
     @Mapping(target = "veterinarian.username", ignore = true)
     @Mapping(target = "veterinarian.password", ignore = true)
     @Mapping(target = "veterinarian.avatar", ignore = true)

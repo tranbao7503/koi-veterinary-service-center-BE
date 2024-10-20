@@ -1,16 +1,18 @@
 package org.ftf.koifishveterinaryservicecenter.service.userservice;
 
+import org.ftf.koifishveterinaryservicecenter.dto.UserDTO;
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
 import org.ftf.koifishveterinaryservicecenter.entity.Role;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.ftf.koifishveterinaryservicecenter.exception.AddressNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.AuthenticationException;
+import org.ftf.koifishveterinaryservicecenter.exception.RoleException;
 import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
+import org.ftf.koifishveterinaryservicecenter.mapper.UserMapper;
 import org.ftf.koifishveterinaryservicecenter.repository.AddressRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.RoleRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.UserRepository;
 import org.ftf.koifishveterinaryservicecenter.service.fileservice.FileUploadService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,19 +30,19 @@ public class UserServiceImpl implements UserService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final FileUploadService fileUploadService;
+    private final UserMapper userMapper;
+    private final AuthenticationService authenticationService;
 
-    @Autowired
-    public UserServiceImpl(UserRepository userRepository
-            , AddressRepository addressRepository
-            , RoleRepository roleRepository
-            , PasswordEncoder passwordEncoder
-            , FileUploadService fileUploadService) {
+    public UserServiceImpl(UserRepository userRepository, AddressRepository addressRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, FileUploadService fileUploadService, UserMapper userMapper, AuthenticationService authenticationService) {
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.fileUploadService = fileUploadService;
+        this.userMapper = userMapper;
+        this.authenticationService = authenticationService;
     }
+
 
     @Override
     public User getUserProfile(Integer userId) {
@@ -199,6 +201,21 @@ public class UserServiceImpl implements UserService {
     }
 
 
+    public UserDTO createStaff(String userName, String passWord, String firstName, String lastName) {
+        User user = new User();
+
+        user.setUsername(userName);
+        user.setPassword(passWord);
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setRole(roleRepository.findByRoleKey("STA")); // Set role trực tiếp tại đây
+        // encrypt password
+        userRepository.save(user);
+
+        // Sử dụng MapStruct để chuyển đổi từ User sang UserDTO
+        return userMapper.convertEntityToDto(user); // Giả sử userMapper là một instance của MapStruct
+    }
+
     @Override
     public User updateUserAvatar(Integer userId, MultipartFile image) throws IOException {
         User user = userRepository.findUsersByUserId(userId);
@@ -285,4 +302,86 @@ public class UserServiceImpl implements UserService {
         return address;
     }
 
+    @Override
+    public List<User> getAllStaffs() {
+        // Lấy danh sách staffs dựa vào Role
+        Role staffRole = roleRepository.findByRoleKey("STA");
+
+        // Kiểm tra nếu role không tồn tại
+        if (staffRole == null) {
+            return new ArrayList<>(); // Trả về danh sách rỗng nếu không tìm thấy role
+        }
+
+        // Trả về danh sách users từ role "STA"
+        return new ArrayList<>(staffRole.getUsers());
+    }
+
+    @Override
+    public UserDTO updateUserInfo(int userId, boolean enabled) {
+        // Lấy thông tin người dùng từ database
+        User userFromDb = userRepository.findById(userId).orElse(null);
+
+
+        if (userFromDb == null) {
+            throw new UserNotFoundException("User not found with ID: " + userId);
+        }
+        Role role = userFromDb.getRole();
+        if (role.getRoleId() == 1 || role.getRoleId() == 2) {
+            throw new RoleException("This role don't need to change status");
+        }
+
+        // Cập nhật thông tin người dùng
+        userFromDb.setEnabled(enabled);
+
+        // Lưu người dùng đã cập nhật
+        User updatedUser = userRepository.save(userFromDb);
+
+        // Sử dụng mapper để chuyển đổi entity sang DTO
+        return userMapper.convertEntityToDto(updatedUser);
+    }
+
+
+    @Override
+    public UserDTO updatePassword(String newPassword) {
+        // Lấy userId từ token
+        int userId = authenticationService.getAuthenticatedUserId();
+
+        User userFromDb = userRepository.findUsersByUserId(userId);
+
+        if (userFromDb == null) {
+            throw new UserNotFoundException("Không tìm thấy người dùng với Id: " + userId);
+        }
+
+        // Kiểm tra mật khẩu mới không được null hoặc trống
+        if (newPassword == null || newPassword.isBlank()) {
+            throw new AuthenticationException("Mật khẩu không được để trống");
+        }
+
+        // Kiểm tra độ dài mật khẩu mới
+        if (newPassword.length() < 8) {
+            throw new AuthenticationException("Mật khẩu không được ngắn hơn 8 ký tự");
+        }
+
+        // Kiểm tra mật khẩu có chứa ít nhất một ký tự đặc biệt
+        String passwordPattern = "^(?=.*[@#$%^&+=!{}]).{8,}$";
+        if (!newPassword.matches(passwordPattern)) {
+            throw new AuthenticationException("Mật khẩu phải chứa ít nhất một ký tự đặc biệt và có độ dài tối thiểu là 8 ký tự");
+        }
+
+        // Mã hóa mật khẩu mới và cập nhật
+        userFromDb.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(userFromDb);
+
+        // Chuyển đổi User sang UserDTO
+        return UserMapper.INSTANCE.convertEntityToDto(userFromDb); // Giả sử bạn có một mapper cho User
+    }
 }
+
+
+
+
+
+
+
+
+
