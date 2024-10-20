@@ -317,6 +317,11 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
+    public Appointment getAppointmentByPaymentId(Integer paymentId) {
+        return appointmentRepository.findAppointmentByPaymentId(paymentId);
+    }
+
+    @Override
     public Appointment getAppointmentById(Integer appointmentId) {
         Optional<Appointment> appointmentOptional = appointmentRepository.findById(appointmentId);
         if (appointmentOptional.isEmpty())

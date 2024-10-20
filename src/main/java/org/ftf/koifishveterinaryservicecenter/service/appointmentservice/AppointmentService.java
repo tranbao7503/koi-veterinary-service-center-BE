@@ -19,7 +19,6 @@ public interface AppointmentService {
 
     List<Status> findStatusByAppointmentId(Integer appointmentId);
 
-
     Appointment getAppointmentById(Integer appointmentId);
 
     MedicalReport getMedicalReportByAppointmentId(Integer appointmentId);
@@ -40,5 +39,7 @@ public interface AppointmentService {
     Feedback createFeedback(Integer appointmentId, Feedback feedback);
 
     void updateStatus(Integer appointmentId, AppointmentStatus status);
+
+    Appointment getAppointmentByPaymentId(Integer paymentId);
 
 }

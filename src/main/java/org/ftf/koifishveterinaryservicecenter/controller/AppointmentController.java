@@ -232,7 +232,6 @@ public class AppointmentController {
         } catch (AppointmentNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
-
     }
 
     @DeleteMapping("/{appointmentId}")
@@ -275,10 +274,8 @@ public class AppointmentController {
             } catch (IllegalStateException e) {
                 return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
             }
-
         }
         return new ResponseEntity<>("Invalid status value", HttpStatus.BAD_REQUEST);
-
 
     }
 
