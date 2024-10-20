@@ -131,9 +131,9 @@ public class FeedbackController {
     }
 
     /*
-    * Create feedback of an appointment
-    * Actors: Customer
-    * */
+     * Create feedback of an appointment
+     * Actors: Customer
+     * */
     @PostMapping()
     public ResponseEntity<?> createFeedback(
             @RequestParam Integer appointmentId

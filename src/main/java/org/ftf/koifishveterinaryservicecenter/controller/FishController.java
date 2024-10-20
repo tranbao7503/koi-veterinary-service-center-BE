@@ -135,5 +135,15 @@ public class FishController {
         }
     }
 
+    @PostMapping("/addfish")
+    public ResponseEntity<FishDTO> addFish(@RequestBody FishDTO fishDTO) {
+        FishDTO createdFish = fishService.addFish(fishDTO);
+        if (createdFish == null) {
+            return ResponseEntity.badRequest().build(); // Trả về 400 nếu không thể thêm
+        } else {
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdFish); // Trả về cá đã tạo với mã 201
+        }
+    }
+
 }
 

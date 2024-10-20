@@ -4,6 +4,7 @@ import org.ftf.koifishveterinaryservicecenter.dto.FishDTO;
 import org.ftf.koifishveterinaryservicecenter.dto.ImageDTO;
 import org.ftf.koifishveterinaryservicecenter.entity.Fish;
 import org.ftf.koifishveterinaryservicecenter.entity.Image;
+import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.ftf.koifishveterinaryservicecenter.enums.Gender;
 import org.ftf.koifishveterinaryservicecenter.exception.AuthenticationException;
 import org.ftf.koifishveterinaryservicecenter.exception.FishNotFoundException;
@@ -215,8 +216,26 @@ public class FishServiceImp implements FishService {
         // Sử dụng mapper để chuyển đổi entity sang DTO
         return fishMapper.convertEntityToDto(updatedFish);
     }
+    public FishDTO addFish(FishDTO fishDTO) {
+        // Lấy customerId từ token
+        int customerId = authenticationService.getAuthenticatedUserId();  // Lấy customerId từ token
+
+        // Chuyển đổi từ FishDTO sang Fish
+        Fish fish = fishMapper.convertDtoToEntity(fishDTO);
+
+        // Tạo một đối tượng User và gán customerId cho User
+        User customer = new User();
+        customer.setUserId(customerId);  // Gán customerId vào đối tượng User
+
+        // Gán đối tượng User (customer) vào Fish
+        fish.setCustomer(customer);
+
+        // Lưu đối tượng Fish vào repository
+        Fish savedFish = fishRepository.save(fish);
+
+        // Sử dụng MapStruct để chuyển đổi từ Fish sang FishDTO và trả về
+        return fishMapper.convertEntityToDto(savedFish);
+    }
 
 
 }
-
-
