@@ -101,8 +101,9 @@ public class Appointment {
     // Bidirectional, identifying relationship
     // Owning side: Appointment
     // Inverse side: User(veterinarian)
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "veterinarian_id", nullable = false, referencedColumnName = "user_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "veterinarian_id", nullable = true, referencedColumnName = "user_id")
+    // set 'insertable = false' in case of adding appointment without assigned veterinarian
     private User veterinarian;
 
     // Bidirectional, non-identifying relationship
@@ -135,8 +136,15 @@ public class Appointment {
     // Bidirectional, identifying relationship
     // Owning side: Status
     // Inverse side: Appointment
-    @OneToMany(mappedBy = "appointment", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "appointment", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Status> statuses = new LinkedHashSet<>();
+
+
+    public void addStatus(Status status) {
+        status.setAppointment(this);
+        this.statuses.add(status);
+    }
+
 
 
 }

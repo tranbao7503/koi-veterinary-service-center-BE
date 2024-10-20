@@ -28,7 +28,6 @@ public class FishController {
     private final AuthenticationService authenticationService;
 
 
-
     @Autowired
     public FishController(FishService fishService, FishMapper fishMapper, AuthenticationService authenticationService) {
         this.fishService = fishService;
@@ -133,6 +132,16 @@ public class FishController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(null);
+        }
+    }
+
+    @PostMapping("/addfish")
+    public ResponseEntity<FishDTO> addFish(@RequestBody FishDTO fishDTO) {
+        FishDTO createdFish = fishService.addFish(fishDTO);
+        if (createdFish == null) {
+            return ResponseEntity.badRequest().build(); // Trả về 400 nếu không thể thêm
+        } else {
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdFish); // Trả về cá đã tạo với mã 201
         }
     }
 

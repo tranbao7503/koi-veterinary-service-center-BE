@@ -1,5 +1,6 @@
 package org.ftf.koifishveterinaryservicecenter.service.userservice;
 
+import org.ftf.koifishveterinaryservicecenter.dto.UserDTO;
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,6 +27,8 @@ public interface UserService {
 
     User updateUserAvatar(Integer userId, MultipartFile image) throws IOException;
 
+    UserDTO updateUserInfo(int userId, boolean enabled);
+
     List<Address> getAllAddresses(Integer customerId);
 
     Address getAddressById(Integer addressId);
@@ -37,5 +40,12 @@ public interface UserService {
     Address addAddress(Integer customerId, Address address);
 
     Address disableAddress(Integer addressId);
+
+
+    UserDTO createStaff(String userName, String passWord, String firstName, String lastName);
+
+    List<User> getAllStaffs();
+
+    UserDTO updatePassword(String newPassword);
 
 }
