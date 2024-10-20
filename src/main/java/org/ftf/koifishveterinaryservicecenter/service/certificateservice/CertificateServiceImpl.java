@@ -60,7 +60,7 @@ public class CertificateServiceImpl implements CertificateService {
         }
 
         // Update full path for certificate
-        certificates.forEach(certificate -> certificate.setFilePath(fileDownloadService.getCertificateUrl(certificate.getFilePath())));
+        //certificates.forEach(certificate -> certificate.setFilePath(fileDownloadService.getCertificateUrl(certificate.getFilePath())));
 
         return certificates;
     }

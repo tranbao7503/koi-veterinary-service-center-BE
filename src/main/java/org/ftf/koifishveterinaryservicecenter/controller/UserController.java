@@ -155,7 +155,7 @@ public class UserController {
      * Update avatar of user
      * Actors: Customer, Manager
      * */
-    @PreAuthorize("hasAuthority('CUS')")
+    //@PreAuthorize("hasAuthority('CUS')")
     @PutMapping("/avatar")
     public ResponseEntity<?> updateUserAvatar(@RequestParam("user_id") Integer userId, @RequestParam("image") MultipartFile image) {
         try {

@@ -8,11 +8,15 @@ import org.ftf.koifishveterinaryservicecenter.mapper.CertificateMapper;
 import org.ftf.koifishveterinaryservicecenter.service.certificateservice.CertificateService;
 import org.ftf.koifishveterinaryservicecenter.service.fileservice.FileDownloadService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,10 +26,14 @@ import java.util.stream.Collectors;
 public class CertificateController {
 
     private final CertificateService certificateService;
+    private final FileDownloadService fileDownloadService;
 
     @Autowired
-    public CertificateController(CertificateService certificateService) {
+    public CertificateController(
+            CertificateService certificateService
+            , FileDownloadService fileDownloadService) {
         this.certificateService = certificateService;
+        this.fileDownloadService = fileDownloadService;
     }
 
     /*
@@ -68,4 +76,24 @@ public class CertificateController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    /*
+     * Download a certificate file
+     * Actors: Manager
+     */
+    @GetMapping("/{filename}")
+    public ResponseEntity<?> downloadCertificate(@PathVariable("filename") String filename) {
+        try {
+            Resource resource = fileDownloadService.loadCertificateAsResource(filename);
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                        .body(resource);
+        } catch (FileNotFoundException ex) {
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }
