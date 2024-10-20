@@ -169,6 +169,9 @@ public class AppointmentServiceImpl implements AppointmentService {
         if (appointment.getVeterinarian().getUserId() != null) {
             User veterinarianFromDb = userService.getVeterinarianById(appointment.getVeterinarian().getUserId());
             newAppointment.setVeterinarian(veterinarianFromDb);
+
+            // Update Veterinarian_Slot status
+            slotService.updateVeterinarianSlotsStatus(appointment.getVeterinarian().getUserId(), timeSlot.getSlotId(), SlotStatus.BOOKED);
         }
 
         // email
