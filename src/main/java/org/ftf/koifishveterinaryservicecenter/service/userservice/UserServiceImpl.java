@@ -58,7 +58,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserProfile(Integer userId) {
         User user = userRepository.findUsersByUserId(userId);
-        if(user.getAvatar() != null) {
+        if (user.getAvatar() != null) {
             String avatarPath = fileDownloadService.getImageUrl(user.getAvatar());
             user.setAvatar(avatarPath);
         }
@@ -69,6 +69,11 @@ public class UserServiceImpl implements UserService {
     public List<User> getAllVeterinarians() {
         Role role = roleRepository.findByRoleKey("VET");
         List<User> veterinarians = new ArrayList<>(role.getUsers());
+        veterinarians.forEach(veterinarian -> {
+            if (veterinarian.getAvatar() != null) {
+                veterinarian.setAvatar(fileDownloadService.getImageUrl(veterinarian.getAvatar()));
+            }
+        });
         return veterinarians;
     }
 
@@ -133,6 +138,11 @@ public class UserServiceImpl implements UserService {
     public List<User> getAllCustomers() {
         Role role = roleRepository.findByRoleKey("CUS");
         List<User> customers = new ArrayList<>(role.getUsers());
+        customers.forEach(customer -> {
+            if (customer.getAvatar() != null) {
+                customer.setAvatar(fileDownloadService.getImageUrl(customer.getAvatar()));
+            }
+        });
         return customers;
     }
 
@@ -328,8 +338,16 @@ public class UserServiceImpl implements UserService {
             return new ArrayList<>(); // Trả về danh sách rỗng nếu không tìm thấy role
         }
 
+        List<User> staffs = new ArrayList<>(staffRole.getUsers());
+
+        staffs.forEach(staff -> {
+            if (staff.getAvatar() != null) {
+                staff.setAvatar(fileDownloadService.getImageUrl(staff.getAvatar()));
+            }
+        });
+
         // Trả về danh sách users từ role "STA"
-        return new ArrayList<>(staffRole.getUsers());
+        return staffs;
     }
 
     @Override
