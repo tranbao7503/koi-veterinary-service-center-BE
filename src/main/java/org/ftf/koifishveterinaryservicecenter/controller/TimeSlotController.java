@@ -32,9 +32,9 @@ public class TimeSlotController {
     }
 
     /*
-    * Get BOOKED slot of a veterinarian
-    * Actors: Veterinarian
-    * */
+     * Get BOOKED slot of a veterinarian
+     * Actors: Veterinarian
+     * */
     @GetMapping("/{veterinarianID}")
     public ResponseEntity<?> getVeterinarianSlots(@PathVariable("veterinarianID") final Integer veterinarianID) {
         try {

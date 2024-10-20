@@ -100,9 +100,9 @@ public class PaymentController {
     }
 
     /*
-    * Return VNPay link for online payment
-    * Actors: Customer
-    * */
+     * Return VNPay link for online payment
+     * Actors: Customer
+     * */
     @GetMapping("/vnpay-link")
     public ResponseEntity<String> createPayment(
             @RequestParam("appointmentId") Integer appointmentId) {
@@ -128,9 +128,9 @@ public class PaymentController {
     }
 
     /*
-    * Update the payment information after finishing payment
-    * Actors: Customer
-    * */
+     * Update the payment information after finishing payment
+     * Actors: Customer
+     * */
     @GetMapping("/vnpay-notify")
     public void handleVnPayNotify(
             @RequestParam Map<String, String> vnpParams
