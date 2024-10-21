@@ -57,7 +57,7 @@ public class AppConfig {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .csrf(csrfConfig -> csrfConfig
-                        .ignoringRequestMatchers("/api/v1/users/token", "/api/v1/users/introspect", "/api/v1/users/customers", "/api/v1/users/signup", "/api/v1/fishes", "api/v1/users/logout", "api/v1/users/refresh", "api/v1/users/dashboard"))
+                        .ignoringRequestMatchers("/api/v1/users/token", "/api/v1/users/introspect", "/api/v1/users/customers", "/api/v1/users/signup", "/api/v1/fishes", "api/v1/users/logout", "api/v1/users/refresh"))
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(Customizer.withDefaults())
                 .authorizeHttpRequests(request -> request
@@ -68,6 +68,10 @@ public class AppConfig {
                         .requestMatchers("/api/v1/users/staffs").hasAnyAuthority("MAN")
                         .requestMatchers("/api/v1/users/customers").hasAnyAuthority("MAN")
                         .requestMatchers("/api/v1/users/deleteuser").hasAnyAuthority("MAN")
+                        .requestMatchers("api/v1/users/payment-statistics").hasAnyAuthority("MAN")
+                        .requestMatchers("api/v1/users/appointment-statistics").hasAnyAuthority("MAN")
+                        .requestMatchers("api/v1/users/user-fish-statistics").hasAnyAuthority("MAN")
+                        .requestMatchers("api/v1/users/{vetId}/slots-this-week").hasAnyAuthority("MAN")
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwtConfigurer -> jwtConfigurer

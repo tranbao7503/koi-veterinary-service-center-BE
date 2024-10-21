@@ -49,5 +49,14 @@ public interface UserService {
 
     UserDTO updatePassword(String newPassword);
 
-    Map<String, String> getStatistics();
+    Map<String, String> getUserAndFishStatistics();
+
+
+    // Hàm tính số liệu cuộc hẹn
+    Map<String, String> getAppointmentStatistics();
+
+    // Hàm tính số liệu thanh toán
+    Map<String, String> getPaymentStatistics();
+
+    long getVetSlotsInCurrentWeek(int vetId);
 }

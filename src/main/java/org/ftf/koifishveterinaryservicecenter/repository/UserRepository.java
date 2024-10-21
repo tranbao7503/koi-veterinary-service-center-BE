@@ -33,14 +33,15 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     User findUserByEmail(String email);
 
-    @Query("SELECT COUNT(u) FROM User u WHERE u.role.roleKey = 'VET'")
-    long countVets();
+    @Query("SELECT COUNT(u) FROM User u WHERE u.role.roleKey = 'VET' AND u.enabled = true")
+    long countEnabledVets();
 
-    @Query("SELECT COUNT(u) FROM User u WHERE u.role.roleKey = 'STA'")
-    long countStaff();
+    @Query("SELECT COUNT(u) FROM User u WHERE u.role.roleKey = 'STA' AND u.enabled = true")
+    long countEnabledStaff();
 
-    @Query("SELECT COUNT(u) FROM User u WHERE u.role.roleKey = 'CUS'")
-    long countCustomers();
+    @Query("SELECT COUNT(u) FROM User u WHERE u.role.roleKey = 'CUS' AND u.enabled = true")
+    long countEnabledCustomers();
+
 
 }
 

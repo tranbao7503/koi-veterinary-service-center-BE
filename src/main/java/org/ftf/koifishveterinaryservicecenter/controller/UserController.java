@@ -303,8 +303,29 @@ public class UserController {
 
     }
 
-    @GetMapping("/dashboard")
-    public Map<String, String> getStatistics() {
-        return userService.getStatistics();
+    //  lấy số liệu liên quan đến người dùng và cá
+    @GetMapping("/user-fish-statistics")
+    public Map<String, String> getUserAndFishStatistics() {
+        return userService.getUserAndFishStatistics();
     }
+
+    // Lấy số liệu liên quan đến cuộc hẹn
+    @GetMapping("/appointment-statistics")
+    public Map<String, String> getAppointmentStatistics() {
+        return userService.getAppointmentStatistics();
+    }
+
+    // Lấy số liệu liên quan đến thanh toán
+    @GetMapping("/payment-statistics")
+    public Map<String, String> getPaymentStatistics() {
+        return userService.getPaymentStatistics();
+    }
+
+    //xem vet duoc booked bao nhiêu lần trên tuần
+    @GetMapping("/{vetId}/slots-this-week")
+    public ResponseEntity<Long> getVetSlotsInCurrentWeek(@PathVariable int vetId) {
+        long slotsCount = userService.getVetSlotsInCurrentWeek(vetId);
+        return ResponseEntity.ok(slotsCount);
+    }
+
 }
