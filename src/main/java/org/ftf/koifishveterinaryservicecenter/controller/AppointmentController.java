@@ -241,7 +241,7 @@ public class AppointmentController {
     }
 
     @DeleteMapping("/{appointmentId}")
-    public ResponseEntity<?> deleteAppointment(@PathVariable Integer appointmentId) {
+    public ResponseEntity<?> cancelAppointment(@PathVariable Integer appointmentId) {
         try {
             appointmentService.cancelAppointment(appointmentId);
             return new ResponseEntity<>("Canceling the appointment successfully", HttpStatus.OK);
