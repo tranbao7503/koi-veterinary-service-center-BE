@@ -30,7 +30,6 @@ public class OngoingState implements AppointmentState {
         String roleKey = authenticationService.getAuthenticatedUserRoleKey();
 
         if (roleKey.equals("VET")) {
-            // set a new status for the appointment
             appointment.setCurrentStatus(AppointmentStatus.DONE);
 
             // get vetId from the appointment
