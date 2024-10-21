@@ -40,6 +40,4 @@ public interface AppointmentService {
 
     void updateStatus(Integer appointmentId, AppointmentStatus status);
 
-    Appointment getAppointmentByPaymentId(Integer paymentId);
-
 }

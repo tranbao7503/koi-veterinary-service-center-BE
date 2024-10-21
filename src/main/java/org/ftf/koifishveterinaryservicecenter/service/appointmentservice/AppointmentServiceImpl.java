@@ -316,10 +316,6 @@ public class AppointmentServiceImpl implements AppointmentService {
         // appointment: ONGOING --> DONE
     }
 
-    @Override
-    public Appointment getAppointmentByPaymentId(Integer paymentId) {
-        return appointmentRepository.findAppointmentByPaymentId(paymentId);
-    }
 
     @Override
     public Appointment getAppointmentById(Integer appointmentId) {

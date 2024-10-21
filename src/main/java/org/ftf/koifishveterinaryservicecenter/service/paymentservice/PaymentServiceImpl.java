@@ -4,8 +4,8 @@ import org.ftf.koifishveterinaryservicecenter.entity.Appointment;
 import org.ftf.koifishveterinaryservicecenter.entity.Payment;
 import org.ftf.koifishveterinaryservicecenter.enums.PaymentStatus;
 import org.ftf.koifishveterinaryservicecenter.exception.PaymentNotFoundException;
+import org.ftf.koifishveterinaryservicecenter.repository.AppointmentRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.PaymentRepository;
-import org.ftf.koifishveterinaryservicecenter.service.appointmentservice.AppointmentService;
 import org.ftf.koifishveterinaryservicecenter.service.emailservice.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,13 +21,13 @@ public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final EmailService emailService;
-    private final AppointmentService appointmentService;
+    private final AppointmentRepository appointmentRepository;
 
     @Autowired
-    public PaymentServiceImpl(PaymentRepository paymentRepository, EmailService emailService, AppointmentService appointmentService) {
+    public PaymentServiceImpl(PaymentRepository paymentRepository, EmailService emailService, AppointmentRepository appointmentRepository) {
         this.paymentRepository = paymentRepository;
         this.emailService = emailService;
-        this.appointmentService = appointmentService;
+        this.appointmentRepository = appointmentRepository;
     }
 
     @Override
@@ -62,7 +62,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     @Transactional
-    public Payment  updatePaymentForVnPay(Integer paymentId, Date payDate, String transactionId, String description) {
+    public Payment updatePaymentForVnPay(Integer paymentId, Date payDate, String transactionId, String description) {
         Payment payment = findPaymentByAppointmentId(paymentId);
 
         payment.setTransactionId(transactionId);
@@ -70,12 +70,14 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setDescription(description);
         payment.setStatus(PaymentStatus.PAID);
 
-        Appointment appointment = appointmentService.getAppointmentByPaymentId(paymentId);
+        Appointment appointment = appointmentRepository.findAppointmentByPaymentId(paymentId);
         String customerEmail = appointment.getCustomer().getEmail();
 
         // Asynchronously send the email
-        emailService.sendAppointmentBills(customerEmail, "Your Appointment");
+        emailService.sendAppointmentBills(customerEmail, "Koi Fish - Appointment Bills");
 
         return paymentRepository.save(payment);
     }
 }
+
+
