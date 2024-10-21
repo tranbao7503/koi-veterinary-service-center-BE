@@ -321,6 +321,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         // appointment: ONGOING --> DONE
     }
 
+
     @Override
     public Appointment createFollowUpAppointment(Integer appointmentId, Appointment newAppointment) {
         Appointment appointment = this.getAppointmentById(appointmentId);
