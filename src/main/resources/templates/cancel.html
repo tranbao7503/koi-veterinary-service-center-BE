@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
@@ -9,6 +9,7 @@
 </head>
 <body>
     <div>
+        <p>Dear, <b th:text="${String.join(' ',customer.getFirstName(),customer.getLastName())}"></b> </p>
         <p>Thanks for your caring. Hopefully being severed for you later !!</p>
     </div>
 </body>

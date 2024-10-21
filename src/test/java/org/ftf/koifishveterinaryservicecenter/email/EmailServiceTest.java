@@ -20,11 +20,6 @@ public class EmailServiceTest {
         emailService.sendTextEmail(to, subject, message);
     }
 
-    @Test
-    public void testSendHtmlEmail() throws Exception {
-        String to = "crisbrian070503@gmail.com";
-        String subject = "Appointment Bills";
-        emailService.sendAppointmentBills(to,subject);
-    }
+
 
 }

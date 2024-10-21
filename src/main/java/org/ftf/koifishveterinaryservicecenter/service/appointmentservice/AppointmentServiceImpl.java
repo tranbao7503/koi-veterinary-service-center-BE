@@ -14,6 +14,7 @@ import org.ftf.koifishveterinaryservicecenter.repository.VeterinarianSlotsReposi
 import org.ftf.koifishveterinaryservicecenter.service.addressservice.AddressService;
 import org.ftf.koifishveterinaryservicecenter.service.appointmentservice.appointmentstate.AppointmentContext;
 import org.ftf.koifishveterinaryservicecenter.service.appointmentservice.appointmentstate.AppointmentStateFactory;
+import org.ftf.koifishveterinaryservicecenter.service.emailservice.EmailService;
 import org.ftf.koifishveterinaryservicecenter.service.feedbackservice.FeedbackService;
 import org.ftf.koifishveterinaryservicecenter.service.fishservice.FishService;
 import org.ftf.koifishveterinaryservicecenter.service.medicalreportservice.MedicalReportService;
@@ -51,6 +52,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final FishService fishService;
     private final FeedbackService feedbackService;
     private final AppointmentStateFactory appointmentStateFactory;
+    private final EmailService emailService;
 
 
     @Autowired
@@ -66,7 +68,7 @@ public class AppointmentServiceImpl implements AppointmentService {
             , AddressService addressService
             , SurchargeService surchargeService
             , FishService fishService
-            , FeedbackService feedbackService, AppointmentStateFactory appointmentStateFactory) {
+            , FeedbackService feedbackService, AppointmentStateFactory appointmentStateFactory, EmailService emailService) {
         this.appointmentRepository = appointmentRepository;
         this.medicalReportService = medicalReportService;
         this.userService = userService;
@@ -81,6 +83,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         this.fishService = fishService;
         this.feedbackService = feedbackService;
         this.appointmentStateFactory = appointmentStateFactory;
+        this.emailService = emailService;
     }
 
 
@@ -276,6 +279,9 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointmentRepository.save(appointment.get());
 
         // send email
+        User customer = appointment.get().getCustomer();
+        emailService.sendEmailForCancelingAppointment(appointment.get().getEmail(), "Koi fish - Thanks you", customer);
+
     }
 
     @Override
