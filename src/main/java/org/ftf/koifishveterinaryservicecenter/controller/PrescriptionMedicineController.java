@@ -42,6 +42,10 @@ public class PrescriptionMedicineController {
         return ResponseEntity.ok(medicineDtos);
     }
 
+    /*
+     * View prescription
+     * Actors: Manager, Customer, Veterinarian, Staff
+     * */
     @GetMapping("/{prescriptionId}")
     public ResponseEntity<?> getMedicineById(@PathVariable Integer prescriptionId) {
         try {

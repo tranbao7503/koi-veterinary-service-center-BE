@@ -6,6 +6,7 @@ import org.ftf.koifishveterinaryservicecenter.dto.IntrospectRequestDTO;
 import org.ftf.koifishveterinaryservicecenter.dto.response.IntrospectResponse;
 import org.ftf.koifishveterinaryservicecenter.entity.Fish;
 import org.ftf.koifishveterinaryservicecenter.exception.FishNotFoundException;
+import org.ftf.koifishveterinaryservicecenter.exception.ImageNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.FishMapper;
 import org.ftf.koifishveterinaryservicecenter.service.fishservice.FishService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
@@ -26,7 +27,6 @@ public class FishController {
     private final FishService fishService;
     private final FishMapper fishMapper;
     private final AuthenticationService authenticationService;
-
 
 
     @Autowired
@@ -126,6 +126,31 @@ public class FishController {
         } catch (Exception e) {
             // Trả về thông báo lỗi nếu xảy ra lỗi không mong muốn
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DeleteMapping("/deleteimage")
+    public ResponseEntity<ImageDTO> updateImage(@RequestBody ImageDTO imageDTO) {
+        try {
+            // Gọi phương thức updateUser từ service với dữ liệu từ UserDTO
+            ImageDTO updatedImage = fishService.removeImage(imageDTO.getImageId(), imageDTO.isEnabled());
+
+            // Trả về kết quả thành công với đối tượng UserDTO đã cập nhật
+            return ResponseEntity.ok(updatedImage);
+        } catch (ImageNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(null);
+        }
+    }
+
+    @PostMapping("/addfish")
+    public ResponseEntity<FishDTO> addFish(@RequestBody FishDTO fishDTO) {
+        FishDTO createdFish = fishService.addFish(fishDTO);
+        if (createdFish == null) {
+            return ResponseEntity.badRequest().build(); // Trả về 400 nếu không thể thêm
+        } else {
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdFish); // Trả về cá đã tạo với mã 201
         }
     }
 

@@ -17,7 +17,7 @@ public class AddressRepositoryTests {
     private AddressRepository addressRepository;
 
     @Test
-    public void testGetAddressByIdSuccess(){
+    public void testGetAddressByIdSuccess() {
         int addressId = 1;
         Address address = addressRepository.findById(addressId).get();
         Assertions.assertThat(address).isNotNull();
