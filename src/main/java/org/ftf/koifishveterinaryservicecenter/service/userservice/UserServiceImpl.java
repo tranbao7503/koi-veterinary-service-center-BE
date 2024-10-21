@@ -12,6 +12,7 @@ import org.ftf.koifishveterinaryservicecenter.mapper.UserMapper;
 import org.ftf.koifishveterinaryservicecenter.repository.AddressRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.RoleRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.UserRepository;
+import org.ftf.koifishveterinaryservicecenter.service.fileservice.FileDownloadService;
 import org.ftf.koifishveterinaryservicecenter.service.fileservice.FileUploadService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -32,8 +33,17 @@ public class UserServiceImpl implements UserService {
     private final FileUploadService fileUploadService;
     private final UserMapper userMapper;
     private final AuthenticationService authenticationService;
+    private final FileDownloadService fileDownloadService;
 
-    public UserServiceImpl(UserRepository userRepository, AddressRepository addressRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, FileUploadService fileUploadService, UserMapper userMapper, AuthenticationService authenticationService) {
+    public UserServiceImpl(
+            UserRepository userRepository
+            , AddressRepository addressRepository
+            , RoleRepository roleRepository
+            , PasswordEncoder passwordEncoder
+            , FileUploadService fileUploadService
+            , UserMapper userMapper
+            , AuthenticationService authenticationService
+            , FileDownloadService fileDownloadService) {
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
         this.roleRepository = roleRepository;
@@ -41,18 +51,29 @@ public class UserServiceImpl implements UserService {
         this.fileUploadService = fileUploadService;
         this.userMapper = userMapper;
         this.authenticationService = authenticationService;
+        this.fileDownloadService = fileDownloadService;
     }
 
 
     @Override
     public User getUserProfile(Integer userId) {
-        return userRepository.findUsersByUserId(userId);
+        User user = userRepository.findUsersByUserId(userId);
+        if (user.getAvatar() != null) {
+            String avatarPath = fileDownloadService.getImageUrl(user.getAvatar());
+            user.setAvatar(avatarPath);
+        }
+        return user;
     }
 
     @Override
     public List<User> getAllVeterinarians() {
         Role role = roleRepository.findByRoleKey("VET");
         List<User> veterinarians = new ArrayList<>(role.getUsers());
+        veterinarians.forEach(veterinarian -> {
+            if (veterinarian.getAvatar() != null) {
+                veterinarian.setAvatar(fileDownloadService.getImageUrl(veterinarian.getAvatar()));
+            }
+        });
         return veterinarians;
     }
 
@@ -117,6 +138,11 @@ public class UserServiceImpl implements UserService {
     public List<User> getAllCustomers() {
         Role role = roleRepository.findByRoleKey("CUS");
         List<User> customers = new ArrayList<>(role.getUsers());
+        customers.forEach(customer -> {
+            if (customer.getAvatar() != null) {
+                customer.setAvatar(fileDownloadService.getImageUrl(customer.getAvatar()));
+            }
+        });
         return customers;
     }
 
@@ -312,8 +338,16 @@ public class UserServiceImpl implements UserService {
             return new ArrayList<>(); // Trả về danh sách rỗng nếu không tìm thấy role
         }
 
+        List<User> staffs = new ArrayList<>(staffRole.getUsers());
+
+        staffs.forEach(staff -> {
+            if (staff.getAvatar() != null) {
+                staff.setAvatar(fileDownloadService.getImageUrl(staff.getAvatar()));
+            }
+        });
+
         // Trả về danh sách users từ role "STA"
-        return new ArrayList<>(staffRole.getUsers());
+        return staffs;
     }
 
     @Override

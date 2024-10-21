@@ -30,7 +30,6 @@ public class OngoingState implements AppointmentState {
         String roleKey = authenticationService.getAuthenticatedUserRoleKey();
 
         if (roleKey.equals("VET")) {
-            // set a new status for the appointment
             appointment.setCurrentStatus(AppointmentStatus.DONE);
 
             // get vetId from the appointment
@@ -48,7 +47,7 @@ public class OngoingState implements AppointmentState {
         status.setAppointment(appointment);
         status.setStatusName(appointment.getCurrentStatus());
         status.setTime(LocalDateTime.now());
-        status.setNote("Veterinarian - " + String.join(" " + veterinarian.getFirstName(), veterinarian.getLastName()) + " marked DONE the appointment successfully");
+        status.setNote("Veterinarian - " + veterinarian.getFirstName() + " " + veterinarian.getLastName() + " marked DONE the appointment successfully");
         appointment.addStatus(status);
     }
 }

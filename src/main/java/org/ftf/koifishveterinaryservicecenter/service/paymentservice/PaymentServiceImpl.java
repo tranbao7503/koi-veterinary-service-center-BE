@@ -1,11 +1,15 @@
 package org.ftf.koifishveterinaryservicecenter.service.paymentservice;
 
 import org.ftf.koifishveterinaryservicecenter.entity.Payment;
+import org.ftf.koifishveterinaryservicecenter.enums.AppointmentStatus;
 import org.ftf.koifishveterinaryservicecenter.enums.PaymentStatus;
 import org.ftf.koifishveterinaryservicecenter.exception.PaymentNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.repository.PaymentRepository;
+import org.ftf.koifishveterinaryservicecenter.service.appointmentservice.AppointmentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -16,10 +20,12 @@ public class PaymentServiceImpl implements PaymentService {
 
 
     private final PaymentRepository paymentRepository;
+    private final AppointmentService appointmentService;
 
     @Autowired
-    public PaymentServiceImpl(PaymentRepository paymentRepository) {
+    public PaymentServiceImpl(PaymentRepository paymentRepository, AppointmentService appointmentService) {
         this.paymentRepository = paymentRepository;
+        this.appointmentService = appointmentService;
     }
 
     @Override
@@ -50,13 +56,17 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public Payment updatePaymentForVnPay(Integer paymentId, Date payDate, String transactionId, String description) {
-        Payment payment = findPaymentByAppointmentId(paymentId);
+    public Payment updatePaymentForVnPay(Integer appointmentId, Date payDate, String transactionId, String description) {
+        Payment payment = findPaymentByAppointmentId(appointmentId);
 
         payment.setTransactionId(transactionId);
         payment.setTransactionTime(LocalDateTime.ofInstant(payDate.toInstant(), ZoneId.systemDefault()));
         payment.setDescription(description);
         payment.setStatus(PaymentStatus.PAID);
+
+
+        // system update status to ongoing asynchronously
+        appointmentService.updateStatus(appointmentId, AppointmentStatus.ON_GOING);
 
         paymentRepository.save(payment);
 
