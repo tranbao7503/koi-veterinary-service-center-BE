@@ -20,12 +20,10 @@ public class PaymentServiceImpl implements PaymentService {
 
 
     private final PaymentRepository paymentRepository;
-    private final AppointmentService appointmentService;
 
     @Autowired
-    public PaymentServiceImpl(PaymentRepository paymentRepository, AppointmentService appointmentService) {
+    public PaymentServiceImpl(PaymentRepository paymentRepository) {
         this.paymentRepository = paymentRepository;
-        this.appointmentService = appointmentService;
     }
 
     @Override
@@ -44,7 +42,8 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public Payment updatePayment(Integer paymentId, Payment newPayment) throws PaymentNotFoundException {
-        Payment payment = findPaymentByAppointmentId(paymentId);
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new PaymentNotFoundException("Payment not found with id: " + paymentId));
 
         payment.setTransactionTime(LocalDateTime.now());
         payment.setDescription(newPayment.getDescription());
@@ -66,7 +65,7 @@ public class PaymentServiceImpl implements PaymentService {
 
 
         // system update status to ongoing asynchronously
-        appointmentService.updateStatus(appointmentId, AppointmentStatus.ON_GOING);
+        //appointmentService.updateStatus(appointmentId, AppointmentStatus.ON_GOING);
 
         paymentRepository.save(payment);
 
