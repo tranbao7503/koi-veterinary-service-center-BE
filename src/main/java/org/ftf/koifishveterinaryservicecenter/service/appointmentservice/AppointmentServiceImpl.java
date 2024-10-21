@@ -335,14 +335,14 @@ public class AppointmentServiceImpl implements AppointmentService {
         BigDecimal servicePrice = serviceService.getServiceById(4).getServicePrice();
 
         // Address
-        if(appointment.getAddress() != null) {
+        if (appointment.getAddress() != null) {
             followUpAppointment.setAddress(appointment.getAddress());
         }
 
         // Moving surcharge
         MovingSurcharge movingSurcharge = appointment.getMovingSurcharge();
         BigDecimal surchargePrice = new BigDecimal(0);
-        if(movingSurcharge != null) {
+        if (movingSurcharge != null) {
             followUpAppointment.setMovingSurcharge(movingSurcharge);
             surchargePrice = movingSurcharge.getPrice();
         }
@@ -376,7 +376,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         followUpAppointment.setTotalPrice(totalPrice);
 
         // Fish
-        if(appointment.getFish() != null) {
+        if (appointment.getFish() != null) {
             followUpAppointment.setFish(appointment.getFish());
         }
 

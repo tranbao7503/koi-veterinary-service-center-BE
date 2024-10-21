@@ -153,14 +153,14 @@ public class PaymentController {
             // Appointment ID
             Integer appointmentId = vnPayService.getAppointmentIdFromTxnRef(txnRef);
 
-            if ("00".equals(responseCode)) { // Payed successfully
+            if ("00" .equals(responseCode)) { // Payed successfully
 
                 DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
                 Date paymentDate = dateFormat.parse(payDate);
 
                 // Update payment
                 paymentService.updatePaymentForVnPay(appointmentId, paymentDate, transactionId, orderInfo);
-                appointmentService.updateStatus(appointmentId,  AppointmentStatus.ON_GOING);
+                appointmentService.updateStatus(appointmentId, AppointmentStatus.ON_GOING);
 
                 response.sendRedirect("http://localhost:8080/api/v1/payments/" + appointmentId); // Redirect to appointment details page of FE
             } else {

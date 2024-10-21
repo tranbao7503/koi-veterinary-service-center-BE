@@ -20,7 +20,6 @@ import org.ftf.koifishveterinaryservicecenter.service.appointmentservice.Appoint
 import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -286,9 +285,9 @@ public class AppointmentController {
     }
 
     /*
-    * Create follow-up appointment for an existed appointment
-    * Actors: Veterinarian
-    * */
+     * Create follow-up appointment for an existed appointment
+     * Actors: Veterinarian
+     * */
     @PostMapping("/follow-up-appointment")
     public ResponseEntity<?> createFollowUpAppointment(
             @RequestParam Integer appointmentId
@@ -297,7 +296,7 @@ public class AppointmentController {
             Integer userId = authenticationService.getAuthenticatedUserId();
 
             Appointment appointment = appointmentService.getAppointmentById(appointmentId);
-            if(!appointment.getVeterinarian().getUserId().equals(userId)) { // Verify user
+            if (!appointment.getVeterinarian().getUserId().equals(userId)) { // Verify user
                 return new ResponseEntity<>(HttpStatus.FORBIDDEN);
             }
 
