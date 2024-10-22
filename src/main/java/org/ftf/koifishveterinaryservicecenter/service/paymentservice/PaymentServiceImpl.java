@@ -71,11 +71,6 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setDescription(description);
         payment.setStatus(PaymentStatus.PAID);
 
-        Appointment appointment = appointmentRepository.findById(appointmentId).orElseThrow(() -> new AppointmentNotFoundException("Appointment not found with id: " + appointmentId));
-        String customerEmail = appointment.getCustomer().getEmail();
-
-
-
         return paymentRepository.save(payment);
     }
 }

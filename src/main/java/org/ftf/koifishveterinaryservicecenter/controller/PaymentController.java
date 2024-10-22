@@ -91,6 +91,8 @@ public class PaymentController {
             Payment payment = PaymentMapper.INSTANCE.convertToFullEntity(paymentDto);
 
             PaymentDto updatedPaymentDto = PaymentMapper.INSTANCE.convertToDto(paymentService.updatePayment(appointment.getPayment().getPaymentId(), payment));
+            appointmentService.updateStatus(appointmentId, AppointmentStatus.ON_GOING);
+
             return new ResponseEntity<>(updatedPaymentDto, HttpStatus.OK);
 
         } catch (AppointmentNotFoundException e) {
