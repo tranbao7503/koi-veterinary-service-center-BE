@@ -12,6 +12,7 @@ import org.ftf.koifishveterinaryservicecenter.exception.AppointmentNotFoundExcep
 import org.ftf.koifishveterinaryservicecenter.exception.PaymentNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.PaymentMapper;
 import org.ftf.koifishveterinaryservicecenter.service.appointmentservice.AppointmentService;
+import org.ftf.koifishveterinaryservicecenter.service.emailservice.EmailService;
 import org.ftf.koifishveterinaryservicecenter.service.paymentservice.PaymentService;
 import org.ftf.koifishveterinaryservicecenter.service.paymentservice.VnPayService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
@@ -34,19 +35,20 @@ public class PaymentController {
     private final AppointmentService appointmentService;
     private final AuthenticationService authenticationService;
     private final VnPayService vnPayService;
-    private final PaymentConfig paymentConfig;
+    private final EmailService emailService;
 
     @Autowired
     public PaymentController(
             PaymentService paymentService
             , AppointmentService appointmentService
             , AuthenticationService authenticationService
-            , VnPayService vnPayService, PaymentConfig paymentConfig) {
+            , EmailService emailService
+            , VnPayService vnPayService) {
         this.paymentService = paymentService;
         this.appointmentService = appointmentService;
         this.authenticationService = authenticationService;
         this.vnPayService = vnPayService;
-        this.paymentConfig = paymentConfig;
+        this.emailService = emailService;
     }
 
     /*
@@ -153,7 +155,7 @@ public class PaymentController {
             // Appointment ID
             Integer appointmentId = vnPayService.getAppointmentIdFromTxnRef(txnRef);
 
-            if ("00" .equals(responseCode)) { // Payed successfully
+            if ("00".equals(responseCode)) { // Payed successfully
 
                 DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
                 Date paymentDate = dateFormat.parse(payDate);
@@ -162,8 +164,11 @@ public class PaymentController {
                 paymentService.updatePaymentForVnPay(appointmentId, paymentDate, transactionId, orderInfo);
                 appointmentService.updateStatus(appointmentId, AppointmentStatus.ON_GOING);
 
-                // system update status to ongoing asynchronously
-                appointmentService.updateStatus(appointmentId, AppointmentStatus.ON_GOING);
+                Appointment appointment = appointmentService.getAppointmentById(appointmentId);
+
+                // Asynchronously send the email
+                emailService.sendAppointmentBills(appointment.getEmail(), "Koi Fish - Appointment Bills", appointment);
+
                 response.sendRedirect("http://localhost:8080/api/v1/payments/" + appointmentId); // Redirect to appointment details page of FE
             } else {
                 response.sendRedirect("http://localhost:8080/api/v1/payments/" + appointmentId);

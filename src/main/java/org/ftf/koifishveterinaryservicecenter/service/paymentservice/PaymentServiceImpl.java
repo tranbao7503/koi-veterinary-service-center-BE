@@ -3,6 +3,7 @@ package org.ftf.koifishveterinaryservicecenter.service.paymentservice;
 import org.ftf.koifishveterinaryservicecenter.entity.Appointment;
 import org.ftf.koifishveterinaryservicecenter.entity.Payment;
 import org.ftf.koifishveterinaryservicecenter.enums.PaymentStatus;
+import org.ftf.koifishveterinaryservicecenter.exception.AppointmentNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.PaymentNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.repository.AppointmentRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.PaymentRepository;
@@ -70,11 +71,10 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setDescription(description);
         payment.setStatus(PaymentStatus.PAID);
 
-        Appointment appointment = appointmentRepository.findAppointmentByPaymentId(appointmentId);
+        Appointment appointment = appointmentRepository.findById(appointmentId).orElseThrow(() -> new AppointmentNotFoundException("Appointment not found with id: " + appointmentId));
         String customerEmail = appointment.getCustomer().getEmail();
 
-        // Asynchronously send the email
-        emailService.sendAppointmentBills(customerEmail, "Koi Fish - Appointment Bills", appointment);
+
 
         return paymentRepository.save(payment);
     }
