@@ -1,4 +1,5 @@
 package org.ftf.koifishveterinaryservicecenter.configuration;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,25 +15,23 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
-
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
 public class AppConfig {
 
     private final String[] PUBLIC_ENDPOINTS = {
             "/api/v1/users/token", "/api/v1/users/introspect", "api/v1/users/customers", "api/v1/users/signup", "api/v1/users/**"
-
     };
 
     @Value("${jwt.signer}")
     private String SIGNER_KEY;
+
     @Autowired
     private CustomJwtDecoder customJwtDecoder;
+
     @Bean
-    /*
-     * ModelMapper use for mapping Entity to DTO
-     * */
     public ModelMapper modelMapper(){
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setAmbiguityIgnored(true);
@@ -44,7 +43,7 @@ public class AppConfig {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean  // xoa prefix
+    @Bean  // Remove authority prefix
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
         jwtGrantedAuthoritiesConverter.setAuthorityPrefix("");
@@ -84,22 +83,22 @@ public class AppConfig {
                         .jwt(jwtConfigurer -> jwtConfigurer
                                 .decoder(customJwtDecoder)
                                 .jwtAuthenticationConverter(jwtAuthenticationConverter())
-                        ));
+                        ))
+                .cors(cors -> cors.configurationSource(corsConfigurationSource())); // Enable CORS
 
         return httpSecurity.build();
     }
 
     @Bean
-    public UrlBasedCorsConfigurationSource corsConfigurationSource() {
+    public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.addAllowedOrigin("http://localhost:3000"); // Allow requests from React app
         configuration.addAllowedMethod("*"); // Allow all HTTP methods (GET, POST, PUT, DELETE, etc.)
         configuration.addAllowedHeader("*"); // Allow all headers
         configuration.setAllowCredentials(true); // Allow credentials (e.g., cookies, authorization headers)
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration); // Apply this CORS configuration to all endpoints
         return source;
     }
-
-
 }
