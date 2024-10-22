@@ -20,12 +20,12 @@ public class PaymentServiceImpl implements PaymentService {
 
 
     private final PaymentRepository paymentRepository;
-    private final AppointmentService appointmentService;
+
 
     @Autowired
-    public PaymentServiceImpl(PaymentRepository paymentRepository, AppointmentService appointmentService) {
+    public PaymentServiceImpl(PaymentRepository paymentRepository) {
         this.paymentRepository = paymentRepository;
-        this.appointmentService = appointmentService;
+
     }
 
     @Override
@@ -64,9 +64,6 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setDescription(description);
         payment.setStatus(PaymentStatus.PAID);
 
-
-        // system update status to ongoing asynchronously
-        appointmentService.updateStatus(appointmentId, AppointmentStatus.ON_GOING);
 
         paymentRepository.save(payment);
 
