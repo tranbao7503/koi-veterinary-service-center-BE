@@ -295,7 +295,6 @@ public class AppointmentController {
                 return new ResponseEntity<>(HttpStatus.FORBIDDEN);
             }
 
-
             Appointment followUpAppointment = AppointmentMapper.INSTANCE.convertedToAppointment(followUpAppointmentDto);
             Appointment createdAppointment = appointmentService.createFollowUpAppointment(appointmentId, followUpAppointment);
 

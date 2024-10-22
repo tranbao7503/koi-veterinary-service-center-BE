@@ -396,7 +396,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         followUpAppointment.setPayment(paymentService.createPayment(payment));
 
         // Current status
-        followUpAppointment.setCurrentStatus(AppointmentStatus.PENDING);
+        followUpAppointment.setCurrentStatus(AppointmentStatus.ON_GOING);
 
         Appointment savedFollowUpAppointment = appointmentRepository.save(followUpAppointment);
 
