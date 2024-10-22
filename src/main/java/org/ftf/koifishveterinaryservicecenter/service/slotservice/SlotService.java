@@ -20,4 +20,6 @@ public interface SlotService {
 
     void updateVeterinarianSlotsStatus(Integer veterinarianId, Integer slotId, SlotStatus status);
 
+    List<TimeSlot> getAvailableSlotForFollowUpAppointment(Integer veterinarianId, Integer currentSlotId);
+
 }

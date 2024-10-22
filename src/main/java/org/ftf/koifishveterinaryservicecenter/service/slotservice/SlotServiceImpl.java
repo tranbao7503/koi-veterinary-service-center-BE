@@ -125,4 +125,18 @@ public class SlotServiceImpl implements SlotService {
         veterinarianSlotsRepository.save(veterinarianSlots);
     }
 
+    @Override
+    public List<TimeSlot> getAvailableSlotForFollowUpAppointment(Integer veterinarianId, Integer currentSlotId) {
+
+        List<TimeSlot> timeSlots = this.getAvailableSlotsByVeterinarianId(veterinarianId); // Get All available slots
+
+        // Filter only slots come after the slot of main appointment
+        List<TimeSlot> filteredSlots = timeSlots.stream()
+                .filter(timeSlot -> timeSlot.getSlotId() > currentSlotId)
+                .collect(Collectors.toList());
+
+        return filteredSlots;
+    }
+
+
 }
