@@ -162,6 +162,8 @@ public class PaymentController {
                 paymentService.updatePaymentForVnPay(appointmentId, paymentDate, transactionId, orderInfo);
                 appointmentService.updateStatus(appointmentId, AppointmentStatus.ON_GOING);
 
+                // system update status to ongoing asynchronously
+                appointmentService.updateStatus(appointmentId, AppointmentStatus.ON_GOING);
                 response.sendRedirect("http://localhost:8080/api/v1/payments/" + appointmentId); // Redirect to appointment details page of FE
             } else {
                 response.sendRedirect("http://localhost:8080/api/v1/payments/" + appointmentId);
