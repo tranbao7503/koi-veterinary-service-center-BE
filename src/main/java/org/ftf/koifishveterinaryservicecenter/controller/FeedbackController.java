@@ -158,4 +158,28 @@ public class FeedbackController {
         }
     }
 
+    /*
+     * View feedback details of a customer
+     * Actors: Customer
+     * */
+    @GetMapping("/{feedbackId}/customer")
+    public ResponseEntity<?> getFeedbackByCustomer(@PathVariable("feedbackId") Integer feedbackId) {
+        try {
+            User customer = userService.getCustomerById(authenticationService.getAuthenticatedUserId());
+            Feedback feedback = feedbackService.getFeedbackById(feedbackId);
+            if (feedback.getCustomer().getUserId().equals(customer.getUserId())) {
+                FeedbackDto feedbackDto = FeedbackMapper.INSTANCE.convertToFeedbackDto(feedback);
+                return new ResponseEntity<>(feedbackDto, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            }
+        } catch (FeedbackNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
+        } catch (UserNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }

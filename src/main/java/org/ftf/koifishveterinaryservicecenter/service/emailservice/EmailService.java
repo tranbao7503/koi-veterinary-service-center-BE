@@ -19,6 +19,9 @@ import org.thymeleaf.context.Context;
 
 import java.io.IOException;
 
+import java.io.IOException;
+
+
 @Service
 @Slf4j
 public class EmailService {
@@ -50,8 +53,7 @@ public class EmailService {
             Context context = new Context();
             AppointmentDetailsDto detailsDto = AppointmentMapper.INSTANCE.convertedToAppointmentDetailsDto(appointment);
             context.setVariable("appointment", detailsDto);
-
-
+          
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
@@ -62,7 +64,6 @@ public class EmailService {
             helper.setTo(to);
             helper.setSubject(subject);
             helper.setText(htmlContent, true);
-
         } catch (MessagingException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {

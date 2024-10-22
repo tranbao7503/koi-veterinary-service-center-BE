@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.text.ParseException;
@@ -111,12 +112,20 @@ public class FishController {
 
 
     @PostMapping("/add_image")
-    public ResponseEntity<ImageDTO> addImageForFish(@RequestBody ImageDTO imageDTO) {
+    public ResponseEntity<?> addImageForFish(@RequestParam("fish_id") int fishId,
+                                             @RequestParam("image") MultipartFile image) {
         try {
-            ImageDTO newImage = fishService.addImageForFish(imageDTO.getFishId(), imageDTO.getSourcePath());
+            // Gọi phương thức trong service để thêm ảnh cho cá
+            ImageDTO newImage = fishService.addImageForFish(fishId, image);
+
+            // Trả về response với status 201 (Created)
             return new ResponseEntity<>(newImage, HttpStatus.CREATED);
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
+            // Trả về thông báo lỗi nếu không tìm thấy cá hoặc xảy ra lỗi khác
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
+        } catch (Exception e) {
+            // Trả về thông báo lỗi nếu xảy ra lỗi không mong muốn
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

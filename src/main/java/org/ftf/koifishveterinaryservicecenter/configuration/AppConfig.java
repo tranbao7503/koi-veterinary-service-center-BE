@@ -72,6 +72,9 @@ public class AppConfig {
                         .requestMatchers("/api/v1/users/staffs").hasAnyAuthority("MAN")
                         .requestMatchers("/api/v1/users/customers").hasAnyAuthority("MAN")
                         .requestMatchers("/api/v1/users/deleteuser").hasAnyAuthority("MAN")
+                        .requestMatchers("/api/v1/email/sendNotification").hasAnyAuthority("STA")
+                        .requestMatchers("api/v1/email/sendBill").hasAnyAuthority("CUS")  // for test
+
                         .requestMatchers("/files/**", "/favicon.ico").permitAll()
                         .requestMatchers("/api/v1/email/sendNotification").hasAnyAuthority("STA")
                         .requestMatchers("api/v1/email/sendBill").hasAnyAuthority("CUS")  // for test

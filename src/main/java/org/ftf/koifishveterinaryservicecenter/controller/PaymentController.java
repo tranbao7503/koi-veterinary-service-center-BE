@@ -5,6 +5,7 @@ import org.ftf.koifishveterinaryservicecenter.configuration.PaymentConfig;
 import org.ftf.koifishveterinaryservicecenter.dto.PaymentDto;
 import org.ftf.koifishveterinaryservicecenter.entity.Appointment;
 import org.ftf.koifishveterinaryservicecenter.entity.Payment;
+import org.ftf.koifishveterinaryservicecenter.enums.AppointmentStatus;
 import org.ftf.koifishveterinaryservicecenter.enums.PaymentMethod;
 import org.ftf.koifishveterinaryservicecenter.enums.PaymentStatus;
 import org.ftf.koifishveterinaryservicecenter.exception.AppointmentNotFoundException;
@@ -152,13 +153,14 @@ public class PaymentController {
             // Appointment ID
             Integer appointmentId = vnPayService.getAppointmentIdFromTxnRef(txnRef);
 
-            if ("00".equals(responseCode)) { // Payed successfully
+            if ("00" .equals(responseCode)) { // Payed successfully
 
                 DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
                 Date paymentDate = dateFormat.parse(payDate);
 
                 // Update payment
                 paymentService.updatePaymentForVnPay(appointmentId, paymentDate, transactionId, orderInfo);
+                appointmentService.updateStatus(appointmentId, AppointmentStatus.ON_GOING);
 
                 response.sendRedirect("http://localhost:8080/api/v1/payments/" + appointmentId); // Redirect to appointment details page of FE
             } else {
