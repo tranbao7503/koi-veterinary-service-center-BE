@@ -70,7 +70,7 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setDescription(description);
         payment.setStatus(PaymentStatus.PAID);
 
-        Appointment appointment = appointmentRepository.findAppointmentByPaymentId(paymentId);
+        Appointment appointment = appointmentRepository.findAppointmentByPaymentId(appointmentId);
         String customerEmail = appointment.getCustomer().getEmail();
 
         // Asynchronously send the email
