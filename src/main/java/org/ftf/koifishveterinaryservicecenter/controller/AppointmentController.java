@@ -6,17 +6,16 @@ import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentDetails
 import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentDto;
 import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentForListDto;
 import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentUpdateDto;
-import org.ftf.koifishveterinaryservicecenter.entity.Appointment;
-import org.ftf.koifishveterinaryservicecenter.entity.MedicalReport;
-import org.ftf.koifishveterinaryservicecenter.entity.Status;
-import org.ftf.koifishveterinaryservicecenter.entity.User;
+import org.ftf.koifishveterinaryservicecenter.entity.*;
 import org.ftf.koifishveterinaryservicecenter.enums.AppointmentStatus;
+import org.ftf.koifishveterinaryservicecenter.enums.PaymentMethod;
 import org.ftf.koifishveterinaryservicecenter.exception.IllegalStateException;
 import org.ftf.koifishveterinaryservicecenter.exception.*;
 import org.ftf.koifishveterinaryservicecenter.mapper.AppointmentMapper;
 import org.ftf.koifishveterinaryservicecenter.mapper.MedicalReportMapper;
 import org.ftf.koifishveterinaryservicecenter.mapper.StatusMapper;
 import org.ftf.koifishveterinaryservicecenter.service.appointmentservice.AppointmentService;
+import org.ftf.koifishveterinaryservicecenter.service.paymentservice.PaymentService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,13 +34,15 @@ public class AppointmentController {
     private final AppointmentService appointmentService;
     private final AuthenticationService authenticationService;
     private final UserService userService;
+    private final PaymentService paymentService;
 
 
     @Autowired
-    public AppointmentController(AppointmentService appointmentService, AuthenticationService authenticationService, UserService userService) {
+    public AppointmentController(AppointmentService appointmentService, AuthenticationService authenticationService, UserService userService, PaymentService paymentService) {
         this.appointmentService = appointmentService;
         this.authenticationService = authenticationService;
         this.userService = userService;
+        this.paymentService = paymentService;
     }
 
     // for Veterinarian
@@ -267,7 +268,13 @@ public class AppointmentController {
             AppointmentStatus appointmentStatus = AppointmentStatus.valueOf(updateStatus);
 
             try {
+                Payment payment = paymentService.findPaymentByAppointmentId(appointmentId);
+
+                if(payment.getPaymentMethod().equals(PaymentMethod.CASH) && appointmentStatus.equals(AppointmentStatus.CONFIRMED)){
+                    appointmentService.updateStatus(appointmentId, AppointmentStatus.ON_GOING);
+                }
                 appointmentService.updateStatus(appointmentId, appointmentStatus);
+
                 return new ResponseEntity<>("Status updated successfully", HttpStatus.OK);
             } catch (AppointmentNotFoundException e) {
                 return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);

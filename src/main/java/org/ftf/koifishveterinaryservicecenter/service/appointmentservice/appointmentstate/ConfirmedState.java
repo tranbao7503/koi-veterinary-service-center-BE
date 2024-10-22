@@ -14,13 +14,10 @@ import java.time.LocalDateTime;
 @Service
 public class ConfirmedState implements AppointmentState {
 
-    private final AuthenticationService authenticationService;
-    private final UserService userService;
+
     private final AppointmentRepository appointmentRepository;
 
-    public ConfirmedState(AuthenticationService authenticationService, UserService userService, AppointmentRepository appointmentRepository) {
-        this.authenticationService = authenticationService;
-        this.userService = userService;
+    public ConfirmedState(AppointmentRepository appointmentRepository) {
         this.appointmentRepository = appointmentRepository;
     }
 
