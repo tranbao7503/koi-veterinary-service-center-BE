@@ -15,11 +15,11 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import java.io.IOException;
 
-import java.io.IOException;
 
 
 @Service
@@ -31,9 +31,11 @@ public class EmailService {
     private String senderEmail;
 
     private final JavaMailSender mailSender;
+    private final TemplateEngine templateEngine;
 
-    public EmailService(JavaMailSender mailSender) {
+    public EmailService(JavaMailSender mailSender, TemplateEngine templateEngine) {
         this.mailSender = mailSender;
+        this.templateEngine = templateEngine;
     }
 
     public void sendTextEmail(String to, String subject, String message) {
@@ -46,27 +48,18 @@ public class EmailService {
         mailSender.send(mailMessage);
     }
 
-
-    @Async // execute method asynchronously
     public void sendAppointmentBills(String to, String subject, Appointment appointment) {
         try {
             Context context = new Context();
             AppointmentDetailsDto detailsDto = AppointmentMapper.INSTANCE.convertedToAppointmentDetailsDto(appointment);
             context.setVariable("appointment", detailsDto);
-          
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
-            Resource resource = new ClassPathResource("/templates/bills.html");
-            String htmlContent = new String(resource.getInputStream().readAllBytes());
+            // resolve resource by Thymeleaf
+            String htmlContent = templateEngine.process("bills", context);
 
-            helper.setFrom(senderEmail);
-            helper.setTo(to);
-            helper.setSubject(subject);
-            helper.setText(htmlContent, true);
+            // create the email message
+            sendEmail(to, subject, htmlContent);
         } catch (MessagingException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -78,21 +71,23 @@ public class EmailService {
             Context context = new Context();
             context.setVariable("customer", user);
 
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            String htmlContent = templateEngine.process("cancel", context);
 
-            Resource resource = new ClassPathResource("/templates/cancel.html");
-            String htmlContent = new String(resource.getInputStream().readAllBytes());
-
-            helper.setFrom(senderEmail);
-            helper.setTo(to);
-            helper.setSubject(subject);
-            helper.setText(htmlContent, true);
-
+            sendEmail(to, subject, htmlContent);
         } catch (MessagingException e) {
             throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
+    }
+
+    private void sendEmail(String to, String subject, String htmlContent) throws MessagingException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+        helper.setFrom(senderEmail);
+        helper.setTo(to);
+        helper.setSubject(subject);
+        helper.setText(htmlContent, true);
+
+        mailSender.send(message);
     }
 }
