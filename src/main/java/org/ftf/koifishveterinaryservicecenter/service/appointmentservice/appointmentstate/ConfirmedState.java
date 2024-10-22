@@ -25,7 +25,6 @@ public class ConfirmedState implements AppointmentState {
     }
 
     @Override
-    @Async
     public void updateState(Appointment appointment) {
 
         // set a new status for the appointment
