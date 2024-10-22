@@ -20,7 +20,6 @@ import org.ftf.koifishveterinaryservicecenter.service.appointmentservice.Appoint
 import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -59,7 +58,6 @@ public class AppointmentController {
     }
 
     /*
-     * Manager get the logs of an appointment
      * Actors: Manager
      * */
     @GetMapping("/{appointmentId}/logs")
@@ -76,8 +74,7 @@ public class AppointmentController {
     }
 
     /*
-     *  View medical report of an appointment
-     *  Actors: Customer, Veterinarian, Manager
+     * Actors: Customer, Veterinarian, Manager
      * */
     @GetMapping("/{appointmentId}/report")
     public ResponseEntity<?> getAppointmentReport(@PathVariable("appointmentId") Integer appointmentId) {
@@ -126,7 +123,6 @@ public class AppointmentController {
     }
 
     /*
-     * View appointment details
      * Actors: Staff, Manager
      * */
     @GetMapping("/{appointmentId}")
@@ -143,7 +139,6 @@ public class AppointmentController {
     }
 
     /*
-     *
      * Actors: Veterinarian
      * */
     @GetMapping("/{appointmentId}/veterinarian")
@@ -237,7 +232,6 @@ public class AppointmentController {
         } catch (AppointmentNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
-
     }
 
     @DeleteMapping("/{appointmentId}")
@@ -280,15 +274,15 @@ public class AppointmentController {
             } catch (IllegalStateException e) {
                 return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
             }
-
         }
         return new ResponseEntity<>("Invalid status value", HttpStatus.BAD_REQUEST);
     }
 
+
     /*
-    * Create follow-up appointment for an existed appointment
-    * Actors: Veterinarian
-    * */
+     * Create follow-up appointment for an existed appointment
+     * Actors: Veterinarian
+     * */
     @PostMapping("/follow-up-appointment")
     public ResponseEntity<?> createFollowUpAppointment(
             @RequestParam Integer appointmentId
@@ -297,9 +291,10 @@ public class AppointmentController {
             Integer userId = authenticationService.getAuthenticatedUserId();
 
             Appointment appointment = appointmentService.getAppointmentById(appointmentId);
-            if(!appointment.getVeterinarian().getUserId().equals(userId)) { // Verify user
+            if (!appointment.getVeterinarian().getUserId().equals(userId)) { // Verify user
                 return new ResponseEntity<>(HttpStatus.FORBIDDEN);
             }
+
 
             Appointment followUpAppointment = AppointmentMapper.INSTANCE.convertedToAppointment(followUpAppointmentDto);
             Appointment createdAppointment = appointmentService.createFollowUpAppointment(appointmentId, followUpAppointment);

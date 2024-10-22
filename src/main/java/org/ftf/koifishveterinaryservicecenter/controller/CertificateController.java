@@ -85,10 +85,10 @@ public class CertificateController {
     public ResponseEntity<?> downloadCertificate(@PathVariable("filename") String filename) {
         try {
             Resource resource = fileDownloadService.loadCertificateAsResource(filename);
-                return ResponseEntity.ok()
-                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
-                        .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                        .body(resource);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .body(resource);
         } catch (FileNotFoundException ex) {
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
         } catch (Exception e) {

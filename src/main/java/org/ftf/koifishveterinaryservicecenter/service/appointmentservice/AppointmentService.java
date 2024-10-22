@@ -14,11 +14,9 @@ import java.util.List;
 
 public interface AppointmentService {
 
-
     void createMedicalReport(MedicalReport medicalReport, Integer appointmentId);
 
     List<Status> findStatusByAppointmentId(Integer appointmentId);
-
 
     Appointment getAppointmentById(Integer appointmentId);
 

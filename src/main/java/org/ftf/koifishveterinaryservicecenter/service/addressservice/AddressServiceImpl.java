@@ -22,4 +22,8 @@ public class AddressServiceImpl implements AddressService {
         if (address.isEmpty()) throw new AddressNotFoundException("Address not found with id " + addressId);
         return address.get();
     }
+
+    private void sendEmail(){
+
+    }
 }

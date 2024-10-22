@@ -13,11 +13,14 @@ import org.ftf.koifishveterinaryservicecenter.mapper.FishMapper;
 import org.ftf.koifishveterinaryservicecenter.mapper.ImageMapper;
 import org.ftf.koifishveterinaryservicecenter.repository.FishRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.ImageRepository;
+import org.ftf.koifishveterinaryservicecenter.service.fileservice.FileUploadService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationServiceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
@@ -32,13 +35,15 @@ public class FishServiceImp implements FishService {
     private final FishRepository fishRepository;
     private final ImageRepository imageRepository;
     private final ImageMapper imageMapper;
+    private final FileUploadService fileUploadService;
 
-    public FishServiceImp(FishMapper fishMapper, AuthenticationServiceImpl authenticationService, FishRepository fishRepository, ImageRepository imageRepository, ImageMapper imageMapper) {
+    public FishServiceImp(FishMapper fishMapper, AuthenticationServiceImpl authenticationService, FishRepository fishRepository, ImageRepository imageRepository, ImageMapper imageMapper, FileUploadService fileUploadService) {
         this.fishMapper = fishMapper;
         this.authenticationService = authenticationService;
         this.fishRepository = fishRepository;
         this.imageRepository = imageRepository;
         this.imageMapper = imageMapper;
+        this.fileUploadService = fileUploadService;
     }
 
     @Override
@@ -115,7 +120,7 @@ public class FishServiceImp implements FishService {
 
 
     @Override
-    public ImageDTO addImageForFish(int fishId, String sourcePath) {
+    public ImageDTO addImageForFish(int fishId, MultipartFile image) throws IOException {
         Fish fish = fishRepository.findByFishId(fishId);
 
         // Kiểm tra nếu fish không tồn tại
@@ -134,13 +139,16 @@ public class FishServiceImp implements FishService {
             throw new AuthenticationException("You can only add images for your own fish.");
         }
 
-        // Tạo một đối tượng Image mới
-        Image image = new Image();
-        image.setSourcePath(sourcePath);
-        image.setFish(fish); // Thiết lập Fish cho Image
+        // Upload file và nhận về đường dẫn của file
+        String path = fileUploadService.uploadFile(image);
+
+        // Tạo đối tượng Image mới
+        Image newImage = new Image();
+        newImage.setSourcePath(path); // Đường dẫn file
+        newImage.setFish(fish); // Gán fish cho image
 
         // Lưu Image vào cơ sở dữ liệu
-        Image savedImage = imageRepository.save(image);
+        Image savedImage = imageRepository.save(newImage);
 
         // Sử dụng mapper để chuyển đổi từ Image entity sang ImageDTO
         return imageMapper.convertEntityToDto(savedImage);
@@ -216,6 +224,7 @@ public class FishServiceImp implements FishService {
         // Sử dụng mapper để chuyển đổi entity sang DTO
         return fishMapper.convertEntityToDto(updatedFish);
     }
+
     public FishDTO addFish(FishDTO fishDTO) {
         // Lấy customerId từ token
         int customerId = authenticationService.getAuthenticatedUserId();  // Lấy customerId từ token

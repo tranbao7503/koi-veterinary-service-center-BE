@@ -153,13 +153,14 @@ public class PaymentController {
             // Appointment ID
             Integer appointmentId = vnPayService.getAppointmentIdFromTxnRef(txnRef);
 
-            if ("00".equals(responseCode)) { // Payed successfully
+            if ("00" .equals(responseCode)) { // Payed successfully
 
                 DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
                 Date paymentDate = dateFormat.parse(payDate);
 
                 // Update payment
                 paymentService.updatePaymentForVnPay(appointmentId, paymentDate, transactionId, orderInfo);
+                appointmentService.updateStatus(appointmentId, AppointmentStatus.ON_GOING);
 
                 // system update status to ongoing asynchronously
                 appointmentService.updateStatus(appointmentId, AppointmentStatus.ON_GOING);
