@@ -40,4 +40,6 @@ public interface AppointmentService {
 
     void updateStatus(Integer appointmentId, AppointmentStatus status);
 
+    Appointment createFollowUpAppointment(Integer appointmentId, Appointment newAppointment);
+
 }

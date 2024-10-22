@@ -2,6 +2,7 @@ package org.ftf.koifishveterinaryservicecenter.service.slotservice;
 
 import org.ftf.koifishveterinaryservicecenter.entity.TimeSlot;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
+import org.ftf.koifishveterinaryservicecenter.entity.veterinarian_slots.VeterinarianSlotId;
 import org.ftf.koifishveterinaryservicecenter.entity.veterinarian_slots.VeterinarianSlots;
 import org.ftf.koifishveterinaryservicecenter.enums.SlotStatus;
 import org.ftf.koifishveterinaryservicecenter.exception.TimeSlotNotFoundException;
@@ -109,6 +110,19 @@ public class SlotServiceImpl implements SlotService {
             throw new TimeSlotNotFoundException("There are no available slots");
         }
         return timeSlots;
+    }
+
+    @Override
+    public void updateVeterinarianSlotsStatus(Integer veterinarianId, Integer slotId, SlotStatus status) {
+        VeterinarianSlotId veterinarianSlotId = new VeterinarianSlotId();
+        veterinarianSlotId.setSlotId(slotId);
+        veterinarianSlotId.setVeterinarianId(veterinarianId);
+
+        VeterinarianSlots veterinarianSlots = veterinarianSlotsRepository.findById(veterinarianSlotId).get();
+
+        veterinarianSlots.setStatus(status);
+
+        veterinarianSlotsRepository.save(veterinarianSlots);
     }
 
 }

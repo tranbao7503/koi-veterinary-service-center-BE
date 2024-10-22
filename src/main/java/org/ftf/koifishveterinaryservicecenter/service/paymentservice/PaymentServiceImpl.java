@@ -48,7 +48,8 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     @Transactional
     public Payment updatePayment(Integer paymentId, Payment newPayment) throws PaymentNotFoundException {
-        Payment payment = findPaymentByAppointmentId(paymentId);
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new PaymentNotFoundException("Payment not found with id: " + paymentId));
 
         payment.setTransactionTime(LocalDateTime.now());
         payment.setDescription(newPayment.getDescription());
@@ -62,9 +63,8 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     @Transactional
-    public Payment updatePaymentForVnPay(Integer paymentId, Date payDate, String transactionId, String description) {
-        Payment payment = findPaymentByAppointmentId(paymentId);
-
+    public Payment updatePaymentForVnPay(Integer appointmentId, Date payDate, String transactionId, String description) {
+        Payment payment = findPaymentByAppointmentId(appointmentId);
         payment.setTransactionId(transactionId);
         payment.setTransactionTime(LocalDateTime.ofInstant(payDate.toInstant(), ZoneId.systemDefault()));
         payment.setDescription(description);

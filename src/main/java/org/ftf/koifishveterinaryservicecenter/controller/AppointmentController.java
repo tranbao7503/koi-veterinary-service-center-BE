@@ -58,6 +58,7 @@ public class AppointmentController {
     }
 
     /*
+     * Manager get the logs of an appointment
      * Actors: Manager
      * */
     @GetMapping("/{appointmentId}/logs")
@@ -74,7 +75,8 @@ public class AppointmentController {
     }
 
     /*
-     * Actors: Customer, Veterinarian, Manager
+     *  View medical report of an appointment
+     *  Actors: Customer, Veterinarian, Manager
      * */
     @GetMapping("/{appointmentId}/report")
     public ResponseEntity<?> getAppointmentReport(@PathVariable("appointmentId") Integer appointmentId) {
@@ -123,6 +125,7 @@ public class AppointmentController {
     }
 
     /*
+     * View appointment details
      * Actors: Staff, Manager
      * */
     @GetMapping("/{appointmentId}")
@@ -139,6 +142,7 @@ public class AppointmentController {
     }
 
     /*
+     *
      * Actors: Veterinarian
      * */
     @GetMapping("/{appointmentId}/veterinarian")
@@ -276,8 +280,37 @@ public class AppointmentController {
             }
         }
         return new ResponseEntity<>("Invalid status value", HttpStatus.BAD_REQUEST);
-
     }
 
+
+    /*
+     * Create follow-up appointment for an existed appointment
+     * Actors: Veterinarian
+     * */
+    @PostMapping("/follow-up-appointment")
+    public ResponseEntity<?> createFollowUpAppointment(
+            @RequestParam Integer appointmentId
+            , @RequestBody AppointmentDto followUpAppointmentDto) {
+        try {
+            Integer userId = authenticationService.getAuthenticatedUserId();
+
+            Appointment appointment = appointmentService.getAppointmentById(appointmentId);
+            if (!appointment.getVeterinarian().getUserId().equals(userId)) { // Verify user
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            }
+
+
+            Appointment followUpAppointment = AppointmentMapper.INSTANCE.convertedToAppointment(followUpAppointmentDto);
+            Appointment createdAppointment = appointmentService.createFollowUpAppointment(appointmentId, followUpAppointment);
+
+            AppointmentDetailsDto appointmentDetailsDto = AppointmentMapper.INSTANCE.convertedToAppointmentDetailsDto(createdAppointment);
+
+            return new ResponseEntity<>(appointmentDetailsDto, HttpStatus.CREATED);
+        } catch (AppointmentNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
 }
