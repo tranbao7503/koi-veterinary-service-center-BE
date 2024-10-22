@@ -236,7 +236,6 @@ public class AppointmentController {
         } catch (AppointmentNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
-
     }
 
     @DeleteMapping("/{appointmentId}")
@@ -279,10 +278,10 @@ public class AppointmentController {
             } catch (IllegalStateException e) {
                 return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
             }
-
         }
         return new ResponseEntity<>("Invalid status value", HttpStatus.BAD_REQUEST);
     }
+
 
     /*
      * Create follow-up appointment for an existed appointment
@@ -299,6 +298,7 @@ public class AppointmentController {
             if (!appointment.getVeterinarian().getUserId().equals(userId)) { // Verify user
                 return new ResponseEntity<>(HttpStatus.FORBIDDEN);
             }
+
 
             Appointment followUpAppointment = AppointmentMapper.INSTANCE.convertedToAppointment(followUpAppointmentDto);
             Appointment createdAppointment = appointmentService.createFollowUpAppointment(appointmentId, followUpAppointment);

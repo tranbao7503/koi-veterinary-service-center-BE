@@ -19,7 +19,6 @@ public interface AppointmentService {
 
     List<Status> findStatusByAppointmentId(Integer appointmentId);
 
-
     Appointment getAppointmentById(Integer appointmentId);
 
     MedicalReport getMedicalReportByAppointmentId(Integer appointmentId);
