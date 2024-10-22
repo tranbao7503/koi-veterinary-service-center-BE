@@ -74,7 +74,7 @@ public class AppConfig {
                         .requestMatchers("/api/v1/email/sendNotification").hasAnyAuthority("STA")
                         .requestMatchers("api/v1/email/sendBill").hasAnyAuthority("CUS")  // for test
 
-                        .requestMatchers("/files/**", "/favicon.ico").permitAll()
+                        .requestMatchers("/files/**", "/favicon.ico", "/api/v1/payments/vnpay-notify").permitAll()
                         .requestMatchers("/api/v1/email/sendNotification").hasAnyAuthority("STA")
                         .requestMatchers("api/v1/email/sendBill").hasAnyAuthority("CUS")  // for test
 
