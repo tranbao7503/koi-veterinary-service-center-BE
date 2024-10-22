@@ -3,6 +3,10 @@ package org.ftf.koifishveterinaryservicecenter.service.emailservice;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
+import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentDetailsDto;
+import org.ftf.koifishveterinaryservicecenter.entity.Appointment;
+import org.ftf.koifishveterinaryservicecenter.entity.User;
+import org.ftf.koifishveterinaryservicecenter.mapper.AppointmentMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -11,6 +15,9 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
+
+import java.io.IOException;
 
 import java.io.IOException;
 
@@ -24,7 +31,6 @@ public class EmailService {
     private String senderEmail;
 
     private final JavaMailSender mailSender;
-
 
     public EmailService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
@@ -40,9 +46,14 @@ public class EmailService {
         mailSender.send(mailMessage);
     }
 
+
     @Async // execute method asynchronously
-    public void sendAppointmentBills(String to, String subject) {
+    public void sendAppointmentBills(String to, String subject, Appointment appointment) {
         try {
+            Context context = new Context();
+            AppointmentDetailsDto detailsDto = AppointmentMapper.INSTANCE.convertedToAppointmentDetailsDto(appointment);
+            context.setVariable("appointment", detailsDto);
+          
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
@@ -53,10 +64,34 @@ public class EmailService {
             helper.setTo(to);
             helper.setSubject(subject);
             helper.setText(htmlContent, true);
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-            mailSender.send(message);
 
-        } catch (MessagingException | IOException e) {
+    @Async
+    public void sendEmailForCancelingAppointment(String to, String subject, User user) {
+        try {
+            Context context = new Context();
+            context.setVariable("customer", user);
+
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+            Resource resource = new ClassPathResource("/templates/cancel.html");
+            String htmlContent = new String(resource.getInputStream().readAllBytes());
+
+            helper.setFrom(senderEmail);
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(htmlContent, true);
+
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }

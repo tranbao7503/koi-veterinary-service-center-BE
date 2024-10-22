@@ -74,7 +74,7 @@ public class PaymentServiceImpl implements PaymentService {
         String customerEmail = appointment.getCustomer().getEmail();
 
         // Asynchronously send the email
-        emailService.sendAppointmentBills(customerEmail, "Koi Fish - Appointment Bills");
+        emailService.sendAppointmentBills(customerEmail, "Koi Fish - Appointment Bills", appointment);
 
         return paymentRepository.save(payment);
     }

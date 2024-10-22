@@ -58,7 +58,6 @@ public class AppointmentController {
     }
 
     /*
-     * Manager get the logs of an appointment
      * Actors: Manager
      * */
     @GetMapping("/{appointmentId}/logs")
@@ -75,8 +74,7 @@ public class AppointmentController {
     }
 
     /*
-     *  View medical report of an appointment
-     *  Actors: Customer, Veterinarian, Manager
+     * Actors: Customer, Veterinarian, Manager
      * */
     @GetMapping("/{appointmentId}/report")
     public ResponseEntity<?> getAppointmentReport(@PathVariable("appointmentId") Integer appointmentId) {
@@ -125,7 +123,6 @@ public class AppointmentController {
     }
 
     /*
-     * View appointment details
      * Actors: Staff, Manager
      * */
     @GetMapping("/{appointmentId}")
@@ -142,7 +139,6 @@ public class AppointmentController {
     }
 
     /*
-     *
      * Actors: Veterinarian
      * */
     @GetMapping("/{appointmentId}/veterinarian")
