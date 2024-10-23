@@ -328,4 +328,9 @@ public class UserController {
         return ResponseEntity.ok(slotsCount);
     }
 
+    @GetMapping("/feedback-statistics")
+    public Map<String, Object> getFeedbackStatistics() {
+        return userService.getFeedbackStatistics();
+    }
+
 }

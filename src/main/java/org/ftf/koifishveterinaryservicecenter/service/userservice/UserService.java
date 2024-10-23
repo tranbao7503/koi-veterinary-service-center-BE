@@ -59,4 +59,7 @@ public interface UserService {
     Map<String, String> getPaymentStatistics();
 
     long getVetSlotsInCurrentWeek(int vetId);
+
+    //them so luong feedback voi so luong sao trung binh cua bac si
+    Map<String, Object> getFeedbackStatistics();
 }

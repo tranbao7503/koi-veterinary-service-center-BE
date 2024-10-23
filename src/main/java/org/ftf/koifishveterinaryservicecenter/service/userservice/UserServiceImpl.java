@@ -40,8 +40,9 @@ public class UserServiceImpl implements UserService {
     private final AppointmentRepository appointmentRepository;
     private final PaymentRepository paymentRepository;
     private final VeterinarianSlotsRepository veterinarianSlotsRepository;
+    private final FeedbackRepository feedbackRepository;
 
-    public UserServiceImpl(UserRepository userRepository, AddressRepository addressRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, FileUploadService fileUploadService, UserMapper userMapper, AuthenticationService authenticationService, FishRepository fishRepository, AppointmentRepository appointmentRepository, PaymentRepository paymentRepository, VeterinarianSlotsRepository veterinarianSlotsRepository) {
+    public UserServiceImpl(UserRepository userRepository, AddressRepository addressRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, FileUploadService fileUploadService, UserMapper userMapper, AuthenticationService authenticationService, FishRepository fishRepository, AppointmentRepository appointmentRepository, PaymentRepository paymentRepository, VeterinarianSlotsRepository veterinarianSlotsRepository, FeedbackRepository feedbackRepository) {
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
         this.roleRepository = roleRepository;
@@ -53,6 +54,7 @@ public class UserServiceImpl implements UserService {
         this.appointmentRepository = appointmentRepository;
         this.paymentRepository = paymentRepository;
         this.veterinarianSlotsRepository = veterinarianSlotsRepository;
+        this.feedbackRepository = feedbackRepository;
     }
 
 
@@ -414,7 +416,6 @@ public class UserServiceImpl implements UserService {
         long totalAppointments = appointmentRepository.count();
         long totalAppointmentsToday = appointmentRepository.countAppointmentsToday();
 
-        //them trong thang trong quy
         // Tính số lượng cuộc hẹn theo từng dịch vụ
         long service1Appointments = appointmentRepository.countByService_ServiceId(1);
         long service2Appointments = appointmentRepository.countByService_ServiceId(2);
@@ -427,6 +428,31 @@ public class UserServiceImpl implements UserService {
         long service3AppointmentsToday = appointmentRepository.countByService_ServiceIdToday(3);
         long taikhamAppointmentsToday = appointmentRepository.countByService_ServiceIdToday(4);
 
+        // Tính số lượng cuộc hẹn theo tháng
+        int currentMonth = LocalDate.now().getMonthValue();
+        int currentYear = LocalDate.now().getYear();
+        long appointmentsThisMonth = appointmentRepository.countByMonth(currentMonth, currentYear);
+
+        // Tính số lượng cuộc hẹn theo quý
+        int currentQuarter = (currentMonth - 1) / 3 + 1;
+        long appointmentsThisQuarter = appointmentRepository.countByQuarter(currentQuarter, currentYear);
+
+        // Tính số lượng cuộc hẹn cho từng dịch vụ trong tháng hiện tại
+        long service1AppointmentsThisMonth = appointmentRepository.countByServiceAndMonth(1, currentMonth, currentYear);
+        long service2AppointmentsThisMonth = appointmentRepository.countByServiceAndMonth(2, currentMonth, currentYear);
+        long service3AppointmentsThisMonth = appointmentRepository.countByServiceAndMonth(3, currentMonth, currentYear);
+
+        // Tìm dịch vụ được sử dụng nhiều nhất
+        long maxAppointments = Math.max(service1AppointmentsThisMonth, Math.max(service2AppointmentsThisMonth, service3AppointmentsThisMonth));
+        String mostUsedService;
+        if (maxAppointments == service1AppointmentsThisMonth) {
+            mostUsedService = "Service 1";
+        } else if (maxAppointments == service2AppointmentsThisMonth) {
+            mostUsedService = "Service 2";
+        } else {
+            mostUsedService = "Service 3";
+        }
+
         // Thêm các giá trị vào map appointmentStatistics
         appointmentStatistics.put("totalAppointments", String.valueOf(totalAppointments));
         appointmentStatistics.put("totalAppointmentsToday", String.valueOf(totalAppointmentsToday));
@@ -438,6 +464,13 @@ public class UserServiceImpl implements UserService {
         appointmentStatistics.put("service2AppointmentsToday", String.valueOf(service2AppointmentsToday));
         appointmentStatistics.put("service3AppointmentsToday", String.valueOf(service3AppointmentsToday));
         appointmentStatistics.put("taikhamAppointmentsToday", String.valueOf(taikhamAppointmentsToday));
+
+        // Thêm số liệu theo tháng và quý
+        appointmentStatistics.put("appointmentsThisMonth", String.valueOf(appointmentsThisMonth));
+        appointmentStatistics.put("appointmentsThisQuarter", String.valueOf(appointmentsThisQuarter));
+
+        // Thêm thông tin dịch vụ được sử dụng nhiều nhất
+        appointmentStatistics.put("mostUsedService", mostUsedService);
 
         return appointmentStatistics;
     }
@@ -468,6 +501,15 @@ public class UserServiceImpl implements UserService {
         long paidPaymentsToday = paymentRepository.countByStatusToday(PaymentStatus.PAID);
         long notPaidPaymentsToday = paymentRepository.countByStatusToday(PaymentStatus.NOT_PAID);
 
+        // Tính số lượng thanh toán theo tháng
+        int currentMonth = LocalDate.now().getMonthValue();
+        int currentYear = LocalDate.now().getYear();
+        long paymentsThisMonth = paymentRepository.countByMonth(currentMonth, currentYear);
+
+        // Tính số lượng thanh toán theo quý
+        int currentQuarter = (currentMonth - 1) / 3 + 1;
+        long paymentsThisQuarter = paymentRepository.countByQuarter(currentQuarter, currentYear);
+
         // Thêm các giá trị vào map paymentStatistics
         paymentStatistics.put("totalPayments", String.valueOf(totalPayments));
         paymentStatistics.put("totalPaymentsToday", String.valueOf(totalPaymentsToday));
@@ -485,6 +527,10 @@ public class UserServiceImpl implements UserService {
         paymentStatistics.put("notPaidPayments", String.valueOf(notPaidPayments));
         paymentStatistics.put("paidPaymentsToday", String.valueOf(paidPaymentsToday));
         paymentStatistics.put("notPaidPaymentsToday", String.valueOf(notPaidPaymentsToday));
+
+        // Thêm số lượng thanh toán theo tháng và quý
+        paymentStatistics.put("paymentsThisMonth", String.valueOf(paymentsThisMonth));
+        paymentStatistics.put("paymentsThisQuarter", String.valueOf(paymentsThisQuarter));
 
         return paymentStatistics;
     }
@@ -510,7 +556,40 @@ public class UserServiceImpl implements UserService {
         //them vo thang
     }
     //them so luong feedback voi so luong sao trung binh cua bac si
-    //dich vu nao duoc book nhieu nhat trong thang trong quy
+    @Override
+    public Map<String, Object> getFeedbackStatistics() {
+        Map<String, Object> feedbackStatistics = new HashMap<>();
+
+        // Tính số lượng feedback
+        long totalFeedbackToday = feedbackRepository.countFeedbackToday();
+
+        // Tính số lượng feedback theo tháng
+        int currentMonth = LocalDate.now().getMonthValue();
+        int currentYear = LocalDate.now().getYear();
+        long totalFeedbackThisMonth = feedbackRepository.countFeedbackByMonth(currentMonth, currentYear);
+
+        // Tính số lượng feedback theo quý
+        int currentQuarter = (currentMonth - 1) / 3 + 1;
+        long totalFeedbackThisQuarter = feedbackRepository.countFeedbackByQuarter(currentQuarter, currentYear);
+
+        // Tính số sao trung bình của từng bác sĩ
+        List<Object[]> averageRatings = feedbackRepository.averageRatingPerVet();
+        Map<Integer, Double> averageRatingMap = new HashMap<>();
+        for (Object[] rating : averageRatings) {
+            Integer vetId = (Integer) rating[0];
+            Double averageRating = (Double) rating[1];
+            averageRatingMap.put(vetId, averageRating);
+        }
+
+        // Thêm các giá trị vào map feedbackStatistics
+        feedbackStatistics.put("totalFeedbackToday", totalFeedbackToday);
+        feedbackStatistics.put("totalFeedbackThisMonth", totalFeedbackThisMonth);
+        feedbackStatistics.put("totalFeedbackThisQuarter", totalFeedbackThisQuarter);
+        feedbackStatistics.put("averageRatingPerVet", averageRatingMap);
+
+        return feedbackStatistics;
+    }
+
 
 
 

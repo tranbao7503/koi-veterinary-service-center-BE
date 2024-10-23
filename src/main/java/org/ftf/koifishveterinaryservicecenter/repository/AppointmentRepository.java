@@ -21,6 +21,17 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Intege
     @Query("SELECT COUNT(a) FROM Appointment a WHERE a.service.serviceId = :serviceId AND DATE(a.createdDate) = CURRENT_DATE")
     long countByService_ServiceIdToday(@Param("serviceId") long serviceId);
 
+    // Thêm phương thức đếm cuộc hẹn theo tháng
+    @Query("SELECT COUNT(a) FROM Appointment a WHERE MONTH(a.createdDate) = :month AND YEAR(a.createdDate) = :year")
+    long countByMonth(@Param("month") int month, @Param("year") int year);
+
+    // Thêm phương thức đếm cuộc hẹn theo quý
+    @Query("SELECT COUNT(a) FROM Appointment a WHERE QUARTER(a.createdDate) = :quarter AND YEAR(a.createdDate) = :year")
+    long countByQuarter(@Param("quarter") int quarter, @Param("year") int year);
+
+    @Query("SELECT COUNT(a) FROM Appointment a WHERE a.service.serviceId = :serviceId AND MONTH(a.createdDate) = :month AND YEAR(a.createdDate) = :year")
+    long countByServiceAndMonth(@Param("serviceId") int serviceId, @Param("month") int month, @Param("year") int year);
+
 
 
 }
