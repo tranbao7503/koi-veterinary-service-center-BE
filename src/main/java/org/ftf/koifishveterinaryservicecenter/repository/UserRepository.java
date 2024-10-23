@@ -33,5 +33,8 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     User findUserByEmail(String email);
 
+    @Query("SELECT u FROM User u JOIN VeterinarianSlots vs ON u.userId = vs.veterinarianSlotId.veterinarianId WHERE vs.status = 'BOOKED' AND vs.veterinarianSlotId.slotId = :slotId")
+    List<User> findBookedVeterinarian(Integer slotId);
+
 }
 

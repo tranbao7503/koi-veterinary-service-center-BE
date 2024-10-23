@@ -409,6 +409,17 @@ public class UserServiceImpl implements UserService {
         // Chuyển đổi User sang UserDTO
         return UserMapper.INSTANCE.convertEntityToDto(userFromDb); // Giả sử bạn có một mapper cho User
     }
+
+    @Override
+    public List<User> getBookedVeterinarianBySlotId(Integer slotId) {
+        List<User> veterinarians = userRepository.findBookedVeterinarian(slotId);
+
+        if(veterinarians.isEmpty()) { // Empty
+            throw new UserNotFoundException("There are no Booked veterinarian in slot with id: " + slotId);
+        }
+
+        return veterinarians;
+    }
 }
 
 

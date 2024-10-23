@@ -138,5 +138,16 @@ public class SlotServiceImpl implements SlotService {
         return filteredSlots;
     }
 
+    @Override
+    public List<TimeSlot> getBookedTimeSlots() {
+        List<TimeSlot> timeSlots = timeSlotRepository.findBookedTimeSlots();
+
+        if (timeSlots.isEmpty()) { // Not found
+            throw new TimeSlotNotFoundException("There are no booked slots");
+        }
+
+        return timeSlots;
+    }
+
 
 }

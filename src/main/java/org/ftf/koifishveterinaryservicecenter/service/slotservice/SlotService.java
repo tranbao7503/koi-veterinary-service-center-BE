@@ -22,4 +22,6 @@ public interface SlotService {
 
     List<TimeSlot> getAvailableSlotForFollowUpAppointment(Integer veterinarianId, Integer currentSlotId);
 
+    List<TimeSlot> getBookedTimeSlots();
+
 }

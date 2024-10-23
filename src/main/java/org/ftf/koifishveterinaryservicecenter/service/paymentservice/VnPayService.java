@@ -123,8 +123,9 @@ public class VnPayService {
         return hashData.toString();
     }
 
-    private String generateOrderInfo(Appointment appointment) {
-        return String.format("Thanh toan dich vu %s ma don %d", appointment.getService().getServiceName(), appointment.getAppointmentId());
+    private String generateOrderInfo(Appointment appointment) throws Exception {
+        String description = String.format("Thanh toán dịch vụ %s mã đơn %d", appointment.getService().getServiceName(), appointment.getAppointmentId());
+        return URLEncoder.encode(description, "UTF-8");
     }
 
     public Integer getAppointmentIdFromTxnRef(String txnRef) {
