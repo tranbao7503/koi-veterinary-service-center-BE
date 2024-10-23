@@ -6,7 +6,7 @@
         <setting name="validation-enabled" value="true" />
         <setting name="provider-name" value="Hibernate" />
         <datasource-mapping>
-          <factory-entry name="entityManagerFactory" value="20cc6b61-c331-456e-b3ee-489ed9eba1b3" />
+          <factory-entry name="entityManagerFactory" value="3e9c2fd3-4846-4896-bb67-c36e8ab53b40" />
           <factory-entry name="koi-fish-veterinary-service-center-BE" value="20cc6b61-c331-456e-b3ee-489ed9eba1b3" />
         </datasource-mapping>
         <naming-strategy-map>
