@@ -19,7 +19,8 @@ public interface UserMapper {
             @Mapping(source = "email", target = "email"),
             @Mapping(source = "phoneNumber", target = "phoneNumber"),
             @Mapping(source = "avatar", target = "avatar"),
-            @Mapping(source = "currentAddress", target = "address")
+            @Mapping(source = "currentAddress", target = "address"),
+            @Mapping(source = "enabled", target = "enable")
     })
     UserDTO convertEntityToDto(User user);
 

@@ -272,7 +272,7 @@ public class UserController {
     public ResponseEntity<String> updateUser(@RequestBody UserDTO userDTO) {
         try {
             // Gọi phương thức updateUser từ service với dữ liệu từ UserDTO
-            userService.updateUserInfo(userDTO.getUserId(), userDTO.isEnabled());
+            userService.updateUserInfo(userDTO.getUserId(), userDTO.isEnable());
 
             // Trả về thông báo thành công
             return ResponseEntity.ok("User updated successfully.");
