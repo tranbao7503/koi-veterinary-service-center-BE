@@ -48,4 +48,6 @@ public interface UserService {
 
     UserDTO updatePassword(String newPassword);
 
+    List<User> getBookedVeterinarianBySlotId(Integer slotId);
+
 }

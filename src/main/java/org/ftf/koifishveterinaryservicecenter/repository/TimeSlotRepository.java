@@ -1,6 +1,7 @@
 package org.ftf.koifishveterinaryservicecenter.repository;
 
 import org.ftf.koifishveterinaryservicecenter.entity.TimeSlot;
+import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -51,4 +52,7 @@ public interface TimeSlotRepository extends JpaRepository<TimeSlot, Integer> {
                                                          @Param("endYear") Integer endYear,
                                                          @Param("endMonth") Integer endMonth,
                                                          @Param("endDay") Integer endDay);
+
+    @Query("SELECT DISTINCT ts FROM TimeSlot ts JOIN VeterinarianSlots vs ON ts.slotId = vs.veterinarianSlotId.slotId WHERE vs.status = 'BOOKED'")
+    List<TimeSlot> findBookedTimeSlots();
 }
