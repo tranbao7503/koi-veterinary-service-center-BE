@@ -414,6 +414,7 @@ public class UserServiceImpl implements UserService {
         long totalAppointments = appointmentRepository.count();
         long totalAppointmentsToday = appointmentRepository.countAppointmentsToday();
 
+        //them trong thang trong quy
         // Tính số lượng cuộc hẹn theo từng dịch vụ
         long service1Appointments = appointmentRepository.countByService_ServiceId(1);
         long service2Appointments = appointmentRepository.countByService_ServiceId(2);
@@ -506,7 +507,12 @@ public class UserServiceImpl implements UserService {
 
         // Gọi phương thức đếm slots của bác sĩ
         return veterinarianSlotsRepository.countSlotsByVetInDateRange(vetId, year, month, startDay, endDay);
+        //them vo thang
     }
+    //them so luong feedback voi so luong sao trung binh cua bac si
+    //dich vu nao duoc book nhieu nhat trong thang trong quy
+
+
 
 
 
