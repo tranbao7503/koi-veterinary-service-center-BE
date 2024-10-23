@@ -1,7 +1,7 @@
 package org.ftf.koifishveterinaryservicecenter.mapper;
 
-import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentFeedbackDto;
 import org.ftf.koifishveterinaryservicecenter.dto.TimeSlotDto;
+import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentFeedbackDto;
 import org.ftf.koifishveterinaryservicecenter.entity.Appointment;
 import org.ftf.koifishveterinaryservicecenter.entity.TimeSlot;
 import org.mapstruct.Mapper;
@@ -18,6 +18,7 @@ public interface TimeSlotMapper {
     TimeSlotMapper INSTANCE = Mappers.getMapper(TimeSlotMapper.class);
 
     // Map TimeSlot to TimeSlotDto, using a custom method to map the first appointment
+    @Named("convertToTimeSlotDto")
     @Mapping(source = "appointments", target = "appointment", qualifiedByName = "mapFirstAppointment")
 //    @Mapping(target = "appointment.timeSlot", ignore = true)
     TimeSlotDto convertToTimeSlotDto(TimeSlot timeSlot);
@@ -27,19 +28,25 @@ public interface TimeSlotMapper {
     default AppointmentFeedbackDto mapFirstAppointment(Set<Appointment> appointments) {
         Appointment firstAppointment = appointments.stream().findFirst().get();
         AppointmentFeedbackDto appointmentFeedbackDto = new AppointmentFeedbackDto();
+        appointmentFeedbackDto.setAppointmentId(firstAppointment.getAppointmentId());
         appointmentFeedbackDto.setServiceName(firstAppointment.getService().getServiceName());
         appointmentFeedbackDto.setCurrentStatus(firstAppointment.getCurrentStatus());
         return appointmentFeedbackDto;
     }
 
+    @Named("convertToTimeSlotDtoAvailable")
     @Mappings({
             @Mapping(source = "slotOrder", target = "slotOrder"),
             @Mapping(source = "day", target = "day"),
             @Mapping(source = "month", target = "month"),
             @Mapping(source = "year", target = "year"),
-            @Mapping(target = "slotId", ignore = true),
-            @Mapping(target = "description", ignore = true)
+            @Mapping(source = "slotId", target = "slotId"),
+            @Mapping(source = "description", target = "description")
     })
-    TimeSlot convertToTimeSlot(TimeSlotDto timeSlotDto);
+    TimeSlotDto convertToTimeSlotDtoAvailable(TimeSlot timeSlotDto);
+
+    @Named("convertToAvailableTimeSlotDto")
+    @Mapping(target = "appointment", ignore = true)
+    TimeSlotDto convertToAvailableTimeSlotDto(TimeSlot timeSlot);
 
 }

@@ -65,16 +65,8 @@ public class AppointmentRepositoryTest {
     public void testCreateAppointmentSuccess() {
         LocalDateTime date = LocalDateTime.now();
         Optional<Service> service = serviceRepository.findById(1);
-        Address address = Address.builder()
-                .city("Ho Chi Minh")
-                .district("Quan 1")
-                .ward("Phuong Ben Nghe")
-                .homeNumber("88").build();
-        TimeSlot slot = TimeSlot.builder()
-                .slotOrder(1)
-                .day(10)
-                .month(10)
-                .year(2024).build();
+        Address address = Address.builder().city("Ho Chi Minh").district("Quan 1").ward("Phuong Ben Nghe").homeNumber("88").build();
+        TimeSlot slot = TimeSlot.builder().slotOrder(1).day(10).month(10).year(2024).build();
         TimeSlot savedTimeSlot = timeSlotRepository.save(slot);
 
         User customer = userRepository.findUsersByUserId(6);
@@ -111,5 +103,36 @@ public class AppointmentRepositoryTest {
         Assertions.assertThat(fromDb).isNotNull();
     }
 
+    @Test
+    public void testGetAppointmentById() {
+        Integer appointmentId = 23;
+        Optional<Appointment> appointment = appointmentRepository.findById(appointmentId);
+        Assertions.assertThat(appointment).isPresent();
+        System.out.println(appointment.get().getTimeSlot().toString());
+    }
 
+    @Test
+    public void testUpdateAppointmentStatusTriggerInsertingToStatusTableSuccess() {
+        Integer appointmentId = 26;
+
+        // get appointment by Id
+        Optional<Appointment> appointment = appointmentRepository.findById(appointmentId);
+        System.out.println("Before updating: " + appointment.get().getCurrentStatus());
+
+
+        // update statues PENDING --> CONFIRMED
+        appointment.get().setCurrentStatus(AppointmentStatus.CONFIRMED);
+
+        // insert to Status table
+        Status status = new Status();
+        status.setAppointment(appointment.get());
+        status.setStatusName(AppointmentStatus.CONFIRMED);
+        status.setTime(LocalDateTime.now());
+        status.setNote("Update to CONFIRMED successfully");
+        appointment.get().addStatus(status);
+
+        appointmentRepository.save(appointment.get());
+        System.out.println("After updating: " + appointment.get().getCurrentStatus());
+
+    }
 }

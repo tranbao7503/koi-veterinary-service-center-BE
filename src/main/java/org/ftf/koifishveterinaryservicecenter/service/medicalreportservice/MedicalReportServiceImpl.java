@@ -2,21 +2,16 @@ package org.ftf.koifishveterinaryservicecenter.service.medicalreportservice;
 
 import org.ftf.koifishveterinaryservicecenter.dto.MedicineDto;
 import org.ftf.koifishveterinaryservicecenter.dto.PrescriptionDto;
-import org.ftf.koifishveterinaryservicecenter.entity.MedicalReport;
 import org.ftf.koifishveterinaryservicecenter.entity.Medicine;
 import org.ftf.koifishveterinaryservicecenter.entity.Prescription;
 import org.ftf.koifishveterinaryservicecenter.entity.prescription_medicine.PrescriptionMedicine;
 import org.ftf.koifishveterinaryservicecenter.entity.prescription_medicine.PrescriptionMedicineId;
-import org.ftf.koifishveterinaryservicecenter.exception.AppointmentServiceNotFoundException;
-import org.ftf.koifishveterinaryservicecenter.exception.MedicalReportNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.MedicineNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.PrescriptionNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.MedicineMapper;
-import org.ftf.koifishveterinaryservicecenter.repository.MedicalReportRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.MedicineRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.PrescriptionMedicineRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.PrescriptionRepository;
-import org.ftf.koifishveterinaryservicecenter.service.appointmentservice.AppointmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -71,7 +66,7 @@ public class MedicalReportServiceImpl implements MedicalReportService {
 
             // set props for PrescriptionMedicine
             PrescriptionMedicineId pmId = new PrescriptionMedicineId(savedPrescription.getPrescriptionId(), dto.getMedicineId());
-            PrescriptionMedicine pm = new PrescriptionMedicine(pmId, dto.getQuantity());
+            PrescriptionMedicine pm = new PrescriptionMedicine(pmId, dto.getQuantity(), dto.getInstruction());
             pm.setPrescription(savedPrescription);
             pm.setMedicine(MedicineMapper.INSTANCE.convertDtoToEntity(dto));
 
@@ -90,7 +85,6 @@ public class MedicalReportServiceImpl implements MedicalReportService {
             throw new PrescriptionNotFoundException("Not found Prescription with id: " + prescriptionId);
         return prescription.get();
     }
-
 
 
 }
