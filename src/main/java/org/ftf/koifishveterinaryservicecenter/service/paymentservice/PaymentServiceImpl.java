@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.net.URLDecoder;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
@@ -68,7 +69,7 @@ public class PaymentServiceImpl implements PaymentService {
         Payment payment = findPaymentByAppointmentId(appointmentId);
         payment.setTransactionId(transactionId);
         payment.setTransactionTime(LocalDateTime.ofInstant(payDate.toInstant(), ZoneId.systemDefault()));
-        payment.setDescription(description);
+        payment.setDescription(URLDecoder.decode(description));
         payment.setStatus(PaymentStatus.PAID);
 
         return paymentRepository.save(payment);
