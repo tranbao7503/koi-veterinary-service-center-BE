@@ -214,6 +214,10 @@ public class UserServiceImpl implements UserService {
         if (veterinarian == null) {
             throw new UserNotFoundException("Veterinarian not found with Id: " + veterinarianId);
         }
+        if (veterinarian.getAvatar() != null) {
+            String avatarPath = fileDownloadService.getImageUrl(veterinarian.getAvatar());
+            veterinarian.setAvatar(avatarPath);
+        }
         return veterinarian;
     }
 
@@ -222,6 +226,10 @@ public class UserServiceImpl implements UserService {
         User customer = userRepository.findCustomerById(customerId);
         if (customer == null) {
             throw new UserNotFoundException("Customer not found with Id: " + customerId);
+        }
+        if (customer.getAvatar() != null) {
+            String avatarPath = fileDownloadService.getImageUrl(customer.getAvatar());
+            customer.setAvatar(avatarPath);
         }
         return customer;
     }
