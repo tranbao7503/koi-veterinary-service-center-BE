@@ -58,7 +58,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserProfile(Integer userId) {
         User user = userRepository.findUsersByUserId(userId);
-        if (user.getAvatar() != null) {
+        if (user.getAvatar() != null && !user.getAvatar().startsWith("http://")) {
             String avatarPath = fileDownloadService.getImageUrl(user.getAvatar());
             user.setAvatar(avatarPath);
         }
@@ -70,7 +70,7 @@ public class UserServiceImpl implements UserService {
         Role role = roleRepository.findByRoleKey("VET");
         List<User> veterinarians = new ArrayList<>(role.getUsers());
         veterinarians.forEach(veterinarian -> {
-            if (veterinarian.getAvatar() != null) {
+            if (veterinarian.getAvatar() != null && !veterinarian.getAvatar().startsWith("http://")) {
                 veterinarian.setAvatar(fileDownloadService.getImageUrl(veterinarian.getAvatar()));
             }
         });
@@ -139,7 +139,7 @@ public class UserServiceImpl implements UserService {
         Role role = roleRepository.findByRoleKey("CUS");
         List<User> customers = new ArrayList<>(role.getUsers());
         customers.forEach(customer -> {
-            if (customer.getAvatar() != null) {
+            if (customer.getAvatar() != null && !customer.getAvatar().startsWith("http://")) {
                 customer.setAvatar(fileDownloadService.getImageUrl(customer.getAvatar()));
             }
         });
@@ -214,7 +214,7 @@ public class UserServiceImpl implements UserService {
         if (veterinarian == null) {
             throw new UserNotFoundException("Veterinarian not found with Id: " + veterinarianId);
         }
-        if (veterinarian.getAvatar() != null) {
+        if (veterinarian.getAvatar() != null && !veterinarian.getAvatar().startsWith("http://")) {
             String avatarPath = fileDownloadService.getImageUrl(veterinarian.getAvatar());
             veterinarian.setAvatar(avatarPath);
         }
@@ -227,7 +227,7 @@ public class UserServiceImpl implements UserService {
         if (customer == null) {
             throw new UserNotFoundException("Customer not found with Id: " + customerId);
         }
-        if (customer.getAvatar() != null) {
+        if (customer.getAvatar() != null && !customer.getAvatar().startsWith("http://")) {
             String avatarPath = fileDownloadService.getImageUrl(customer.getAvatar());
             customer.setAvatar(avatarPath);
         }
@@ -349,7 +349,7 @@ public class UserServiceImpl implements UserService {
         List<User> staffs = new ArrayList<>(staffRole.getUsers());
 
         staffs.forEach(staff -> {
-            if (staff.getAvatar() != null) {
+            if (staff.getAvatar() != null && !staff.getAvatar().startsWith("http://")) {
                 staff.setAvatar(fileDownloadService.getImageUrl(staff.getAvatar()));
             }
         });
