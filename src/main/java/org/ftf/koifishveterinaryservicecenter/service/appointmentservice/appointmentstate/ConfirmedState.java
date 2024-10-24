@@ -4,9 +4,6 @@ import org.ftf.koifishveterinaryservicecenter.entity.Appointment;
 import org.ftf.koifishveterinaryservicecenter.entity.Status;
 import org.ftf.koifishveterinaryservicecenter.enums.AppointmentStatus;
 import org.ftf.koifishveterinaryservicecenter.repository.AppointmentRepository;
-import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
-import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
