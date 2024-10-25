@@ -1,7 +1,6 @@
 package org.ftf.koifishveterinaryservicecenter.repository;
 
 import org.ftf.koifishveterinaryservicecenter.entity.TimeSlot;
-import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

@@ -17,9 +17,11 @@
 <div>
     <h2>Appointment Details</h2>
     <p><strong>Service</strong> <span th:text="${appointment.service.serviceName}"></span></p>
-    <p><strong>Veterinarian</strong> <span th:text="|${appointment.veterinarian.firstName} ${appointment.veterinarian.lastName}|"></span></p>
+    <p><strong>Veterinarian</strong> <span
+            th:text="|${appointment.veterinarian.firstName} ${appointment.veterinarian.lastName}|"></span></p>
     <p><strong>Appointment Date:</strong> <span th:text="${appointment.timeSlot.date}"></span></p>
-    <p><strong>Time:</strong> <span th:text="${appointment.timeSlot.startTime}"></span> - <span th:text="${appointment.timeSlot.endTime}"></span></p>
+    <p><strong>Time:</strong> <span th:text="${appointment.timeSlot.startTime}"></span> - <span
+            th:text="${appointment.timeSlot.endTime}"></span></p>
 </div>
 
 <div>

@@ -36,11 +36,11 @@ public class CheckInState implements AppointmentState {
 
         Payment payment = appointment.getPayment();
 
-        if(payment.getStatus().equals(PaymentStatus.NOT_PAID)){
+        if (payment.getStatus().equals(PaymentStatus.NOT_PAID)) {
             throw new IllegalStateException("Appointment cannot update to DONE due to Payment is not paid yet");
         }
 
-        if(roleKey.equals("STA") || roleKey.equals("VET")){
+        if (roleKey.equals("STA") || roleKey.equals("VET")) {
             // set new status for appointment
             appointment.setCurrentStatus(AppointmentStatus.DONE);
 
@@ -51,7 +51,8 @@ public class CheckInState implements AppointmentState {
             // insert into Status table
             logToStatus(appointment, actor);
             appointmentRepository.save(appointment);
-        } throw new IllegalStateException("Only Staff/Veterinarian can update appointments from CHECKIN to DONE");
+        }
+        throw new IllegalStateException("Only Staff/Veterinarian can update appointments from CHECKIN to DONE");
 
     }
 

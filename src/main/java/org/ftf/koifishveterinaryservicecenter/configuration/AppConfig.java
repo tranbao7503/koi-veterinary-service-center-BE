@@ -16,8 +16,8 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 public class AppConfig {
@@ -80,6 +80,10 @@ public class AppConfig {
                         .requestMatchers("/api/v1/email/sendNotification").hasAnyAuthority("STA")
                         .requestMatchers("api/v1/email/sendBill").hasAnyAuthority("CUS")  // for test
 
+                        .requestMatchers("api/v1/users/payment-statistics").hasAnyAuthority("MAN")
+                        .requestMatchers("api/v1/users/appointment-statistics").hasAnyAuthority("MAN")
+                        .requestMatchers("api/v1/users/user-fish-statistics").hasAnyAuthority("MAN")
+                        .requestMatchers("api/v1/users/{vetId}/slots-this-week").hasAnyAuthority("MAN")
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwtConfigurer -> jwtConfigurer

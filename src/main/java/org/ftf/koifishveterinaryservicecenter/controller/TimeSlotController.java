@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -131,7 +130,7 @@ public class TimeSlotController {
                     .map(TimeSlotMapper.INSTANCE::convertToAvailableTimeSlotDto)
                     .collect(Collectors.toList());
 
-            for(TimeSlotDto slotDto : slotDtos) { // Map veterinarians into slots
+            for (TimeSlotDto slotDto : slotDtos) { // Map veterinarians into slots
                 List<User> bookedVeterinarians = userService.getBookedVeterinarianBySlotId(slotDto.getSlotId());
                 List<UserDTO> veterinarianDtos = bookedVeterinarians.stream()
                         .map(UserMapper.INSTANCE::convertToVeterinarianDto)

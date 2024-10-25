@@ -1,9 +1,7 @@
 package org.ftf.koifishveterinaryservicecenter.service.paymentservice;
 
-import org.ftf.koifishveterinaryservicecenter.entity.Appointment;
 import org.ftf.koifishveterinaryservicecenter.entity.Payment;
 import org.ftf.koifishveterinaryservicecenter.enums.PaymentStatus;
-import org.ftf.koifishveterinaryservicecenter.exception.AppointmentNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.PaymentNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.repository.AppointmentRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.PaymentRepository;
