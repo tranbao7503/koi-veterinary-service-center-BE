@@ -14,7 +14,7 @@ public class VetMeeting {
     @Column(name = "vet_id", nullable = false)
     private Integer vetId;
 
-    @OneToOne // Thiết lập mối quan hệ nhiều-một
+    @OneToOne // Thiết lập mối quan hệ một-một
     @JoinColumn(name = "vet_id", nullable = false, insertable = false, updatable = false) // Ràng buộc với User
     private User vet; // Trường này tham chiếu đến User
 
