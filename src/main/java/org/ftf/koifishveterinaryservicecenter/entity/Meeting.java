@@ -6,18 +6,18 @@ import lombok.Setter;
 
 
 @Entity
-@Table(name = "vet_meeting")
+@Table(name = "meeting")
 @Getter
 @Setter
-public class VetMeeting {
+public class Meeting {
     @Id
     @Column(name = "vet_id", nullable = false)
     private Integer vetId;
 
-    @OneToOne // Thiết lập mối quan hệ một-một
-    @JoinColumn(name = "vet_id", nullable = false, insertable = false, updatable = false) // Ràng buộc với User
-    private User vet; // Trường này tham chiếu đến User
+    @OneToOne(mappedBy = "meeting") // Thiết lập mối quan hệ một-một
+    private User vet; // Tham chiếu đến User
 
     @Column(name = "link_meet", nullable = false)
     private String linkMeet;
+
 }
