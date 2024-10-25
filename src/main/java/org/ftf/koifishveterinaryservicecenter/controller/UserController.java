@@ -332,4 +332,11 @@ public class UserController {
         return userService.getFeedbackStatistics();
     }
 
+    @GetMapping("/{vetId}/link")
+    public ResponseEntity<String> getLinkMeetByVetId(@PathVariable Integer vetId) {
+        return userService.getLinkMeetByVetId(vetId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
 }

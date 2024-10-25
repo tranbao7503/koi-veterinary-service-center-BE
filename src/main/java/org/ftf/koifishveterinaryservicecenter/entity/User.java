@@ -114,6 +114,11 @@ public class User {
     private Set<VeterinarianSlots> veterinarianSlots = new LinkedHashSet<>();
 
 
+    @OneToOne // Thiết lập mối quan hệ một-một
+    @JoinColumn(name = "meeting_id", nullable = true) // Khóa ngoại tham chiếu đến Meeting
+    private Meeting meeting; // Tham chiếu đến Meeting
+
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "current_address_id", nullable = true)
     private Address currentAddress;
