@@ -62,4 +62,7 @@ public interface UserService {
 
     //them so luong feedback voi so luong sao trung binh cua bac si
     Map<String, Object> getFeedbackStatistics();
+
+    List<User> getBookedVeterinarianBySlotId(Integer slotId);
+
 }

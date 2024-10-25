@@ -33,7 +33,7 @@ public class User {
     @Column(name = "password", nullable = false, length = 255)
     private String password;
 
-    @Column(name = "email", nullable = true, length = 50, unique = true)
+    @Column(name = "email", nullable = true, length = 50, unique = false)
     private String email;
 
     @Column(name = "first_name", nullable = false, length = 50)
@@ -117,20 +117,6 @@ public class User {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "current_address_id", nullable = true)
     private Address currentAddress;
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "userId=" + userId +
-                ", username='" + username + '\'' +
-                ", email='" + email + '\'' +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", phoneNumber='" + phoneNumber + '\'' +
-                ", avatar='" + avatar + '\'' +
-                ", address=" + addresses +
-                '}';
-    }
 
     @Override
     public boolean equals(Object o) {

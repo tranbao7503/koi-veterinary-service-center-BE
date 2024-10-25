@@ -66,7 +66,7 @@ public class MedicalReportServiceImpl implements MedicalReportService {
 
             // set props for PrescriptionMedicine
             PrescriptionMedicineId pmId = new PrescriptionMedicineId(savedPrescription.getPrescriptionId(), dto.getMedicineId());
-            PrescriptionMedicine pm = new PrescriptionMedicine(pmId, dto.getQuantity());
+            PrescriptionMedicine pm = new PrescriptionMedicine(pmId, dto.getQuantity(), dto.getInstruction());
             pm.setPrescription(savedPrescription);
             pm.setMedicine(MedicineMapper.INSTANCE.convertDtoToEntity(dto));
 

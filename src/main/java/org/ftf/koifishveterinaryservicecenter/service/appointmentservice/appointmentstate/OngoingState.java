@@ -30,8 +30,7 @@ public class OngoingState implements AppointmentState {
         String roleKey = authenticationService.getAuthenticatedUserRoleKey();
 
         if (roleKey.equals("VET")) {
-            // set a new status for the appointment
-            appointment.setCurrentStatus(AppointmentStatus.DONE);
+            appointment.setCurrentStatus(AppointmentStatus.CHECKED_IN);
 
             // get vetId from the appointment
             Integer veterinarianId = appointment.getVeterinarian().getUserId();
@@ -40,7 +39,7 @@ public class OngoingState implements AppointmentState {
             // logging to Status table
             logToStatus(appointment, veterinarian);
             appointmentRepository.save(appointment);
-        } else throw new IllegalStateException("Only Veterinarian can update appointments from ON_GOING to DONE");
+        } else throw new IllegalStateException("Only Veterinarian can update appointments from ON_GOING to CHECKED_IN");
     }
 
     private void logToStatus(Appointment appointment, User veterinarian) {
@@ -48,7 +47,7 @@ public class OngoingState implements AppointmentState {
         status.setAppointment(appointment);
         status.setStatusName(appointment.getCurrentStatus());
         status.setTime(LocalDateTime.now());
-        status.setNote("Veterinarian - " + String.join(" " + veterinarian.getFirstName(), veterinarian.getLastName()) + " marked DONE the appointment successfully");
+        status.setNote("Veterinarian - " + veterinarian.getFirstName() + " " + veterinarian.getLastName() + " marked DONE the appointment successfully");
         appointment.addStatus(status);
     }
 }

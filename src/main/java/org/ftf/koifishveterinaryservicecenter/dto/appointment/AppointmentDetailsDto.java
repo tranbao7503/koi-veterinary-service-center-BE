@@ -51,4 +51,7 @@ public class AppointmentDetailsDto extends AppointmentBaseDto {
 
     @JsonProperty("follow_up_appointment_id")
     private Integer followUpAppointmentId;
+
+    @JsonProperty("feedback_id")
+    private Integer feedbackId;
 }

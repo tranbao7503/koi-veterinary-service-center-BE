@@ -12,6 +12,7 @@ import org.ftf.koifishveterinaryservicecenter.exception.RoleException;
 import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.UserMapper;
 import org.ftf.koifishveterinaryservicecenter.repository.*;
+import org.ftf.koifishveterinaryservicecenter.service.fileservice.FileDownloadService;
 import org.ftf.koifishveterinaryservicecenter.service.fileservice.FileUploadService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -41,8 +42,9 @@ public class UserServiceImpl implements UserService {
     private final PaymentRepository paymentRepository;
     private final VeterinarianSlotsRepository veterinarianSlotsRepository;
     private final FeedbackRepository feedbackRepository;
+    private final FileDownloadService fileDownloadService;
 
-    public UserServiceImpl(UserRepository userRepository, AddressRepository addressRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, FileUploadService fileUploadService, UserMapper userMapper, AuthenticationService authenticationService, FishRepository fishRepository, AppointmentRepository appointmentRepository, PaymentRepository paymentRepository, VeterinarianSlotsRepository veterinarianSlotsRepository, FeedbackRepository feedbackRepository) {
+    public UserServiceImpl(UserRepository userRepository, AddressRepository addressRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, FileUploadService fileUploadService, UserMapper userMapper, AuthenticationService authenticationService, FishRepository fishRepository, AppointmentRepository appointmentRepository, PaymentRepository paymentRepository, VeterinarianSlotsRepository veterinarianSlotsRepository, FeedbackRepository feedbackRepository, FileDownloadService fileDownloadService) {
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
         this.roleRepository = roleRepository;
@@ -55,18 +57,29 @@ public class UserServiceImpl implements UserService {
         this.paymentRepository = paymentRepository;
         this.veterinarianSlotsRepository = veterinarianSlotsRepository;
         this.feedbackRepository = feedbackRepository;
+        this.fileDownloadService = fileDownloadService;
     }
 
 
     @Override
     public User getUserProfile(Integer userId) {
-        return userRepository.findUsersByUserId(userId);
+        User user = userRepository.findUsersByUserId(userId);
+        if (user.getAvatar() != null && !user.getAvatar().startsWith("http://")) {
+            String avatarPath = fileDownloadService.getImageUrl(user.getAvatar());
+            user.setAvatar(avatarPath);
+        }
+        return user;
     }
 
     @Override
     public List<User> getAllVeterinarians() {
         Role role = roleRepository.findByRoleKey("VET");
         List<User> veterinarians = new ArrayList<>(role.getUsers());
+        veterinarians.forEach(veterinarian -> {
+            if (veterinarian.getAvatar() != null && !veterinarian.getAvatar().startsWith("http://")) {
+                veterinarian.setAvatar(fileDownloadService.getImageUrl(veterinarian.getAvatar()));
+            }
+        });
         return veterinarians;
     }
 
@@ -131,6 +144,11 @@ public class UserServiceImpl implements UserService {
     public List<User> getAllCustomers() {
         Role role = roleRepository.findByRoleKey("CUS");
         List<User> customers = new ArrayList<>(role.getUsers());
+        customers.forEach(customer -> {
+            if (customer.getAvatar() != null && !customer.getAvatar().startsWith("http://")) {
+                customer.setAvatar(fileDownloadService.getImageUrl(customer.getAvatar()));
+            }
+        });
         return customers;
     }
 
@@ -202,6 +220,10 @@ public class UserServiceImpl implements UserService {
         if (veterinarian == null) {
             throw new UserNotFoundException("Veterinarian not found with Id: " + veterinarianId);
         }
+        if (veterinarian.getAvatar() != null && !veterinarian.getAvatar().startsWith("http://")) {
+            String avatarPath = fileDownloadService.getImageUrl(veterinarian.getAvatar());
+            veterinarian.setAvatar(avatarPath);
+        }
         return veterinarian;
     }
 
@@ -210,6 +232,10 @@ public class UserServiceImpl implements UserService {
         User customer = userRepository.findCustomerById(customerId);
         if (customer == null) {
             throw new UserNotFoundException("Customer not found with Id: " + customerId);
+        }
+        if (customer.getAvatar() != null && !customer.getAvatar().startsWith("http://")) {
+            String avatarPath = fileDownloadService.getImageUrl(customer.getAvatar());
+            customer.setAvatar(avatarPath);
         }
         return customer;
     }
@@ -326,8 +352,16 @@ public class UserServiceImpl implements UserService {
             return new ArrayList<>(); // Trả về danh sách rỗng nếu không tìm thấy role
         }
 
+        List<User> staffs = new ArrayList<>(staffRole.getUsers());
+
+        staffs.forEach(staff -> {
+            if (staff.getAvatar() != null && !staff.getAvatar().startsWith("http://")) {
+                staff.setAvatar(fileDownloadService.getImageUrl(staff.getAvatar()));
+            }
+        });
+
         // Trả về danh sách users từ role "STA"
-        return new ArrayList<>(staffRole.getUsers());
+        return staffs;
     }
 
     @Override
@@ -389,6 +423,17 @@ public class UserServiceImpl implements UserService {
 
         // Chuyển đổi User sang UserDTO
         return UserMapper.INSTANCE.convertEntityToDto(userFromDb); // Giả sử bạn có một mapper cho User
+    }
+
+    @Override
+    public List<User> getBookedVeterinarianBySlotId(Integer slotId) {
+        List<User> veterinarians = userRepository.findBookedVeterinarian(slotId);
+
+        if (veterinarians.isEmpty()) { // Empty
+            throw new UserNotFoundException("There are no Booked veterinarian in slot with id: " + slotId);
+        }
+
+        return veterinarians;
     }
 
     @Override

@@ -11,12 +11,15 @@ import lombok.*;
 public class MedicineDto {
 
     @JsonProperty("medicine_id")
-    private Integer medicineId;    // mapped from Medicine.medicineId
+    private Integer medicineId; // mapped from Medicine.medicineId
 
     @JsonProperty("medicine_name")
-    private String medicineName;   // mapped from Medicine.medicineName
+    private String medicineName; // mapped from Medicine.medicineName
 
     @JsonProperty("quantity")
-    private Integer quantity;      // mapped from prescription_medicine
+    private Integer quantity; // mapped from prescription_medicine
+
+    @JsonProperty("instruction")
+    private String instruction; // mapped from prescription_medicine
 
 }

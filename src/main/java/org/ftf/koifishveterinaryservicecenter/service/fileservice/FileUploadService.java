@@ -1,5 +1,6 @@
 package org.ftf.koifishveterinaryservicecenter.service.fileservice;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -12,8 +13,11 @@ import java.util.UUID;
 @Service
 public class FileUploadService {
 
-    private final String IMGAGE_DIR = "images/";
-    private final String CERTIFICATE_DIR = "certificates/";
+    @Value("${upload.path}" + "/images")
+    private String IMGAGE_DIR;
+
+    @Value("${upload.path}" + "/certificates")
+    private String CERTIFICATE_DIR;
 
     public String uploadFile(MultipartFile file) throws IOException {
         // Create path

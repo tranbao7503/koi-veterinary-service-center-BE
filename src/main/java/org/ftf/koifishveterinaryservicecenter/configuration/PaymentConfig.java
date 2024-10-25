@@ -22,5 +22,4 @@ public class PaymentConfig {
     @Value("${vnpay.return_url}")
     private String returnUrl;
 
-
 }

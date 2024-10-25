@@ -43,6 +43,7 @@ public class Fish {
 
     @Column(name = "origin", nullable = false, length = 45)
     private String origin;
+
     @ColumnDefault("b'1'")
     @Column(name = "enable", nullable = false)
     private boolean enabled = true;
@@ -70,3 +71,4 @@ public class Fish {
 
 
 }
+

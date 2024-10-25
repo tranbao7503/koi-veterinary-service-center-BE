@@ -22,7 +22,6 @@ import org.ftf.koifishveterinaryservicecenter.service.userservice.Authentication
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -86,9 +85,9 @@ public class UserController {
             User convertedCustomer = UserMapper.INSTANCE.convertDtoToEntity(userFromRequest);
             Integer userIdFromToken = 1; // the userId takes from Authentication object in SecurityContext
 
-            if (!userId.equals(userIdFromToken)) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-            }
+//            if (!userId.equals(userIdFromToken)) {
+//                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+//            }
 
             // check(userIdFromToken, userId)
             User updatedCustomer = userService.updateUserProfile(userId, convertedCustomer);
@@ -156,7 +155,7 @@ public class UserController {
      * Update avatar of user
      * Actors: Customer, Manager
      * */
-    @PreAuthorize("hasAuthority('CUS')")
+    //@PreAuthorize("hasAuthority('CUS')")
     @PutMapping("/avatar")
     public ResponseEntity<?> updateUserAvatar(@RequestParam("user_id") Integer userId, @RequestParam("image") MultipartFile image) {
         try {
@@ -206,9 +205,9 @@ public class UserController {
 
 
     /*
-    * Update an address information
-    * Actors: Customer
-    * */
+     * Update an address information
+     * Actors: Customer
+     * */
     @PutMapping("/address")
     public ResponseEntity<?> updateAddress(@RequestParam Integer addressId) {
         try {

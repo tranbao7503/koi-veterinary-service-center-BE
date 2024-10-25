@@ -2,6 +2,7 @@ package org.ftf.koifishveterinaryservicecenter.service.slotservice;
 
 import org.ftf.koifishveterinaryservicecenter.entity.TimeSlot;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
+import org.ftf.koifishveterinaryservicecenter.entity.veterinarian_slots.VeterinarianSlotId;
 import org.ftf.koifishveterinaryservicecenter.entity.veterinarian_slots.VeterinarianSlots;
 import org.ftf.koifishveterinaryservicecenter.enums.SlotStatus;
 import org.ftf.koifishveterinaryservicecenter.exception.TimeSlotNotFoundException;
@@ -110,5 +111,43 @@ public class SlotServiceImpl implements SlotService {
         }
         return timeSlots;
     }
+
+    @Override
+    public void updateVeterinarianSlotsStatus(Integer veterinarianId, Integer slotId, SlotStatus status) {
+        VeterinarianSlotId veterinarianSlotId = new VeterinarianSlotId();
+        veterinarianSlotId.setSlotId(slotId);
+        veterinarianSlotId.setVeterinarianId(veterinarianId);
+
+        VeterinarianSlots veterinarianSlots = veterinarianSlotsRepository.findById(veterinarianSlotId).get();
+
+        veterinarianSlots.setStatus(status);
+
+        veterinarianSlotsRepository.save(veterinarianSlots);
+    }
+
+    @Override
+    public List<TimeSlot> getAvailableSlotForFollowUpAppointment(Integer veterinarianId, Integer currentSlotId) {
+
+        List<TimeSlot> timeSlots = this.getAvailableSlotsByVeterinarianId(veterinarianId); // Get All available slots
+
+        // Filter only slots come after the slot of main appointment
+        List<TimeSlot> filteredSlots = timeSlots.stream()
+                .filter(timeSlot -> timeSlot.getSlotId() > currentSlotId)
+                .collect(Collectors.toList());
+
+        return filteredSlots;
+    }
+
+    @Override
+    public List<TimeSlot> getBookedTimeSlots() {
+        List<TimeSlot> timeSlots = timeSlotRepository.findBookedTimeSlots();
+
+        if (timeSlots.isEmpty()) { // Not found
+            throw new TimeSlotNotFoundException("There are no booked slots");
+        }
+
+        return timeSlots;
+    }
+
 
 }

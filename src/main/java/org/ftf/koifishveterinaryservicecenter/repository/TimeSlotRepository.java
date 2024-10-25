@@ -51,4 +51,7 @@ public interface TimeSlotRepository extends JpaRepository<TimeSlot, Integer> {
                                                          @Param("endYear") Integer endYear,
                                                          @Param("endMonth") Integer endMonth,
                                                          @Param("endDay") Integer endDay);
+
+    @Query("SELECT DISTINCT ts FROM TimeSlot ts JOIN VeterinarianSlots vs ON ts.slotId = vs.veterinarianSlotId.slotId WHERE vs.status = 'BOOKED'")
+    List<TimeSlot> findBookedTimeSlots();
 }

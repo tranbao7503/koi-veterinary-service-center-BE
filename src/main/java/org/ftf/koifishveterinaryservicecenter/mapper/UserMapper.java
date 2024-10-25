@@ -51,9 +51,11 @@ public interface UserMapper {
             @Mapping(target = "password", ignore = true),
             @Mapping(target = "email", ignore = true),
             @Mapping(target = "phoneNumber", ignore = true),
-            @Mapping(target = "avatar", ignore = true),
-            @Mapping(target = "address", ignore = true)
+            @Mapping(source = "avatar", target = "avatar"),
+            @Mapping(target = "address", ignore = true),
+            @Mapping(target = "enable", ignore = true)
     })
     UserDTO convertToVeterinarianDto(User user);
+
 
 }
