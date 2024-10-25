@@ -1,7 +1,6 @@
 package org.ftf.koifishveterinaryservicecenter.controller;
 
 import jakarta.servlet.http.HttpServletResponse;
-import org.ftf.koifishveterinaryservicecenter.configuration.PaymentConfig;
 import org.ftf.koifishveterinaryservicecenter.dto.PaymentDto;
 import org.ftf.koifishveterinaryservicecenter.entity.Appointment;
 import org.ftf.koifishveterinaryservicecenter.entity.Payment;

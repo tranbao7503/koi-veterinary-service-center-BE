@@ -58,5 +58,4 @@ public interface UserMapper {
     UserDTO convertToVeterinarianDto(User user);
 
 
-
 }

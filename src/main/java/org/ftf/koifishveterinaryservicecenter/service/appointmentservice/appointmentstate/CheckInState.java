@@ -36,55 +36,34 @@ public class CheckInState implements AppointmentState {
 
         Payment payment = appointment.getPayment();
 
-        if(payment.getStatus().equals(PaymentStatus.NOT_PAID)){
+        if (payment.getStatus().equals(PaymentStatus.NOT_PAID)) {
             throw new IllegalStateException("Appointment cannot update to DONE due to Payment is not paid yet");
         }
 
-        if(roleKey.equals("STA") || roleKey.equals("VET")){
-            // set new status for appointment
-            appointment.setCurrentStatus(AppointmentStatus.DONE);
+        if (!roleKey.equals("VET")) {
+            throw new IllegalStateException("Only Veterinarian can update appointments from CHECKIN to DONE");
+        }
 
-            // get actor Id from authenticated User in order to log
-            Integer userId = authenticationService.getAuthenticatedUserId();
-            User actor = userService.getUserProfile(userId);
+        // set new status for appointment
+        appointment.setCurrentStatus(AppointmentStatus.DONE);
 
-            // insert into Status table
-            logToStatus(appointment, actor);
-            appointmentRepository.save(appointment);
-        } throw new IllegalStateException("Only Staff/Veterinarian can update appointments from CHECKIN to DONE");
+        // get actor Id from authenticated User in order to log
+        Integer userId = authenticationService.getAuthenticatedUserId();
+        User actor = userService.getUserProfile(userId);
 
+        // insert into Status table
+        logToStatus(appointment, actor);
+        appointmentRepository.save(appointment);
+        
     }
 
-    private void logToStatus(Appointment appointment, User confirmedActor) {
+    private void logToStatus(Appointment appointment, User veterinarian) {
         Status status = new Status();
-        String actor = "";
-
         status.setAppointment(appointment);
         status.setStatusName(appointment.getCurrentStatus());
         status.setTime(LocalDateTime.now());
-
-
-        PaymentMethod paymentMethod = appointment.getPayment().getPaymentMethod();
-        String roleKey = confirmedActor.getRole().getRoleKey();
-
-        // set status
-        if (paymentMethod.equals(PaymentMethod.VN_PAY) && roleKey.equals("STA")) {
-            status.setNote(produceLogMessage(confirmedActor, roleKey));
-        }
-        if (paymentMethod.equals(PaymentMethod.CASH) && ((roleKey.equals("STA") || roleKey.equals("VET")))) {
-            status.setNote(produceLogMessage(confirmedActor, roleKey));
-        }
+        status.setNote("Veterinarian - " + veterinarian.getFirstName() + " " + veterinarian.getLastName() + " marked DONE the appointment successfully");
         appointment.addStatus(status);
-    }
-
-    private String produceLogMessage(User confirmedActor, String roleKey) {
-        String logMessage = "";
-
-        if (roleKey.equals("VET"))
-            logMessage = "Veterinarian - " + confirmedActor.getFirstName() + " " + confirmedActor.getLastName() + " update CHECK-IN successfully";
-        if (roleKey.equals("STA"))
-            logMessage = "Staff - " + confirmedActor.getFirstName() + " " + confirmedActor.getLastName() + " update CHECK-IN successfully";
-        return logMessage;
     }
 
 }

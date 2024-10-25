@@ -3,17 +3,22 @@ package org.ftf.koifishveterinaryservicecenter.email;
 import org.ftf.koifishveterinaryservicecenter.entity.*;
 import org.ftf.koifishveterinaryservicecenter.enums.AppointmentStatus;
 import org.ftf.koifishveterinaryservicecenter.enums.PaymentMethod;
-import org.ftf.koifishveterinaryservicecenter.repository.*;
+import org.ftf.koifishveterinaryservicecenter.repository.PaymentRepository;
+import org.ftf.koifishveterinaryservicecenter.repository.ServiceRepository;
+import org.ftf.koifishveterinaryservicecenter.repository.TimeSlotRepository;
+import org.ftf.koifishveterinaryservicecenter.repository.UserRepository;
 import org.ftf.koifishveterinaryservicecenter.service.emailservice.EmailService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
 @SpringBootTest
+@Rollback(value = true)
 public class EmailServiceTest {
 
     @Autowired

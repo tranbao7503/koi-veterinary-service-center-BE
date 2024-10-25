@@ -23,7 +23,7 @@ public class AddressServiceImpl implements AddressService {
         return address.get();
     }
 
-    private void sendEmail(){
+    private void sendEmail() {
 
     }
 }
