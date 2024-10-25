@@ -1,10 +1,7 @@
 package org.ftf.koifishveterinaryservicecenter.entity;
-
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-
-
 @Entity
 @Table(name = "meeting")
 @Getter
@@ -18,6 +15,4 @@ public class Meeting {
     private User vet; // Trường này tham chiếu đến User
     @Column(name = "link_meet", nullable = false)
     private String linkMeet;
-
-
 }
