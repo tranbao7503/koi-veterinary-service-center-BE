@@ -2,9 +2,9 @@ package org.ftf.koifishveterinaryservicecenter.service.userservice;
 
 import org.ftf.koifishveterinaryservicecenter.dto.UserDTO;
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
+import org.ftf.koifishveterinaryservicecenter.entity.Meeting;
 import org.ftf.koifishveterinaryservicecenter.entity.Role;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
-import org.ftf.koifishveterinaryservicecenter.entity.VetMeeting;
 import org.ftf.koifishveterinaryservicecenter.enums.PaymentMethod;
 import org.ftf.koifishveterinaryservicecenter.enums.PaymentStatus;
 import org.ftf.koifishveterinaryservicecenter.exception.AddressNotFoundException;
@@ -638,7 +638,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<String> getLinkMeetByVetId(Integer vetId) {
         return vetMeetingRepository.findByVetId(vetId)
-                .map(VetMeeting::getLinkMeet);
+                .map(Meeting::getLinkMeet);
     }
 
 
