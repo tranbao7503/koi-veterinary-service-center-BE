@@ -9,14 +9,15 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 public class AppConfig {
@@ -74,16 +75,24 @@ public class AppConfig {
                         .requestMatchers("/api/v1/email/sendNotification").hasAnyAuthority("STA")
                         .requestMatchers("api/v1/email/sendBill").hasAnyAuthority("CUS")  // for test
 
-                        .requestMatchers("/files/**", "/favicon.ico", "/api/v1/payments/vnpay-notify").permitAll()
+                        .requestMatchers("/files/images/**", "/files/certificates/**", "/api/v1/payments/vnpay-notify", "/error").permitAll()
+                        .requestMatchers("/api/v1/certificates/**").hasAnyAuthority("MAN")
                         .requestMatchers("/api/v1/email/sendNotification").hasAnyAuthority("STA")
                         .requestMatchers("api/v1/email/sendBill").hasAnyAuthority("CUS")  // for test
 
+                        .requestMatchers("api/v1/users/payment-statistics").hasAnyAuthority("MAN")
+                        .requestMatchers("api/v1/users/appointment-statistics").hasAnyAuthority("MAN")
+                        .requestMatchers("api/v1/users/user-fish-statistics").hasAnyAuthority("MAN")
+                        .requestMatchers("api/v1/users/{vetId}/slots-this-week").hasAnyAuthority("MAN")
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwtConfigurer -> jwtConfigurer
                                 .decoder(customJwtDecoder)
                                 .jwtAuthenticationConverter(jwtAuthenticationConverter())
                         ))
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.ALWAYS) // or SessionCreationPolicy.ALWAYS
+                )
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())); // Enable CORS
 
         return httpSecurity.build();

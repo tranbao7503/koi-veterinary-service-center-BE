@@ -28,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.text.ParseException;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -272,7 +273,7 @@ public class UserController {
     public ResponseEntity<String> updateUser(@RequestBody UserDTO userDTO) {
         try {
             // Gọi phương thức updateUser từ service với dữ liệu từ UserDTO
-            userService.updateUserInfo(userDTO.getUserId(), userDTO.isEnabled());
+            userService.updateUserInfo(userDTO.getUserId(), userDTO.isEnable());
 
             // Trả về thông báo thành công
             return ResponseEntity.ok("User updated successfully.");
@@ -300,4 +301,35 @@ public class UserController {
         }
 
     }
+
+    //  lấy số liệu liên quan đến người dùng và cá
+    @GetMapping("/user-fish-statistics")
+    public Map<String, String> getUserAndFishStatistics() {
+        return userService.getUserAndFishStatistics();
+    }
+
+    // Lấy số liệu liên quan đến cuộc hẹn
+    @GetMapping("/appointment-statistics")
+    public Map<String, String> getAppointmentStatistics() {
+        return userService.getAppointmentStatistics();
+    }
+
+    // Lấy số liệu liên quan đến thanh toán
+    @GetMapping("/payment-statistics")
+    public Map<String, String> getPaymentStatistics() {
+        return userService.getPaymentStatistics();
+    }
+
+    //xem vet duoc booked bao nhiêu lần trên tuần
+    @GetMapping("/{vetId}/slots-this-week")
+    public ResponseEntity<Long> getVetSlotsInCurrentWeek(@PathVariable int vetId) {
+        long slotsCount = userService.getVetSlotsInCurrentWeek(vetId);
+        return ResponseEntity.ok(slotsCount);
+    }
+
+    @GetMapping("/feedback-statistics")
+    public Map<String, Object> getFeedbackStatistics() {
+        return userService.getFeedbackStatistics();
+    }
+
 }

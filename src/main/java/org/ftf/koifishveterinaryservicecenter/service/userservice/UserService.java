@@ -7,6 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 public interface UserService {
     List<User> getAllVeterinarians();
@@ -47,5 +48,21 @@ public interface UserService {
     List<User> getAllStaffs();
 
     UserDTO updatePassword(String newPassword);
+
+    Map<String, String> getUserAndFishStatistics();
+
+
+    // Hàm tính số liệu cuộc hẹn
+    Map<String, String> getAppointmentStatistics();
+
+    // Hàm tính số liệu thanh toán
+    Map<String, String> getPaymentStatistics();
+
+    long getVetSlotsInCurrentWeek(int vetId);
+
+    //them so luong feedback voi so luong sao trung binh cua bac si
+    Map<String, Object> getFeedbackStatistics();
+
+    List<User> getBookedVeterinarianBySlotId(Integer slotId);
 
 }

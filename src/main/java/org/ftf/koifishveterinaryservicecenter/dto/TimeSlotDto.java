@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentFeedbackDto;
 
+import java.util.List;
+
 @Getter
 @Setter
 @Builder
@@ -31,4 +33,7 @@ public class TimeSlotDto {
 
     @JsonProperty("appointment")
     private AppointmentFeedbackDto appointment;
+
+    @JsonProperty("booked_veterinarian")
+    private List<UserDTO> bookedVeterinarian;
 }

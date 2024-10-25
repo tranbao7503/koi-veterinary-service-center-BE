@@ -270,7 +270,7 @@ public class AppointmentController {
             try {
                 Payment payment = paymentService.findPaymentByAppointmentId(appointmentId);
 
-                if(payment.getPaymentMethod().equals(PaymentMethod.CASH) && appointmentStatus.equals(AppointmentStatus.CONFIRMED)){
+                if (payment.getPaymentMethod().equals(PaymentMethod.CASH) && appointmentStatus.equals(AppointmentStatus.CONFIRMED)) {
                     appointmentService.updateStatus(appointmentId, AppointmentStatus.ON_GOING);
                 }
                 appointmentService.updateStatus(appointmentId, appointmentStatus);
