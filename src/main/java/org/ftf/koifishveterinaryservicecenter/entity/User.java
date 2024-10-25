@@ -118,6 +118,7 @@ public class User {
     private Meeting meeting; // Tham chiếu đến Meeting (nếu cần thiết)
 
 
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "current_address_id", nullable = true)
     private Address currentAddress;
