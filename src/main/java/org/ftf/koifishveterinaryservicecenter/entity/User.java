@@ -114,6 +114,10 @@ public class User {
     private Set<VeterinarianSlots> veterinarianSlots = new LinkedHashSet<>();
 
 
+    @OneToOne(mappedBy = "vet") // Tham chiếu đến VetMeeting
+    private VetMeeting vetMeeting; // Tham chiếu đến VetMeeting (nếu cần thiết)
+
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "current_address_id", nullable = true)
     private Address currentAddress;

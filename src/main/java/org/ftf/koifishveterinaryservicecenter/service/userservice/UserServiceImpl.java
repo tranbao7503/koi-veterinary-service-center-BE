@@ -4,6 +4,7 @@ import org.ftf.koifishveterinaryservicecenter.dto.UserDTO;
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
 import org.ftf.koifishveterinaryservicecenter.entity.Role;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
+import org.ftf.koifishveterinaryservicecenter.entity.VetMeeting;
 import org.ftf.koifishveterinaryservicecenter.enums.PaymentMethod;
 import org.ftf.koifishveterinaryservicecenter.enums.PaymentStatus;
 import org.ftf.koifishveterinaryservicecenter.exception.AddressNotFoundException;
@@ -22,10 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -43,8 +41,9 @@ public class UserServiceImpl implements UserService {
     private final VeterinarianSlotsRepository veterinarianSlotsRepository;
     private final FeedbackRepository feedbackRepository;
     private final FileDownloadService fileDownloadService;
+    private final VetMeetingRepository vetMeetingRepository;
 
-    public UserServiceImpl(UserRepository userRepository, AddressRepository addressRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, FileUploadService fileUploadService, UserMapper userMapper, AuthenticationService authenticationService, FishRepository fishRepository, AppointmentRepository appointmentRepository, PaymentRepository paymentRepository, VeterinarianSlotsRepository veterinarianSlotsRepository, FeedbackRepository feedbackRepository, FileDownloadService fileDownloadService) {
+    public UserServiceImpl(UserRepository userRepository, AddressRepository addressRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, FileUploadService fileUploadService, UserMapper userMapper, AuthenticationService authenticationService, FishRepository fishRepository, AppointmentRepository appointmentRepository, PaymentRepository paymentRepository, VeterinarianSlotsRepository veterinarianSlotsRepository, FeedbackRepository feedbackRepository, FileDownloadService fileDownloadService, VetMeetingRepository vetMeetingRepository) {
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
         this.roleRepository = roleRepository;
@@ -58,6 +57,7 @@ public class UserServiceImpl implements UserService {
         this.veterinarianSlotsRepository = veterinarianSlotsRepository;
         this.feedbackRepository = feedbackRepository;
         this.fileDownloadService = fileDownloadService;
+        this.vetMeetingRepository = vetMeetingRepository;
     }
 
 
@@ -633,6 +633,12 @@ public class UserServiceImpl implements UserService {
         feedbackStatistics.put("averageRatingPerVet", averageRatingMap);
 
         return feedbackStatistics;
+    }
+
+    @Override
+    public Optional<String> getLinkMeetByVetId(Integer vetId) {
+        return vetMeetingRepository.findByVetId(vetId)
+                .map(VetMeeting::getLinkMeet);
     }
 
 
