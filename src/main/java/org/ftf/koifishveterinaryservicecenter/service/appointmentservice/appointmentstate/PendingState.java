@@ -31,20 +31,21 @@ public class PendingState implements AppointmentState {
     public void updateState(Appointment appointment) {
         String roleKey = authenticationService.getAuthenticatedUserRoleKey();
 
-        if (roleKey.equals("STA")) {
-            // set new status for the appointment
-            appointment.setCurrentStatus(AppointmentStatus.CONFIRMED);
+        if (!roleKey.equals("STA"))
+            throw new IllegalStateException("Only Staff can update appointments from PENDING to CONFIRMED");
 
-            // get staff Id from authenticated User in order to log
-            Integer staffId = authenticationService.getAuthenticatedUserId();
-            User staff = userService.getUserProfile(staffId);
+        // set new status for the appointment
+        appointment.setCurrentStatus(AppointmentStatus.CONFIRMED);
+
+        // get staff Id from authenticated User in order to log
+        Integer staffId = authenticationService.getAuthenticatedUserId();
+        User staff = userService.getUserProfile(staffId);
 
 
-            // insert to Status table
-            logToStatus(appointment, staff);
-            appointmentRepository.save(appointment);
+        // insert to Status table
+        logToStatus(appointment, staff);
+        appointmentRepository.save(appointment);
 
-        } else throw new IllegalStateException("Only Staff can update appointments from PENDING to CONFIRMED");
     }
 
     private void logToStatus(Appointment appointment, User staff) {

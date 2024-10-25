@@ -8,12 +8,14 @@ import org.ftf.koifishveterinaryservicecenter.service.emailservice.EmailService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
 @SpringBootTest
+@Rollback(value = true)
 public class EmailServiceTest {
 
     @Autowired

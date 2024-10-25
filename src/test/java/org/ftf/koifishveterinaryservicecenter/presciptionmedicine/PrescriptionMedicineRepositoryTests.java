@@ -17,7 +17,7 @@ import java.util.Set;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Rollback(value = false)
+@Rollback(value = true)
 public class PrescriptionMedicineRepositoryTests {
 
     @Autowired
