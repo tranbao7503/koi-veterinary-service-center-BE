@@ -91,7 +91,7 @@ public class PaymentController {
 
             PaymentDto updatedPaymentDto = PaymentMapper.INSTANCE.convertToDto(paymentService.updatePayment(appointment.getPayment().getPaymentId(), payment));
 
-            appointmentService.updateStatus(appointmentId, AppointmentStatus.ON_GOING);
+            //appointmentService.updateStatus(appointmentId, AppointmentStatus.ON_GOING);
             appointmentService.updateStatus(appointmentId, AppointmentStatus.CHECKED_IN);
 
             return new ResponseEntity<>(updatedPaymentDto, HttpStatus.OK);
