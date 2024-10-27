@@ -270,10 +270,11 @@ public class AppointmentController {
             try {
                 Payment payment = paymentService.findPaymentByAppointmentId(appointmentId);
 
+                appointmentService.updateStatus(appointmentId, appointmentStatus);
+
                 if(payment.getPaymentMethod().equals(PaymentMethod.CASH) && appointmentStatus.equals(AppointmentStatus.CONFIRMED)){
                     appointmentService.updateStatus(appointmentId, AppointmentStatus.ON_GOING);
                 }
-                appointmentService.updateStatus(appointmentId, appointmentStatus);
 
                 return new ResponseEntity<>("Status updated successfully", HttpStatus.OK);
             } catch (AppointmentNotFoundException e) {
