@@ -5,10 +5,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
@@ -22,11 +24,15 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class AppConfig {
 
     private final String[] PUBLIC_ENDPOINTS = {
-            "/api/v1/users/token", "/api/v1/users/introspect", "api/v1/users/customers", "api/v1/users/signup", "api/v1/users/**"
+            "/api/v1/users/token", "/api/v1/users/introspect", "api/v1/users/customers", "api/v1/users/signup", "api/v1/users/**",
+            "/api/v1/users/outbound/authentication"
     };
 
     @Value("${jwt.signer}")
     private String SIGNER_KEY;
+
+
+    @Lazy
 
     @Autowired
     private CustomJwtDecoder customJwtDecoder;
@@ -57,7 +63,10 @@ public class AppConfig {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .csrf(csrfConfig -> csrfConfig
-                        .ignoringRequestMatchers("/api/v1/users/token", "/api/v1/users/introspect", "/api/v1/users/customers", "/api/v1/users/signup", "/api/v1/fishes", "api/v1/users/logout", "api/v1/users/refresh"))
+                        .ignoringRequestMatchers("/api/v1/users/token",
+                                "/api/v1/users/introspect", "/api/v1/users/customers",
+                                "/api/v1/users/signup", "/api/v1/fishes", "api/v1/users/logout",
+                                "api/v1/users/refresh", "/api/v1/users/outbound/authentication"))
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(Customizer.withDefaults())
                 .authorizeHttpRequests(request -> request
@@ -73,17 +82,31 @@ public class AppConfig {
                         .requestMatchers("/api/v1/users/deleteuser").hasAnyAuthority("MAN")
                         .requestMatchers("/api/v1/email/sendNotification").hasAnyAuthority("STA")
                         .requestMatchers("api/v1/email/sendBill").hasAnyAuthority("CUS")  // for test
-
-                        .requestMatchers("/files/**", "/favicon.ico", "/api/v1/payments/vnpay-notify").permitAll()
                         .requestMatchers("/api/v1/email/sendNotification").hasAnyAuthority("STA")
                         .requestMatchers("api/v1/email/sendBill").hasAnyAuthority("CUS")  // for test
 
+                        .requestMatchers("/files/**", "/favicon.ico").permitAll()
+                        .requestMatchers("/api/v1/email/sendNotification").hasAnyAuthority("STA")
+                        .requestMatchers("api/v1/email/sendBill").hasAnyAuthority("CUS")  // for test
+
+                        .requestMatchers("/files/images/**", "/files/certificates/**", "/api/v1/payments/vnpay-notify", "/error", "/api/v1/feedbacks/limited").permitAll()
+                        .requestMatchers("/api/v1/certificates/**").hasAnyAuthority("MAN")
+                        .requestMatchers("/api/v1/email/sendNotification").hasAnyAuthority("STA")
+                        .requestMatchers("api/v1/email/sendBill").hasAnyAuthority("CUS")  // for test
+
+                        .requestMatchers("api/v1/users/payment-statistics").hasAnyAuthority("MAN")
+                        .requestMatchers("api/v1/users/appointment-statistics").hasAnyAuthority("MAN")
+                        .requestMatchers("api/v1/users/user-fish-statistics").hasAnyAuthority("MAN")
+                        .requestMatchers("api/v1/users/{vetId}/slots-this-week").hasAnyAuthority("MAN")
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwtConfigurer -> jwtConfigurer
                                 .decoder(customJwtDecoder)
                                 .jwtAuthenticationConverter(jwtAuthenticationConverter())
                         ))
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.ALWAYS) // or SessionCreationPolicy.ALWAYS
+                )
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())); // Enable CORS
 
         return httpSecurity.build();
@@ -102,3 +125,5 @@ public class AppConfig {
         return source;
     }
 }
+
+

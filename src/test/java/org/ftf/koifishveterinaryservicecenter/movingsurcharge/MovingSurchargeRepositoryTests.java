@@ -11,7 +11,7 @@ import org.springframework.test.annotation.Rollback;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Rollback(false)
+@Rollback(value = true)
 public class MovingSurchargeRepositoryTests {
 
     @Autowired

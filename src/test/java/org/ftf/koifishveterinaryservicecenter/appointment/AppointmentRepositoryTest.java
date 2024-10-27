@@ -5,7 +5,6 @@ import org.ftf.koifishveterinaryservicecenter.entity.*;
 import org.ftf.koifishveterinaryservicecenter.enums.AppointmentStatus;
 import org.ftf.koifishveterinaryservicecenter.enums.PaymentMethod;
 import org.ftf.koifishveterinaryservicecenter.repository.*;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -24,11 +23,6 @@ public class AppointmentRepositoryTest {
     @Autowired
     private AppointmentRepository appointmentRepository;
 
-    @Autowired
-    private PrescriptionRepository prescriptionRepository;
-
-    @Autowired
-    private MedicalReportRepository medicalReportRepository;
 
     @Autowired
     private ServiceRepository serviceRepository;
@@ -43,23 +37,6 @@ public class AppointmentRepositoryTest {
     private PaymentRepository paymentRepository;
 
 
-    @Disabled
-    @Test
-    public void testCreateMedicalReportSuccess() {
-        int prescriptionId = 82;
-        Optional<Prescription> prescription = prescriptionRepository.findById(prescriptionId);
-
-        MedicalReport medicalReport = new MedicalReport();
-        medicalReport.setConclusion("Pond temperature fluctuation noted.");
-        medicalReport.setAdvise("Install heaters for temperature control.");
-
-        medicalReport.setPrescription(prescription.get());
-
-        User veterinarian = userRepository.findVeterinarianById(3);
-        medicalReport.setVeterinarian(veterinarian);
-
-        medicalReportRepository.save(medicalReport);
-    }
 
     @Test
     public void testCreateAppointmentSuccess() {
@@ -105,7 +82,7 @@ public class AppointmentRepositoryTest {
 
     @Test
     public void testGetAppointmentById() {
-        Integer appointmentId = 23;
+        Integer appointmentId = 22;
         Optional<Appointment> appointment = appointmentRepository.findById(appointmentId);
         Assertions.assertThat(appointment).isPresent();
         System.out.println(appointment.get().getTimeSlot().toString());
@@ -113,7 +90,7 @@ public class AppointmentRepositoryTest {
 
     @Test
     public void testUpdateAppointmentStatusTriggerInsertingToStatusTableSuccess() {
-        Integer appointmentId = 26;
+        Integer appointmentId = 22;
 
         // get appointment by Id
         Optional<Appointment> appointment = appointmentRepository.findById(appointmentId);

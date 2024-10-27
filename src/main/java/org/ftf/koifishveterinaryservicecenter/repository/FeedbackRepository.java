@@ -17,5 +17,20 @@ public interface FeedbackRepository extends JpaRepository<Feedback, Integer> {
     @Query("select s from Feedback s where s.veterinarian.userId = :veterinarianId")
     List<Feedback> findByVeterianrianId(@Param("veterinarianId") Integer veterianrianId);
 
+    // Đếm số lượng feedback trong ngày
+    @Query("SELECT COUNT(f) FROM Feedback f WHERE DATE(f.datetime) = CURRENT_DATE")
+    long countFeedbackToday();
+
+    // Đếm số lượng feedback trong tháng
+    @Query("SELECT COUNT(f) FROM Feedback f WHERE MONTH(f.datetime) = :month AND YEAR(f.datetime) = :year")
+    long countFeedbackByMonth(@Param("month") int month, @Param("year") int year);
+
+    // Đếm số lượng feedback trong quý
+    @Query("SELECT COUNT(f) FROM Feedback f WHERE QUARTER(f.datetime) = :quarter AND YEAR(f.datetime) = :year")
+    long countFeedbackByQuarter(@Param("quarter") int quarter, @Param("year") int year);
+
+    @Query("SELECT f.veterinarian.id, AVG(f.rating) FROM Feedback f GROUP BY f.veterinarian.id")
+    List<Object[]> averageRatingPerVet();
+
 
 }

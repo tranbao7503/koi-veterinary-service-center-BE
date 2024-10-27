@@ -47,6 +47,11 @@ public class SlotServiceImpl implements SlotService {
             timeSlot.setAppointments(timeSlot.getAppointments().stream().filter(appointment -> appointment.getVeterinarian().getUserId().equals(veterinarianId)).limit(1)  // Keep only one appointment with the matching veterinarianId
                     .collect(Collectors.toSet()));
         }
+
+        veterinarianSlotsList = veterinarianSlotsList.stream() // Keep only TimeSlots have appointments
+                .filter(timeSlot -> !timeSlot.getAppointments().isEmpty())
+                .collect(Collectors.toList());
+
         return veterinarianSlotsList;
     }
 

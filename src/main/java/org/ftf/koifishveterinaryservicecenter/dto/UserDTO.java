@@ -45,6 +45,11 @@ public class UserDTO {
     @JsonProperty("avatar")
     public String avatar;
 
+    public boolean noPassword;
+
+    /*public boolean isEnabled() {
+        return enable;
+    }*/
 
     public UserDTO(String firstName, String lastName, String username, String password) {
         this.firstName = firstName;
