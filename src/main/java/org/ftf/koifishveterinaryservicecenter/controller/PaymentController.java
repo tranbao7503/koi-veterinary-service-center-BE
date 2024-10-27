@@ -165,7 +165,10 @@ public class PaymentController {
 
                 // Update payment
                 paymentService.updatePaymentForVnPay(appointmentId, paymentDate, transactionId, orderInfo);
-                //appointmentService.updateStatus(appointmentId, AppointmentStatus.CONFIRMED);
+
+                // system update ON_GOING
+                appointmentService.updateStatus(appointmentId, AppointmentStatus.ON_GOING);
+
 
                 Appointment appointment = appointmentService.getAppointmentById(appointmentId);
 
