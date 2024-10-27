@@ -19,5 +19,17 @@ public interface VeterinarianSlotsRepository extends JpaRepository<VeterinarianS
     @Query("SELECT vs FROM VeterinarianSlots vs WHERE vs.veterinarianSlotId.veterinarianId = ?1 AND vs.veterinarianSlotId.slotId = ?2")
     VeterinarianSlots getVeterinarianSlotsById(Integer veterinarianId, Integer slotId);
 
+    @Query("SELECT COUNT(vs) FROM VeterinarianSlots vs " +
+            "WHERE vs.veterinarianSlotId.veterinarianId = :vetId " +
+            "AND (vs.timeSlot.year = :year " +
+            "AND vs.timeSlot.month = :month " +
+            "AND vs.timeSlot.day BETWEEN :startDay AND :endDay) " +
+            "AND vs.status = 'BOOKED'")
+    long countSlotsByVetInDateRange(@Param("vetId") Integer vetId,
+                                    @Param("year") Integer year,
+                                    @Param("month") Integer month,
+                                    @Param("startDay") Integer startDay,
+                                    @Param("endDay") Integer endDay);
+
 
   }

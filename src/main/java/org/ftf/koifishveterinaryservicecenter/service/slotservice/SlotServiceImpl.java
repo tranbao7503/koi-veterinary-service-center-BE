@@ -47,6 +47,11 @@ public class SlotServiceImpl implements SlotService {
             timeSlot.setAppointments(timeSlot.getAppointments().stream().filter(appointment -> appointment.getVeterinarian().getUserId().equals(veterinarianId)).limit(1)  // Keep only one appointment with the matching veterinarianId
                     .collect(Collectors.toSet()));
         }
+
+        veterinarianSlotsList = veterinarianSlotsList.stream() // Keep only TimeSlots have appointments
+                .filter(timeSlot -> !timeSlot.getAppointments().isEmpty())
+                .collect(Collectors.toList());
+
         return veterinarianSlotsList;
     }
 
@@ -136,6 +141,17 @@ public class SlotServiceImpl implements SlotService {
                 .collect(Collectors.toList());
 
         return filteredSlots;
+    }
+
+    @Override
+    public List<TimeSlot> getBookedTimeSlots() {
+        List<TimeSlot> timeSlots = timeSlotRepository.findBookedTimeSlots();
+
+        if (timeSlots.isEmpty()) { // Not found
+            throw new TimeSlotNotFoundException("There are no booked slots");
+        }
+
+        return timeSlots;
     }
 
 

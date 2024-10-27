@@ -23,6 +23,10 @@ public class PrescriptionMedicine {
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
 
+    // Instruction for each medicine
+    @Column(name = "instruction", nullable = false)
+    private String instruction;
+
     // Bidirectional, identifying  relationship
     // Owning side: PrescriptionMedicine
     // Inverse side: Medicine
@@ -39,8 +43,9 @@ public class PrescriptionMedicine {
     @JoinColumn(name = "prescription_id", nullable = false, referencedColumnName = "prescription_id")
     private Prescription prescription;
 
-    public PrescriptionMedicine(PrescriptionMedicineId prescriptionMedicineId, Integer quantity) {
+    public PrescriptionMedicine(PrescriptionMedicineId prescriptionMedicineId, Integer quantity, String instruction) {
         this.prescriptionMedicineId = prescriptionMedicineId;
         this.quantity = quantity;
+        this.instruction = instruction;
     }
 }

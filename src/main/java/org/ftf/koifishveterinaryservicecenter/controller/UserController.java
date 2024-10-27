@@ -2,6 +2,7 @@ package org.ftf.koifishveterinaryservicecenter.controller;
 
 
 import com.nimbusds.jose.JOSEException;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.ftf.koifishveterinaryservicecenter.dto.*;
 import org.ftf.koifishveterinaryservicecenter.dto.response.AuthenticationResponse;
@@ -28,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.text.ParseException;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -41,6 +43,7 @@ public class UserController {
     private final FeedbackService feedbackService;
     private final AppointmentService appointmentService;
     private final SlotService slotService;
+
 
     public UserController(UserService userService, UserMapper userMapper, AuthenticationServiceImpl authenticationService, FeedbackService feedbackService, AppointmentService appointmentService, SlotService slotService) {
         this.userService = userService;
@@ -272,7 +275,7 @@ public class UserController {
     public ResponseEntity<String> updateUser(@RequestBody UserDTO userDTO) {
         try {
             // Gọi phương thức updateUser từ service với dữ liệu từ UserDTO
-            userService.updateUserInfo(userDTO.getUserId(), userDTO.isEnabled());
+            userService.updateUserInfo(userDTO.getUserId(), userDTO.isEnable());
 
             // Trả về thông báo thành công
             return ResponseEntity.ok("User updated successfully.");
@@ -299,5 +302,78 @@ public class UserController {
             return new ResponseEntity<>("An error occurred while updating the password.", HttpStatus.INTERNAL_SERVER_ERROR); // Thông báo lỗi chung
         }
 
+
     }
+
+    @PostMapping("/outbound/authentication")
+    ApiResponse<AuthenticationResponse> outboundAuthenticate(
+            @RequestParam("code") String code) {
+        var result = authenticationService.outboundAuthenticate(code);
+        return ApiResponse.<AuthenticationResponse>builder().result(result).build();
+
+    }
+
+    @PostMapping("/create-password")
+    public ResponseEntity<ApiResponse<Void>> createPassword(@RequestBody @Valid String password) {
+        userService.createPassword(password);
+        return ResponseEntity.ok(
+                ApiResponse.<Void>builder()
+                        .message("Password has been created!")
+                        .build()
+        );
+    }
+
+
+    @GetMapping("/my-info")
+    public ResponseEntity<UserDTO> getMyInfo() {
+        try {
+            // Call the service method which now returns UserDTO
+            UserDTO userDto = userService.getMyInfo();
+            return ResponseEntity.ok(userDto);  // Use ResponseEntity.ok() for successful responses
+        } catch (UserNotFoundException e) {
+            log.error("User not found: {}", e.getMessage());  // Log the error message
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);  // Use status and body directly
+        } catch (Exception e) {
+            log.error("An error occurred while fetching user info: {}", e.getMessage());  // Log the general error
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    //  lấy số liệu liên quan đến người dùng và cá
+    @GetMapping("/user-fish-statistics")
+    public Map<String, String> getUserAndFishStatistics() {
+        return userService.getUserAndFishStatistics();
+    }
+
+    // Lấy số liệu liên quan đến cuộc hẹn
+    @GetMapping("/appointment-statistics")
+    public Map<String, String> getAppointmentStatistics() {
+        return userService.getAppointmentStatistics();
+    }
+
+    // Lấy số liệu liên quan đến thanh toán
+    @GetMapping("/payment-statistics")
+    public Map<String, String> getPaymentStatistics() {
+        return userService.getPaymentStatistics();
+    }
+
+    //xem vet duoc booked bao nhiêu lần trên tuần
+    @GetMapping("/{vetId}/slots-this-week")
+    public ResponseEntity<Long> getVetSlotsInCurrentWeek(@PathVariable int vetId) {
+        long slotsCount = userService.getVetSlotsInCurrentWeek(vetId);
+        return ResponseEntity.ok(slotsCount);
+    }
+
+    @GetMapping("/feedback-statistics")
+    public Map<String, Object> getFeedbackStatistics() {
+        return userService.getFeedbackStatistics();
+    }
+
+    @GetMapping("/{vetId}/link")
+    public ResponseEntity<String> getLinkMeetByVetId(@PathVariable Integer vetId) {
+        return userService.getLinkMeetByVetId(vetId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
 }

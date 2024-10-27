@@ -26,11 +26,22 @@ public interface TimeSlotMapper {
     // A custom method to extract the first appointment from the set and map it to AppointmentDto
     @Named("mapFirstAppointment")
     default AppointmentFeedbackDto mapFirstAppointment(Set<Appointment> appointments) {
-        Appointment firstAppointment = appointments.stream().findFirst().get();
+
+        if (appointments.isEmpty()) { // appointments set is empty
+            return null;
+        }
+
+        Appointment firstAppointment = appointments.stream().findFirst().orElse(null);
+        if (firstAppointment == null) {// FirstAppointment is still null
+            return null;
+        }
+
+        // Map fields to AppointmentFeedbackDto
         AppointmentFeedbackDto appointmentFeedbackDto = new AppointmentFeedbackDto();
         appointmentFeedbackDto.setAppointmentId(firstAppointment.getAppointmentId());
         appointmentFeedbackDto.setServiceName(firstAppointment.getService().getServiceName());
         appointmentFeedbackDto.setCurrentStatus(firstAppointment.getCurrentStatus());
+
         return appointmentFeedbackDto;
     }
 

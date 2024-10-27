@@ -272,7 +272,8 @@ public class AppointmentController {
 
                 appointmentService.updateStatus(appointmentId, appointmentStatus);
 
-                if(payment.getPaymentMethod().equals(PaymentMethod.CASH) && appointmentStatus.equals(AppointmentStatus.CONFIRMED)){
+                if (payment.getPaymentMethod().equals(PaymentMethod.CASH) && appointmentStatus.equals(AppointmentStatus.CONFIRMED)) {
+
                     appointmentService.updateStatus(appointmentId, AppointmentStatus.ON_GOING);
                 }
 
@@ -292,9 +293,7 @@ public class AppointmentController {
      * Actors: Veterinarian
      * */
     @PostMapping("/follow-up-appointment")
-    public ResponseEntity<?> createFollowUpAppointment(
-            @RequestParam Integer appointmentId
-            , @RequestBody AppointmentDto followUpAppointmentDto) {
+    public ResponseEntity<?> createFollowUpAppointment(@RequestParam Integer appointmentId, @RequestBody AppointmentDto followUpAppointmentDto) {
         try {
             Integer userId = authenticationService.getAuthenticatedUserId();
 
@@ -315,5 +314,5 @@ public class AppointmentController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 }
+

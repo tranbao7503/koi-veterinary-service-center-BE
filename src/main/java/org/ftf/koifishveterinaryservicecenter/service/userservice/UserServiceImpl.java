@@ -2,26 +2,27 @@ package org.ftf.koifishveterinaryservicecenter.service.userservice;
 
 import org.ftf.koifishveterinaryservicecenter.dto.UserDTO;
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
+import org.ftf.koifishveterinaryservicecenter.entity.Meeting;
 import org.ftf.koifishveterinaryservicecenter.entity.Role;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
-import org.ftf.koifishveterinaryservicecenter.exception.AddressNotFoundException;
-import org.ftf.koifishveterinaryservicecenter.exception.AuthenticationException;
-import org.ftf.koifishveterinaryservicecenter.exception.RoleException;
-import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
+import org.ftf.koifishveterinaryservicecenter.enums.PaymentMethod;
+import org.ftf.koifishveterinaryservicecenter.enums.PaymentStatus;
+import org.ftf.koifishveterinaryservicecenter.exception.*;
 import org.ftf.koifishveterinaryservicecenter.mapper.UserMapper;
-import org.ftf.koifishveterinaryservicecenter.repository.AddressRepository;
-import org.ftf.koifishveterinaryservicecenter.repository.RoleRepository;
-import org.ftf.koifishveterinaryservicecenter.repository.UserRepository;
+import org.ftf.koifishveterinaryservicecenter.repository.*;
 import org.ftf.koifishveterinaryservicecenter.service.fileservice.FileDownloadService;
 import org.ftf.koifishveterinaryservicecenter.service.fileservice.FileUploadService;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.util.*;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -33,17 +34,14 @@ public class UserServiceImpl implements UserService {
     private final FileUploadService fileUploadService;
     private final UserMapper userMapper;
     private final AuthenticationService authenticationService;
+    private final FishRepository fishRepository;
+    private final AppointmentRepository appointmentRepository;
+    private final PaymentRepository paymentRepository;
+    private final VeterinarianSlotsRepository veterinarianSlotsRepository;
+    private final FeedbackRepository feedbackRepository;
     private final FileDownloadService fileDownloadService;
 
-    public UserServiceImpl(
-            UserRepository userRepository
-            , AddressRepository addressRepository
-            , RoleRepository roleRepository
-            , PasswordEncoder passwordEncoder
-            , FileUploadService fileUploadService
-            , UserMapper userMapper
-            , AuthenticationService authenticationService
-            , FileDownloadService fileDownloadService) {
+    public UserServiceImpl(UserRepository userRepository, AddressRepository addressRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, FileUploadService fileUploadService, UserMapper userMapper, AuthenticationService authenticationService, FishRepository fishRepository, AppointmentRepository appointmentRepository, PaymentRepository paymentRepository, VeterinarianSlotsRepository veterinarianSlotsRepository, FeedbackRepository feedbackRepository, FileDownloadService fileDownloadService) {
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
         this.roleRepository = roleRepository;
@@ -51,6 +49,11 @@ public class UserServiceImpl implements UserService {
         this.fileUploadService = fileUploadService;
         this.userMapper = userMapper;
         this.authenticationService = authenticationService;
+        this.fishRepository = fishRepository;
+        this.appointmentRepository = appointmentRepository;
+        this.paymentRepository = paymentRepository;
+        this.veterinarianSlotsRepository = veterinarianSlotsRepository;
+        this.feedbackRepository = feedbackRepository;
         this.fileDownloadService = fileDownloadService;
     }
 
@@ -58,22 +61,72 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserProfile(Integer userId) {
         User user = userRepository.findUsersByUserId(userId);
-        if (user.getAvatar() != null) {
-            String avatarPath = fileDownloadService.getImageUrl(user.getAvatar());
-            user.setAvatar(avatarPath);
-        }
+//        if (user.getAvatar() != null && !user.getAvatar().startsWith("http://")) {
+//            String avatarPath = fileDownloadService.getImageUrl(user.getAvatar());
+//            user.setAvatar(avatarPath);
+//        }
         return user;
     }
+
+    @Override
+    public UserDTO getMyInfo() {
+        // Retrieve the authentication context
+        var context = SecurityContextHolder.getContext();
+        String email = context.getAuthentication().getName();
+
+        // Fetch the user by email
+        User user = userRepository.findUserByEmail(email)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        // Map the user entity to the UserDTO
+        UserDTO userResponse = userMapper.convertEntityToDto(user);
+
+        // Additional logic: set noPassword and noDob fields
+        userResponse.setNoPassword(!StringUtils.hasText(user.getPassword()));
+
+        return userResponse;
+    }
+
+    public void createPassword(String password) {
+        var context = SecurityContextHolder.getContext();
+        String email = context.getAuthentication().getName();
+
+        // Fetch the user by email
+        User user = userRepository.findUserByEmail(email)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        // Check if the user already has a password set
+        if (StringUtils.hasText(user.getPassword())) {
+            throw new AppException(ErrorCode.INVALID_PASSWORD); // User already has a password
+        }
+
+        // Kiểm tra password
+        if (password == null || password.isBlank()) {
+            throw new AuthenticationException("Password can not be empty");
+        }
+        if (password.length() < 8) {
+            throw new AuthenticationException("Password can not be less than 8 characters");
+        }
+        String passwordPattern = "^(?=.*[@#$%^&+=!{}]).{8,}$";
+        if (!password.matches(passwordPattern)) {
+            throw new AuthenticationException("Password must contain at least one special character and be at least 8 characters long");
+        }
+
+        // Encode the password and save the user
+        user.setPassword(passwordEncoder.encode(password));
+        userRepository.save(user);
+    }
+
 
     @Override
     public List<User> getAllVeterinarians() {
         Role role = roleRepository.findByRoleKey("VET");
         List<User> veterinarians = new ArrayList<>(role.getUsers());
-        veterinarians.forEach(veterinarian -> {
-            if (veterinarian.getAvatar() != null) {
-                veterinarian.setAvatar(fileDownloadService.getImageUrl(veterinarian.getAvatar()));
-            }
-        });
+//        veterinarians.forEach(veterinarian -> {
+//            if (veterinarian.getAvatar() != null && !veterinarian.getAvatar().startsWith("http://")) {
+//                veterinarian.setAvatar(fileDownloadService.getImageUrl(veterinarian.getAvatar()));
+//            }
+//        });
         return veterinarians;
     }
 
@@ -138,11 +191,11 @@ public class UserServiceImpl implements UserService {
     public List<User> getAllCustomers() {
         Role role = roleRepository.findByRoleKey("CUS");
         List<User> customers = new ArrayList<>(role.getUsers());
-        customers.forEach(customer -> {
-            if (customer.getAvatar() != null) {
-                customer.setAvatar(fileDownloadService.getImageUrl(customer.getAvatar()));
-            }
-        });
+//        customers.forEach(customer -> {
+//            if (customer.getAvatar() != null && !customer.getAvatar().startsWith("http://")) {
+//                customer.setAvatar(fileDownloadService.getImageUrl(customer.getAvatar()));
+//            }
+//        });
         return customers;
     }
 
@@ -181,9 +234,12 @@ public class UserServiceImpl implements UserService {
         if (!email.matches(emailPattern)) {
             throw new AuthenticationException("Email is not valid");
         }
-        if (userRepository.findUserByEmail(email) != null) {
+//        if (userRepository.findUserByEmail(email) != null) {
+//            throw new AuthenticationException("Email is already registered");
+//        }
+        userRepository.findUserByEmail(email).ifPresent(user -> {
             throw new AuthenticationException("Email is already registered");
-        }
+        });
 
         // Kiểm tra first_name
         if (first_Name == null || first_Name.isBlank()) {
@@ -214,6 +270,10 @@ public class UserServiceImpl implements UserService {
         if (veterinarian == null) {
             throw new UserNotFoundException("Veterinarian not found with Id: " + veterinarianId);
         }
+//        if (veterinarian.getAvatar() != null && !veterinarian.getAvatar().startsWith("http://")) {
+//            String avatarPath = fileDownloadService.getImageUrl(veterinarian.getAvatar());
+//            veterinarian.setAvatar(avatarPath);
+//        }
         return veterinarian;
     }
 
@@ -223,6 +283,10 @@ public class UserServiceImpl implements UserService {
         if (customer == null) {
             throw new UserNotFoundException("Customer not found with Id: " + customerId);
         }
+//        if (customer.getAvatar() != null && !customer.getAvatar().startsWith("http://")) {
+//            String avatarPath = fileDownloadService.getImageUrl(customer.getAvatar());
+//            customer.setAvatar(avatarPath);
+//        }
         return customer;
     }
 
@@ -340,11 +404,11 @@ public class UserServiceImpl implements UserService {
 
         List<User> staffs = new ArrayList<>(staffRole.getUsers());
 
-        staffs.forEach(staff -> {
-            if (staff.getAvatar() != null) {
-                staff.setAvatar(fileDownloadService.getImageUrl(staff.getAvatar()));
-            }
-        });
+//        staffs.forEach(staff -> {
+//            if (staff.getAvatar() != null && !staff.getAvatar().startsWith("http://")) {
+//                staff.setAvatar(fileDownloadService.getImageUrl(staff.getAvatar()));
+//            }
+//        });
 
         // Trả về danh sách users từ role "STA"
         return staffs;
@@ -373,6 +437,7 @@ public class UserServiceImpl implements UserService {
         // Sử dụng mapper để chuyển đổi entity sang DTO
         return userMapper.convertEntityToDto(updatedUser);
     }
+
 
 
     @Override
@@ -409,13 +474,225 @@ public class UserServiceImpl implements UserService {
         // Chuyển đổi User sang UserDTO
         return UserMapper.INSTANCE.convertEntityToDto(userFromDb); // Giả sử bạn có một mapper cho User
     }
+
+    @Override
+    public List<User> getBookedVeterinarianBySlotId(Integer slotId) {
+        List<User> veterinarians = userRepository.findBookedVeterinarian(slotId);
+
+        if (veterinarians.isEmpty()) { // Empty
+            throw new UserNotFoundException("There are no Booked veterinarian in slot with id: " + slotId);
+        }
+
+        return veterinarians;
+    }
+
+    @Override
+    public Map<String, String> getUserAndFishStatistics() {
+        Map<String, String> statistics = new HashMap<>();
+
+        long totalFish = fishRepository.countEnabledFish();
+        long totalStaff = userRepository.countEnabledStaff();
+        long totalVets = userRepository.countEnabledVets();
+        long totalCustomers = userRepository.countEnabledCustomers();
+
+        statistics.put("totalFish", String.valueOf(totalFish));
+        statistics.put("totalStaff", String.valueOf(totalStaff));
+        statistics.put("totalVets", String.valueOf(totalVets));
+        statistics.put("totalCustomers", String.valueOf(totalCustomers));
+
+        return statistics;
+    }
+
+    @Override
+    public Map<String, String> getAppointmentStatistics() {
+        Map<String, String> appointmentStatistics = new HashMap<>();
+
+        // Tính số lượng cuộc hẹn
+        long totalAppointments = appointmentRepository.count();
+        long totalAppointmentsToday = appointmentRepository.countAppointmentsToday();
+
+        // Tính số lượng cuộc hẹn theo từng dịch vụ
+        long service1Appointments = appointmentRepository.countByService_ServiceId(1);
+        long service2Appointments = appointmentRepository.countByService_ServiceId(2);
+        long service3Appointments = appointmentRepository.countByService_ServiceId(3);
+        long taikhamAppointments = appointmentRepository.countByService_ServiceId(4);
+
+        // Tính số lượng cuộc hẹn theo từng dịch vụ trong ngày hôm nay
+        long service1AppointmentsToday = appointmentRepository.countByService_ServiceIdToday(1);
+        long service2AppointmentsToday = appointmentRepository.countByService_ServiceIdToday(2);
+        long service3AppointmentsToday = appointmentRepository.countByService_ServiceIdToday(3);
+        long taikhamAppointmentsToday = appointmentRepository.countByService_ServiceIdToday(4);
+
+        // Tính số lượng cuộc hẹn theo tháng
+        int currentMonth = LocalDate.now().getMonthValue();
+        int currentYear = LocalDate.now().getYear();
+        long appointmentsThisMonth = appointmentRepository.countByMonth(currentMonth, currentYear);
+
+        // Tính số lượng cuộc hẹn theo quý
+        int currentQuarter = (currentMonth - 1) / 3 + 1;
+        long appointmentsThisQuarter = appointmentRepository.countByQuarter(currentQuarter, currentYear);
+
+        // Tính số lượng cuộc hẹn cho từng dịch vụ trong tháng hiện tại
+        long service1AppointmentsThisMonth = appointmentRepository.countByServiceAndMonth(1, currentMonth, currentYear);
+        long service2AppointmentsThisMonth = appointmentRepository.countByServiceAndMonth(2, currentMonth, currentYear);
+        long service3AppointmentsThisMonth = appointmentRepository.countByServiceAndMonth(3, currentMonth, currentYear);
+
+        // Tìm dịch vụ được sử dụng nhiều nhất
+        long maxAppointments = Math.max(service1AppointmentsThisMonth, Math.max(service2AppointmentsThisMonth, service3AppointmentsThisMonth));
+        String mostUsedService;
+        if (maxAppointments == service1AppointmentsThisMonth) {
+            mostUsedService = "Service 1";
+        } else if (maxAppointments == service2AppointmentsThisMonth) {
+            mostUsedService = "Service 2";
+        } else {
+            mostUsedService = "Service 3";
+        }
+
+        // Thêm các giá trị vào map appointmentStatistics
+        appointmentStatistics.put("totalAppointments", String.valueOf(totalAppointments));
+        appointmentStatistics.put("totalAppointmentsToday", String.valueOf(totalAppointmentsToday));
+        appointmentStatistics.put("service1Appointments", String.valueOf(service1Appointments));
+        appointmentStatistics.put("service2Appointments", String.valueOf(service2Appointments));
+        appointmentStatistics.put("service3Appointments", String.valueOf(service3Appointments));
+        appointmentStatistics.put("taikhamAppointments", String.valueOf(taikhamAppointments));
+        appointmentStatistics.put("service1AppointmentsToday", String.valueOf(service1AppointmentsToday));
+        appointmentStatistics.put("service2AppointmentsToday", String.valueOf(service2AppointmentsToday));
+        appointmentStatistics.put("service3AppointmentsToday", String.valueOf(service3AppointmentsToday));
+        appointmentStatistics.put("taikhamAppointmentsToday", String.valueOf(taikhamAppointmentsToday));
+
+        // Thêm số liệu theo tháng và quý
+        appointmentStatistics.put("appointmentsThisMonth", String.valueOf(appointmentsThisMonth));
+        appointmentStatistics.put("appointmentsThisQuarter", String.valueOf(appointmentsThisQuarter));
+
+        // Thêm thông tin dịch vụ được sử dụng nhiều nhất
+        appointmentStatistics.put("mostUsedService", mostUsedService);
+
+        return appointmentStatistics;
+    }
+
+    @Override
+    public Map<String, String> getPaymentStatistics() {
+        Map<String, String> paymentStatistics = new HashMap<>();
+
+        // Tính số lượng thanh toán
+        long totalPayments = paymentRepository.count();
+        long totalPaymentsToday = paymentRepository.countPaymentsToday();
+
+        // Tính tổng số tiền thanh toán và tổng tiền thanh toán trong ngày
+        double totalAmountToday = (paymentRepository.sumTotalAmountToday() != null) ? paymentRepository.sumTotalAmountToday() : 0.0;
+        double totalAmount = (paymentRepository.sumTotalAmount() != null) ? paymentRepository.sumTotalAmount() : 0.0;
+
+        // Tính số lượng thanh toán theo phương thức
+        long cashPayments = paymentRepository.countByPaymentMethod(PaymentMethod.CASH);
+        long vnPayPayments = paymentRepository.countByPaymentMethod(PaymentMethod.VN_PAY);
+
+        long cashPaymentsToday = paymentRepository.countByPaymentMethodToday(PaymentMethod.CASH);
+        long vnPayPaymentsToday = paymentRepository.countByPaymentMethodToday(PaymentMethod.VN_PAY);
+
+        // Thống kê theo trạng thái "PAID" và "NOT_PAID"
+        long paidPayments = paymentRepository.countByStatus(PaymentStatus.PAID);
+        long notPaidPayments = paymentRepository.countByStatus(PaymentStatus.NOT_PAID);
+
+        long paidPaymentsToday = paymentRepository.countByStatusToday(PaymentStatus.PAID);
+        long notPaidPaymentsToday = paymentRepository.countByStatusToday(PaymentStatus.NOT_PAID);
+
+        // Tính số lượng thanh toán theo tháng
+        int currentMonth = LocalDate.now().getMonthValue();
+        int currentYear = LocalDate.now().getYear();
+        long paymentsThisMonth = paymentRepository.countByMonth(currentMonth, currentYear);
+
+        // Tính số lượng thanh toán theo quý
+        int currentQuarter = (currentMonth - 1) / 3 + 1;
+        long paymentsThisQuarter = paymentRepository.countByQuarter(currentQuarter, currentYear);
+
+        // Thêm các giá trị vào map paymentStatistics
+        paymentStatistics.put("totalPayments", String.valueOf(totalPayments));
+        paymentStatistics.put("totalPaymentsToday", String.valueOf(totalPaymentsToday));
+        paymentStatistics.put("totalAmount", String.valueOf(totalAmount));
+        paymentStatistics.put("totalAmountToday", String.valueOf(totalAmountToday));
+
+        // Thêm thống kê theo phương thức thanh toán
+        paymentStatistics.put("cashPayments", String.valueOf(cashPayments));
+        paymentStatistics.put("vnPayPayments", String.valueOf(vnPayPayments));
+        paymentStatistics.put("cashPaymentsToday", String.valueOf(cashPaymentsToday));
+        paymentStatistics.put("vnPayPaymentsToday", String.valueOf(vnPayPaymentsToday));
+
+        // Thống kê theo trạng thái
+        paymentStatistics.put("paidPayments", String.valueOf(paidPayments));
+        paymentStatistics.put("notPaidPayments", String.valueOf(notPaidPayments));
+        paymentStatistics.put("paidPaymentsToday", String.valueOf(paidPaymentsToday));
+        paymentStatistics.put("notPaidPaymentsToday", String.valueOf(notPaidPaymentsToday));
+
+        // Thêm số lượng thanh toán theo tháng và quý
+        paymentStatistics.put("paymentsThisMonth", String.valueOf(paymentsThisMonth));
+        paymentStatistics.put("paymentsThisQuarter", String.valueOf(paymentsThisQuarter));
+
+        return paymentStatistics;
+    }
+
+    @Override
+    public long getVetSlotsInCurrentWeek(int vetId) {
+        LocalDate today = LocalDate.now();
+
+        // Tính ngày đầu tuần (Thứ Hai)
+        LocalDate startOfWeek = today.with(DayOfWeek.MONDAY);
+
+        // Tính ngày cuối tuần (Chủ Nhật)
+        LocalDate endOfWeek = today.with(DayOfWeek.SUNDAY);
+
+        // Lấy năm và tháng của ngày bắt đầu
+        int year = startOfWeek.getYear();
+        int month = startOfWeek.getMonthValue();
+        int startDay = startOfWeek.getDayOfMonth();
+        int endDay = endOfWeek.getDayOfMonth();
+
+        // Gọi phương thức đếm slots của bác sĩ
+        return veterinarianSlotsRepository.countSlotsByVetInDateRange(vetId, year, month, startDay, endDay);
+        //them vo thang
+    }
+
+    //them so luong feedback voi so luong sao trung binh cua bac si
+    @Override
+    public Map<String, Object> getFeedbackStatistics() {
+        Map<String, Object> feedbackStatistics = new HashMap<>();
+
+        // Tính số lượng feedback
+        long totalFeedbackToday = feedbackRepository.countFeedbackToday();
+
+        // Tính số lượng feedback theo tháng
+        int currentMonth = LocalDate.now().getMonthValue();
+        int currentYear = LocalDate.now().getYear();
+        long totalFeedbackThisMonth = feedbackRepository.countFeedbackByMonth(currentMonth, currentYear);
+
+        // Tính số lượng feedback theo quý
+        int currentQuarter = (currentMonth - 1) / 3 + 1;
+        long totalFeedbackThisQuarter = feedbackRepository.countFeedbackByQuarter(currentQuarter, currentYear);
+
+        // Tính số sao trung bình của từng bác sĩ
+        List<Object[]> averageRatings = feedbackRepository.averageRatingPerVet();
+        Map<Integer, Double> averageRatingMap = new HashMap<>();
+        for (Object[] rating : averageRatings) {
+            Integer vetId = (Integer) rating[0];
+            Double averageRating = (Double) rating[1];
+            averageRatingMap.put(vetId, averageRating);
+        }
+
+        // Thêm các giá trị vào map feedbackStatistics
+        feedbackStatistics.put("totalFeedbackToday", totalFeedbackToday);
+        feedbackStatistics.put("totalFeedbackThisMonth", totalFeedbackThisMonth);
+        feedbackStatistics.put("totalFeedbackThisQuarter", totalFeedbackThisQuarter);
+        feedbackStatistics.put("averageRatingPerVet", averageRatingMap);
+
+        return feedbackStatistics;
+    }
+
+    @Override
+    public Optional<String> getLinkMeetByVetId(Integer vetId) {
+//        return vetMeetingRepository.findByVetId(vetId)
+//                .map(Meeting::getLinkMeet);
+        User veterinarian = this.getVeterinarianById(vetId);
+        return Optional.of(veterinarian.getMeeting().getLinkMeet());
+    }
+
+
 }
-
-
-
-
-
-
-
-
-
