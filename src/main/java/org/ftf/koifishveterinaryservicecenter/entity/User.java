@@ -114,9 +114,9 @@ public class User {
     private Set<VeterinarianSlots> veterinarianSlots = new LinkedHashSet<>();
 
 
-    @OneToOne(mappedBy = "vet") // Tham chiếu đến Meeting
-    private Meeting meeting; // Tham chiếu đến Meeting (nếu cần thiết)
-
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "meeting_id", referencedColumnName = "id")
+    private Meeting meeting;
 
 
     @OneToOne(fetch = FetchType.LAZY)

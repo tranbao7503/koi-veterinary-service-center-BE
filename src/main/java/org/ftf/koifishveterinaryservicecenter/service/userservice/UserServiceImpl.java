@@ -40,9 +40,8 @@ public class UserServiceImpl implements UserService {
     private final VeterinarianSlotsRepository veterinarianSlotsRepository;
     private final FeedbackRepository feedbackRepository;
     private final FileDownloadService fileDownloadService;
-    private final VetMeetingRepository vetMeetingRepository;
 
-    public UserServiceImpl(UserRepository userRepository, AddressRepository addressRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, FileUploadService fileUploadService, UserMapper userMapper, AuthenticationService authenticationService, FishRepository fishRepository, AppointmentRepository appointmentRepository, PaymentRepository paymentRepository, VeterinarianSlotsRepository veterinarianSlotsRepository, FeedbackRepository feedbackRepository, FileDownloadService fileDownloadService, VetMeetingRepository vetMeetingRepository) {
+    public UserServiceImpl(UserRepository userRepository, AddressRepository addressRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, FileUploadService fileUploadService, UserMapper userMapper, AuthenticationService authenticationService, FishRepository fishRepository, AppointmentRepository appointmentRepository, PaymentRepository paymentRepository, VeterinarianSlotsRepository veterinarianSlotsRepository, FeedbackRepository feedbackRepository, FileDownloadService fileDownloadService) {
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
         this.roleRepository = roleRepository;
@@ -56,17 +55,16 @@ public class UserServiceImpl implements UserService {
         this.veterinarianSlotsRepository = veterinarianSlotsRepository;
         this.feedbackRepository = feedbackRepository;
         this.fileDownloadService = fileDownloadService;
-        this.vetMeetingRepository = vetMeetingRepository;
     }
 
 
     @Override
     public User getUserProfile(Integer userId) {
         User user = userRepository.findUsersByUserId(userId);
-        if (user.getAvatar() != null && !user.getAvatar().startsWith("http://")) {
-            String avatarPath = fileDownloadService.getImageUrl(user.getAvatar());
-            user.setAvatar(avatarPath);
-        }
+//        if (user.getAvatar() != null && !user.getAvatar().startsWith("http://")) {
+//            String avatarPath = fileDownloadService.getImageUrl(user.getAvatar());
+//            user.setAvatar(avatarPath);
+//        }
         return user;
     }
 
@@ -124,11 +122,11 @@ public class UserServiceImpl implements UserService {
     public List<User> getAllVeterinarians() {
         Role role = roleRepository.findByRoleKey("VET");
         List<User> veterinarians = new ArrayList<>(role.getUsers());
-        veterinarians.forEach(veterinarian -> {
-            if (veterinarian.getAvatar() != null && !veterinarian.getAvatar().startsWith("http://")) {
-                veterinarian.setAvatar(fileDownloadService.getImageUrl(veterinarian.getAvatar()));
-            }
-        });
+//        veterinarians.forEach(veterinarian -> {
+//            if (veterinarian.getAvatar() != null && !veterinarian.getAvatar().startsWith("http://")) {
+//                veterinarian.setAvatar(fileDownloadService.getImageUrl(veterinarian.getAvatar()));
+//            }
+//        });
         return veterinarians;
     }
 
@@ -193,11 +191,11 @@ public class UserServiceImpl implements UserService {
     public List<User> getAllCustomers() {
         Role role = roleRepository.findByRoleKey("CUS");
         List<User> customers = new ArrayList<>(role.getUsers());
-        customers.forEach(customer -> {
-            if (customer.getAvatar() != null && !customer.getAvatar().startsWith("http://")) {
-                customer.setAvatar(fileDownloadService.getImageUrl(customer.getAvatar()));
-            }
-        });
+//        customers.forEach(customer -> {
+//            if (customer.getAvatar() != null && !customer.getAvatar().startsWith("http://")) {
+//                customer.setAvatar(fileDownloadService.getImageUrl(customer.getAvatar()));
+//            }
+//        });
         return customers;
     }
 
@@ -236,9 +234,12 @@ public class UserServiceImpl implements UserService {
         if (!email.matches(emailPattern)) {
             throw new AuthenticationException("Email is not valid");
         }
-        if (userRepository.findUserByEmail(email) != null) {
+//        if (userRepository.findUserByEmail(email) != null) {
+//            throw new AuthenticationException("Email is already registered");
+//        }
+        userRepository.findUserByEmail(email).ifPresent(user -> {
             throw new AuthenticationException("Email is already registered");
-        }
+        });
 
         // Kiểm tra first_name
         if (first_Name == null || first_Name.isBlank()) {
@@ -269,10 +270,10 @@ public class UserServiceImpl implements UserService {
         if (veterinarian == null) {
             throw new UserNotFoundException("Veterinarian not found with Id: " + veterinarianId);
         }
-        if (veterinarian.getAvatar() != null && !veterinarian.getAvatar().startsWith("http://")) {
-            String avatarPath = fileDownloadService.getImageUrl(veterinarian.getAvatar());
-            veterinarian.setAvatar(avatarPath);
-        }
+//        if (veterinarian.getAvatar() != null && !veterinarian.getAvatar().startsWith("http://")) {
+//            String avatarPath = fileDownloadService.getImageUrl(veterinarian.getAvatar());
+//            veterinarian.setAvatar(avatarPath);
+//        }
         return veterinarian;
     }
 
@@ -282,10 +283,10 @@ public class UserServiceImpl implements UserService {
         if (customer == null) {
             throw new UserNotFoundException("Customer not found with Id: " + customerId);
         }
-        if (customer.getAvatar() != null && !customer.getAvatar().startsWith("http://")) {
-            String avatarPath = fileDownloadService.getImageUrl(customer.getAvatar());
-            customer.setAvatar(avatarPath);
-        }
+//        if (customer.getAvatar() != null && !customer.getAvatar().startsWith("http://")) {
+//            String avatarPath = fileDownloadService.getImageUrl(customer.getAvatar());
+//            customer.setAvatar(avatarPath);
+//        }
         return customer;
     }
 
@@ -403,11 +404,11 @@ public class UserServiceImpl implements UserService {
 
         List<User> staffs = new ArrayList<>(staffRole.getUsers());
 
-        staffs.forEach(staff -> {
-            if (staff.getAvatar() != null && !staff.getAvatar().startsWith("http://")) {
-                staff.setAvatar(fileDownloadService.getImageUrl(staff.getAvatar()));
-            }
-        });
+//        staffs.forEach(staff -> {
+//            if (staff.getAvatar() != null && !staff.getAvatar().startsWith("http://")) {
+//                staff.setAvatar(fileDownloadService.getImageUrl(staff.getAvatar()));
+//            }
+//        });
 
         // Trả về danh sách users từ role "STA"
         return staffs;
@@ -687,8 +688,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<String> getLinkMeetByVetId(Integer vetId) {
-        return vetMeetingRepository.findByVetId(vetId)
-                .map(Meeting::getLinkMeet);
+//        return vetMeetingRepository.findByVetId(vetId)
+//                .map(Meeting::getLinkMeet);
+        User veterinarian = this.getVeterinarianById(vetId);
+        return Optional.of(veterinarian.getMeeting().getLinkMeet());
     }
 
 
