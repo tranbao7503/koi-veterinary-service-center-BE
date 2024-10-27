@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -23,11 +24,15 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class AppConfig {
 
     private final String[] PUBLIC_ENDPOINTS = {
-            "/api/v1/users/token", "/api/v1/users/introspect", "api/v1/users/customers", "api/v1/users/signup", "api/v1/users/**"
+            "/api/v1/users/token", "/api/v1/users/introspect", "api/v1/users/customers", "api/v1/users/signup", "api/v1/users/**",
+            "/api/v1/users/outbound/authentication"
     };
 
     @Value("${jwt.signer}")
     private String SIGNER_KEY;
+
+
+    @Lazy
 
     @Autowired
     private CustomJwtDecoder customJwtDecoder;
@@ -58,7 +63,10 @@ public class AppConfig {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .csrf(csrfConfig -> csrfConfig
-                        .ignoringRequestMatchers("/api/v1/users/token", "/api/v1/users/introspect", "/api/v1/users/customers", "/api/v1/users/signup", "/api/v1/fishes", "api/v1/users/logout", "api/v1/users/refresh"))
+                        .ignoringRequestMatchers("/api/v1/users/token",
+                                "/api/v1/users/introspect", "/api/v1/users/customers",
+                                "/api/v1/users/signup", "/api/v1/fishes", "api/v1/users/logout",
+                                "api/v1/users/refresh", "/api/v1/users/outbound/authentication"))
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(Customizer.withDefaults())
                 .authorizeHttpRequests(request -> request
@@ -72,6 +80,12 @@ public class AppConfig {
                         .requestMatchers("/api/v1/users/staffs").hasAnyAuthority("MAN")
                         .requestMatchers("/api/v1/users/customers").hasAnyAuthority("MAN")
                         .requestMatchers("/api/v1/users/deleteuser").hasAnyAuthority("MAN")
+                        .requestMatchers("/api/v1/email/sendNotification").hasAnyAuthority("STA")
+                        .requestMatchers("api/v1/email/sendBill").hasAnyAuthority("CUS")  // for test
+                        .requestMatchers("/api/v1/email/sendNotification").hasAnyAuthority("STA")
+                        .requestMatchers("api/v1/email/sendBill").hasAnyAuthority("CUS")  // for test
+
+                        .requestMatchers("/files/**", "/favicon.ico").permitAll()
                         .requestMatchers("/api/v1/email/sendNotification").hasAnyAuthority("STA")
                         .requestMatchers("api/v1/email/sendBill").hasAnyAuthority("CUS")  // for test
 
@@ -111,3 +125,5 @@ public class AppConfig {
         return source;
     }
 }
+
+

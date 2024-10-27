@@ -40,7 +40,8 @@ public class OngoingState implements AppointmentState {
             // logging to Status table
             logToStatus(appointment, veterinarian);
             appointmentRepository.save(appointment);
-        } else throw new IllegalStateException("Only Staff/Veterinarian can update appointments from ON_GOING to CHECKED_IN");
+        } else
+            throw new IllegalStateException("Only Staff/Veterinarian can update appointments from ON_GOING to CHECKED_IN");
     }
 
 

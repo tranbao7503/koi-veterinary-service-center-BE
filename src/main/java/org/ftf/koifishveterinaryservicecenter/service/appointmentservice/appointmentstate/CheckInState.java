@@ -5,7 +5,6 @@ import org.ftf.koifishveterinaryservicecenter.entity.Payment;
 import org.ftf.koifishveterinaryservicecenter.entity.Status;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.ftf.koifishveterinaryservicecenter.enums.AppointmentStatus;
-import org.ftf.koifishveterinaryservicecenter.enums.PaymentMethod;
 import org.ftf.koifishveterinaryservicecenter.enums.PaymentStatus;
 import org.ftf.koifishveterinaryservicecenter.exception.IllegalStateException;
 import org.ftf.koifishveterinaryservicecenter.repository.AppointmentRepository;
@@ -54,7 +53,7 @@ public class CheckInState implements AppointmentState {
         // insert into Status table
         logToStatus(appointment, actor);
         appointmentRepository.save(appointment);
-        
+
     }
 
     private void logToStatus(Appointment appointment, User veterinarian) {

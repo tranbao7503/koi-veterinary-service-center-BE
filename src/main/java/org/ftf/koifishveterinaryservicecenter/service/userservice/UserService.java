@@ -15,6 +15,8 @@ public interface UserService {
 
     User getUserProfile(Integer userId);
 
+    UserDTO getMyInfo();
+
     User updateAddress(Integer userId, Address convertedAddress);
 
     User updateUserProfile(Integer userId, User convertedCustomer);
@@ -67,4 +69,7 @@ public interface UserService {
     List<User> getBookedVeterinarianBySlotId(Integer slotId);
 
     Optional<String> getLinkMeetByVetId(Integer vetId);
+
+    void createPassword(String password);
+
 }

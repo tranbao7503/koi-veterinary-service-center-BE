@@ -2,6 +2,7 @@ package org.ftf.koifishveterinaryservicecenter.controller;
 
 
 import com.nimbusds.jose.JOSEException;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.ftf.koifishveterinaryservicecenter.dto.*;
 import org.ftf.koifishveterinaryservicecenter.dto.response.AuthenticationResponse;
@@ -42,6 +43,7 @@ public class UserController {
     private final FeedbackService feedbackService;
     private final AppointmentService appointmentService;
     private final SlotService slotService;
+
 
     public UserController(UserService userService, UserMapper userMapper, AuthenticationServiceImpl authenticationService, FeedbackService feedbackService, AppointmentService appointmentService, SlotService slotService) {
         this.userService = userService;
@@ -300,6 +302,41 @@ public class UserController {
             return new ResponseEntity<>("An error occurred while updating the password.", HttpStatus.INTERNAL_SERVER_ERROR); // Thông báo lỗi chung
         }
 
+
+    }
+
+    @PostMapping("/outbound/authentication")
+    ApiResponse<AuthenticationResponse> outboundAuthenticate(
+            @RequestParam("code") String code) {
+        var result = authenticationService.outboundAuthenticate(code);
+        return ApiResponse.<AuthenticationResponse>builder().result(result).build();
+
+    }
+
+    @PostMapping("/create-password")
+    public ResponseEntity<ApiResponse<Void>> createPassword(@RequestBody @Valid String password) {
+        userService.createPassword(password);
+        return ResponseEntity.ok(
+                ApiResponse.<Void>builder()
+                        .message("Password has been created!")
+                        .build()
+        );
+    }
+
+
+    @GetMapping("/my-info")
+    public ResponseEntity<UserDTO> getMyInfo() {
+        try {
+            // Call the service method which now returns UserDTO
+            UserDTO userDto = userService.getMyInfo();
+            return ResponseEntity.ok(userDto);  // Use ResponseEntity.ok() for successful responses
+        } catch (UserNotFoundException e) {
+            log.error("User not found: {}", e.getMessage());  // Log the error message
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);  // Use status and body directly
+        } catch (Exception e) {
+            log.error("An error occurred while fetching user info: {}", e.getMessage());  // Log the general error
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
     //  lấy số liệu liên quan đến người dùng và cá

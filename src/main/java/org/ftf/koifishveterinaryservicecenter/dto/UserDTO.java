@@ -45,6 +45,7 @@ public class UserDTO {
     @JsonProperty("avatar")
     public String avatar;
 
+    public boolean noPassword;
 
     /*public boolean isEnabled() {
         return enable;

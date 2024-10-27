@@ -7,17 +7,16 @@ import org.ftf.koifishveterinaryservicecenter.entity.Role;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.ftf.koifishveterinaryservicecenter.enums.PaymentMethod;
 import org.ftf.koifishveterinaryservicecenter.enums.PaymentStatus;
-import org.ftf.koifishveterinaryservicecenter.exception.AddressNotFoundException;
-import org.ftf.koifishveterinaryservicecenter.exception.AuthenticationException;
-import org.ftf.koifishveterinaryservicecenter.exception.RoleException;
-import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
+import org.ftf.koifishveterinaryservicecenter.exception.*;
 import org.ftf.koifishveterinaryservicecenter.mapper.UserMapper;
 import org.ftf.koifishveterinaryservicecenter.repository.*;
 import org.ftf.koifishveterinaryservicecenter.service.fileservice.FileDownloadService;
 import org.ftf.koifishveterinaryservicecenter.service.fileservice.FileUploadService;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -70,6 +69,56 @@ public class UserServiceImpl implements UserService {
         }
         return user;
     }
+
+    @Override
+    public UserDTO getMyInfo() {
+        // Retrieve the authentication context
+        var context = SecurityContextHolder.getContext();
+        String email = context.getAuthentication().getName();
+
+        // Fetch the user by email
+        User user = userRepository.findUserByEmail(email)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        // Map the user entity to the UserDTO
+        UserDTO userResponse = userMapper.convertEntityToDto(user);
+
+        // Additional logic: set noPassword and noDob fields
+        userResponse.setNoPassword(!StringUtils.hasText(user.getPassword()));
+
+        return userResponse;
+    }
+
+    public void createPassword(String password) {
+        var context = SecurityContextHolder.getContext();
+        String email = context.getAuthentication().getName();
+
+        // Fetch the user by email
+        User user = userRepository.findUserByEmail(email)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        // Check if the user already has a password set
+        if (StringUtils.hasText(user.getPassword())) {
+            throw new AppException(ErrorCode.INVALID_PASSWORD); // User already has a password
+        }
+
+        // Kiểm tra password
+        if (password == null || password.isBlank()) {
+            throw new AuthenticationException("Password can not be empty");
+        }
+        if (password.length() < 8) {
+            throw new AuthenticationException("Password can not be less than 8 characters");
+        }
+        String passwordPattern = "^(?=.*[@#$%^&+=!{}]).{8,}$";
+        if (!password.matches(passwordPattern)) {
+            throw new AuthenticationException("Password must contain at least one special character and be at least 8 characters long");
+        }
+
+        // Encode the password and save the user
+        user.setPassword(passwordEncoder.encode(password));
+        userRepository.save(user);
+    }
+
 
     @Override
     public List<User> getAllVeterinarians() {
@@ -600,6 +649,7 @@ public class UserServiceImpl implements UserService {
         return veterinarianSlotsRepository.countSlotsByVetInDateRange(vetId, year, month, startDay, endDay);
         //them vo thang
     }
+
     //them so luong feedback voi so luong sao trung binh cua bac si
     @Override
     public Map<String, Object> getFeedbackStatistics() {
