@@ -14,7 +14,6 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Intege
 
     @Query("SELECT a FROM Appointment a WHERE a.payment.paymentId =: paymentId")
     Appointment findAppointmentByPaymentId(Integer paymentId);
-
     @Query("SELECT COUNT(a) FROM Appointment a WHERE DATE(a.createdDate) = CURRENT_DATE")
     long countAppointmentsToday();
 

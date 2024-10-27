@@ -33,6 +33,7 @@ public class AppConfig {
 
 
     @Lazy
+
     @Autowired
     private CustomJwtDecoder customJwtDecoder;
 
@@ -124,6 +125,5 @@ public class AppConfig {
         return source;
     }
 }
-
 
 

@@ -102,6 +102,7 @@ public class UserServiceImpl implements UserService {
             throw new AppException(ErrorCode.INVALID_PASSWORD); // User already has a password
         }
 
+        // Kiểm tra password
         if (password == null || password.isBlank()) {
             throw new AuthenticationException("Password can not be empty");
         }
