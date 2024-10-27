@@ -40,7 +40,7 @@ public class FishDTO {
     private Integer customerId;
 
     @JsonProperty("enable")
-    private boolean enabled;
+    private boolean enabled = true; // Khởi tạo mặc định là true
 
 
 }

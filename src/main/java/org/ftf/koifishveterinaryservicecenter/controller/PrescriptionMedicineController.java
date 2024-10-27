@@ -43,6 +43,7 @@ public class PrescriptionMedicineController {
     }
 
     /*
+     * View prescription
      * Actors: Manager, Customer, Veterinarian, Staff
      * */
     @GetMapping("/{prescriptionId}")

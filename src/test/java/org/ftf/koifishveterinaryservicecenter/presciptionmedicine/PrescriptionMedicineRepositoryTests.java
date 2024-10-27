@@ -17,7 +17,7 @@ import java.util.Set;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Rollback(value = false)
+@Rollback(value = true)
 public class PrescriptionMedicineRepositoryTests {
 
     @Autowired
@@ -47,7 +47,7 @@ public class PrescriptionMedicineRepositoryTests {
         medicines.forEach(medicine -> {
             // set props for new PrescriptionMedicine
             PrescriptionMedicineId pmId = new PrescriptionMedicineId(savedPrescription.getPrescriptionId(), medicine.getMedicineId());
-            PrescriptionMedicine pm = new PrescriptionMedicine(pmId, 10);
+            PrescriptionMedicine pm = new PrescriptionMedicine(pmId, 10, "");
             pm.setPrescription(savedPrescription);
             pm.setMedicine(medicine);
             prescriptionMedicines.add(pm);

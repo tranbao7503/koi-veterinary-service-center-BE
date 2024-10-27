@@ -5,13 +5,13 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import org.ftf.koifishveterinaryservicecenter.dto.AuthenticationRequestDTO;
-import org.ftf.koifishveterinaryservicecenter.dto.IntrospectRequestDTO;
-import org.ftf.koifishveterinaryservicecenter.dto.LogoutRequest;
-import org.ftf.koifishveterinaryservicecenter.dto.RefreshRequest;
+import lombok.experimental.NonFinal;
+import lombok.extern.slf4j.Slf4j;
+import org.ftf.koifishveterinaryservicecenter.dto.*;
 import org.ftf.koifishveterinaryservicecenter.dto.response.AuthenticationResponse;
 import org.ftf.koifishveterinaryservicecenter.dto.response.IntrospectResponse;
 import org.ftf.koifishveterinaryservicecenter.entity.InvalidatedToken;
+import org.ftf.koifishveterinaryservicecenter.entity.Role;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.ftf.koifishveterinaryservicecenter.exception.AppException;
 import org.ftf.koifishveterinaryservicecenter.exception.AuthenticationException;
@@ -20,6 +20,8 @@ import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.repository.InvalidatedTokenRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.RoleRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.UserRepository;
+import org.ftf.koifishveterinaryservicecenter.repository.httpclient.OutboundIdentityClient;
+import org.ftf.koifishveterinaryservicecenter.repository.httpclient.OutboundUserClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -37,19 +39,54 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 
+@Slf4j
 @Service
 public class AuthenticationServiceImpl implements AuthenticationService {
 
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private RoleRepository roleRepository;
-    @Autowired
-    InvalidatedTokenRepository invalidatedTokenRepository;
 
+    private final UserRepository userRepository;
+
+    private final RoleRepository roleRepository;
+
+    private final InvalidatedTokenRepository invalidatedTokenRepository;
+
+    private final OutboundIdentityClient outboundIdentityClient;
+
+    private final OutboundUserClient outboundUserClient;
+
+
+    @NonFinal
+    @Value("${spring.security.oauth2.client.registration.google.client-id}")
+    protected String CLIENT_ID;
+
+
+    @NonFinal
+    @Value("${spring.security.oauth2.client.registration.google.client-secret}")
+    protected String CLIENT_SECRET;
+
+    @NonFinal
+
+    protected String REDIRECT_URI = "http://localhost:3000/authenticate";
+
+    @NonFinal
+    protected String GRANT_TYPE = "authorization_code";
 
     @Value("${jwt.signer}")
     private String SIGNER_KEY;
+
+    @Autowired
+    public AuthenticationServiceImpl(UserRepository userRepository,
+                                     RoleRepository roleRepository,
+                                     InvalidatedTokenRepository invalidatedTokenRepository,
+                                     OutboundIdentityClient outboundIdentityClient,
+                                     OutboundUserClient outboundUserClient) {
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+        this.invalidatedTokenRepository = invalidatedTokenRepository;
+        this.outboundIdentityClient = outboundIdentityClient;
+        this.outboundUserClient = outboundUserClient;
+
+    }
 
     @Override
     public Integer getAuthenticatedUserId() {
@@ -215,6 +252,44 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
 
         return signedJWT;
+    }
+
+    public AuthenticationResponse outboundAuthenticate(String code) {
+        var response = outboundIdentityClient
+                .exchangeToken(ExchangeTokenRequest.builder()
+                        .code(code)
+                        .clientID(CLIENT_ID)
+                        .clientSecret(CLIENT_SECRET)
+                        .redirectUri(REDIRECT_URI)
+                        .grantType(GRANT_TYPE)
+                        .build());
+
+        log.info("TOKEN RESPONSE{}", response);
+
+        // Get user info
+        var userInfo = outboundUserClient.getUserInfo("json", response.getAccessToken());
+
+        log.info("User info{}:", userInfo);
+
+        //On board user
+        Role role = roleRepository.findByRoleKey("CUS");
+        String password = "123456789";
+
+        var user = userRepository.findUserByEmail(userInfo.getEmail()).orElseGet(
+                () -> userRepository.save(User.builder()
+                        .email(userInfo.getEmail())
+                        .username(userInfo.getEmail())
+                        .firstName(userInfo.getGivenName()) // Bổ sung first_name
+                        .lastName(userInfo.getFamilyName())   // Có thể bổ sung last_name nếu cần
+                        .role(role)
+                        .password("") // Lúc này có thể đtrống nếu không cần
+                        .build()));
+
+        var token = generateToken(user);
+
+        return AuthenticationResponse.builder()
+                .token(token)
+                .build();
     }
 
 

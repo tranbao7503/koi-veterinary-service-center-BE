@@ -18,6 +18,7 @@ public interface TimeSlotMapper {
     TimeSlotMapper INSTANCE = Mappers.getMapper(TimeSlotMapper.class);
 
     // Map TimeSlot to TimeSlotDto, using a custom method to map the first appointment
+    @Named("convertToTimeSlotDto")
     @Mapping(source = "appointments", target = "appointment", qualifiedByName = "mapFirstAppointment")
 //    @Mapping(target = "appointment.timeSlot", ignore = true)
     TimeSlotDto convertToTimeSlotDto(TimeSlot timeSlot);
@@ -25,14 +26,26 @@ public interface TimeSlotMapper {
     // A custom method to extract the first appointment from the set and map it to AppointmentDto
     @Named("mapFirstAppointment")
     default AppointmentFeedbackDto mapFirstAppointment(Set<Appointment> appointments) {
-        Appointment firstAppointment = appointments.stream().findFirst().get();
+
+        if (appointments.isEmpty()) { // appointments set is empty
+            return null;
+        }
+
+        Appointment firstAppointment = appointments.stream().findFirst().orElse(null);
+        if (firstAppointment == null) {// FirstAppointment is still null
+            return null;
+        }
+
+        // Map fields to AppointmentFeedbackDto
         AppointmentFeedbackDto appointmentFeedbackDto = new AppointmentFeedbackDto();
         appointmentFeedbackDto.setAppointmentId(firstAppointment.getAppointmentId());
         appointmentFeedbackDto.setServiceName(firstAppointment.getService().getServiceName());
         appointmentFeedbackDto.setCurrentStatus(firstAppointment.getCurrentStatus());
+
         return appointmentFeedbackDto;
     }
 
+    @Named("convertToTimeSlotDtoAvailable")
     @Mappings({
             @Mapping(source = "slotOrder", target = "slotOrder"),
             @Mapping(source = "day", target = "day"),
@@ -43,7 +56,7 @@ public interface TimeSlotMapper {
     })
     TimeSlotDto convertToTimeSlotDtoAvailable(TimeSlot timeSlotDto);
 
-
+    @Named("convertToAvailableTimeSlotDto")
     @Mapping(target = "appointment", ignore = true)
     TimeSlotDto convertToAvailableTimeSlotDto(TimeSlot timeSlot);
 

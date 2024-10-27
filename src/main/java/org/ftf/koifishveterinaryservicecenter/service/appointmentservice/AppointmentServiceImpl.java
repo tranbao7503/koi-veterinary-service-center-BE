@@ -4,6 +4,8 @@ import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentUpdateD
 import org.ftf.koifishveterinaryservicecenter.entity.*;
 import org.ftf.koifishveterinaryservicecenter.entity.veterinarian_slots.VeterinarianSlots;
 import org.ftf.koifishveterinaryservicecenter.enums.AppointmentStatus;
+import org.ftf.koifishveterinaryservicecenter.enums.PaymentMethod;
+import org.ftf.koifishveterinaryservicecenter.enums.PaymentStatus;
 import org.ftf.koifishveterinaryservicecenter.enums.SlotStatus;
 import org.ftf.koifishveterinaryservicecenter.exception.*;
 import org.ftf.koifishveterinaryservicecenter.repository.AppointmentRepository;
@@ -12,6 +14,7 @@ import org.ftf.koifishveterinaryservicecenter.repository.VeterinarianSlotsReposi
 import org.ftf.koifishveterinaryservicecenter.service.addressservice.AddressService;
 import org.ftf.koifishveterinaryservicecenter.service.appointmentservice.appointmentstate.AppointmentContext;
 import org.ftf.koifishveterinaryservicecenter.service.appointmentservice.appointmentstate.AppointmentStateFactory;
+import org.ftf.koifishveterinaryservicecenter.service.emailservice.EmailService;
 import org.ftf.koifishveterinaryservicecenter.service.feedbackservice.FeedbackService;
 import org.ftf.koifishveterinaryservicecenter.service.fishservice.FishService;
 import org.ftf.koifishveterinaryservicecenter.service.medicalreportservice.MedicalReportService;
@@ -49,6 +52,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final FishService fishService;
     private final FeedbackService feedbackService;
     private final AppointmentStateFactory appointmentStateFactory;
+    private final EmailService emailService;
 
 
     @Autowired
@@ -64,7 +68,7 @@ public class AppointmentServiceImpl implements AppointmentService {
             , AddressService addressService
             , SurchargeService surchargeService
             , FishService fishService
-            , FeedbackService feedbackService, AppointmentStateFactory appointmentStateFactory) {
+            , FeedbackService feedbackService, AppointmentStateFactory appointmentStateFactory, EmailService emailService) {
         this.appointmentRepository = appointmentRepository;
         this.medicalReportService = medicalReportService;
         this.userService = userService;
@@ -79,6 +83,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         this.fishService = fishService;
         this.feedbackService = feedbackService;
         this.appointmentStateFactory = appointmentStateFactory;
+        this.emailService = emailService;
     }
 
 
@@ -167,6 +172,9 @@ public class AppointmentServiceImpl implements AppointmentService {
         if (appointment.getVeterinarian().getUserId() != null) {
             User veterinarianFromDb = userService.getVeterinarianById(appointment.getVeterinarian().getUserId());
             newAppointment.setVeterinarian(veterinarianFromDb);
+
+            // Update Veterinarian_Slot status
+            slotService.updateVeterinarianSlotsStatus(appointment.getVeterinarian().getUserId(), timeSlot.getSlotId(), SlotStatus.BOOKED);
         }
 
         // email
@@ -271,6 +279,9 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointmentRepository.save(appointment.get());
 
         // send email
+        User customer = appointment.get().getCustomer();
+        emailService.sendEmailForCancelingAppointment(appointment.get().getEmail(), "Koi fish - Thanks you", customer);
+
     }
 
     @Override
@@ -314,6 +325,93 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         // staff
         // appointment: ONGOING --> DONE
+    }
+
+
+    @Override
+    public Appointment createFollowUpAppointment(Integer appointmentId, Appointment newAppointment) {
+        Appointment appointment = this.getAppointmentById(appointmentId);
+
+        Appointment followUpAppointment = new Appointment();
+
+        // Created date
+        followUpAppointment.setCreatedDate(LocalDateTime.now());
+
+        // Service
+        followUpAppointment.setService(serviceService.getServiceById(4));
+        BigDecimal servicePrice = serviceService.getServiceById(4).getServicePrice();
+
+        // Address
+        if (appointment.getAddress() != null) {
+            followUpAppointment.setAddress(appointment.getAddress());
+        }
+
+        // Moving surcharge
+        MovingSurcharge movingSurcharge = appointment.getMovingSurcharge();
+        BigDecimal surchargePrice = new BigDecimal(0);
+        if (movingSurcharge != null) {
+            followUpAppointment.setMovingSurcharge(movingSurcharge);
+            surchargePrice = movingSurcharge.getPrice();
+        }
+
+        // Slot
+        Integer slotId = newAppointment.getTimeSlot().getSlotId();
+        TimeSlot timeSlot = slotService.getTimeSlotById(slotId);
+        followUpAppointment.setTimeSlot(timeSlot);
+
+        // Customer
+        followUpAppointment.setCustomer(appointment.getCustomer());
+
+        // Veterinarian
+        Integer veterinarianId = appointment.getVeterinarian().getUserId();
+        followUpAppointment.setVeterinarian(appointment.getVeterinarian());
+
+        // Email
+        followUpAppointment.setEmail(appointment.getEmail());
+
+        // Phone number
+        followUpAppointment.setPhoneNumber(appointment.getPhoneNumber());
+
+        // Customer name
+        followUpAppointment.setCustomerName(appointment.getCustomerName());
+
+        // description
+        followUpAppointment.setDescription(newAppointment.getDescription());
+
+        // Total price
+        BigDecimal totalPrice = servicePrice.add(surchargePrice);
+        followUpAppointment.setTotalPrice(totalPrice);
+
+        // Fish
+        if (appointment.getFish() != null) {
+            followUpAppointment.setFish(appointment.getFish());
+        }
+
+        // Payment
+        Payment payment = new Payment();
+        payment.setAmount(totalPrice);
+        payment.setPaymentMethod(PaymentMethod.CASH);
+        payment.setStatus(PaymentStatus.NOT_PAID);
+
+        followUpAppointment.setPayment(paymentService.createPayment(payment));
+
+        // Current status
+        followUpAppointment.setCurrentStatus(AppointmentStatus.ON_GOING);
+
+        Appointment savedFollowUpAppointment = appointmentRepository.save(followUpAppointment);
+
+        // Set follow-up appointment for main appointment
+        appointment.setFollowUpAppointment(savedFollowUpAppointment);
+
+        // Update status
+//        Integer followUpAppointmentAppointmentId = savedFollowUpAppointment.getAppointmentId();
+//        this.updateStatus(followUpAppointmentAppointmentId, AppointmentStatus.CONFIRMED);
+//        this.updateStatus(followUpAppointmentAppointmentId, AppointmentStatus.ON_GOING);
+
+        // Update Veterinarian_Slot status
+        slotService.updateVeterinarianSlotsStatus(veterinarianId, slotId, SlotStatus.BOOKED);
+
+        return savedFollowUpAppointment;
     }
 
     @Override

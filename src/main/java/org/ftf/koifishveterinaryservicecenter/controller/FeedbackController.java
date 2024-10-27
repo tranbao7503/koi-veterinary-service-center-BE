@@ -54,6 +54,7 @@ public class FeedbackController {
     }
 
     /*
+     * View all feedback
      * Actors: Manager
      * */
     @GetMapping("/all")
@@ -70,6 +71,7 @@ public class FeedbackController {
     }
 
     /*
+     * View feedback details
      * Actors: Manager
      * */
     @GetMapping("/{feedbackId}")
@@ -84,6 +86,7 @@ public class FeedbackController {
     }
 
     /*
+     * View feedback list of a veterinarian
      * Actors: Veterinarian
      * */
     @GetMapping("/veterinarian")
@@ -104,6 +107,7 @@ public class FeedbackController {
     }
 
     /*
+     * View feedback details of a veterinarian
      * Actors: Veterinarian
      * */
     @GetMapping("/{feedbackId}/veterinarian")
@@ -126,6 +130,10 @@ public class FeedbackController {
         }
     }
 
+    /*
+     * Create feedback of an appointment
+     * Actors: Customer
+     * */
     @PostMapping()
     public ResponseEntity<?> createFeedback(
             @RequestParam Integer appointmentId
@@ -145,6 +153,30 @@ public class FeedbackController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (FeedbackExistedException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /*
+     * View feedback details of a customer
+     * Actors: Customer
+     * */
+    @GetMapping("/{feedbackId}/customer")
+    public ResponseEntity<?> getFeedbackByCustomer(@PathVariable("feedbackId") Integer feedbackId) {
+        try {
+            User customer = userService.getCustomerById(authenticationService.getAuthenticatedUserId());
+            Feedback feedback = feedbackService.getFeedbackById(feedbackId);
+            if (feedback.getCustomer().getUserId().equals(customer.getUserId())) {
+                FeedbackDto feedbackDto = FeedbackMapper.INSTANCE.convertToFeedbackDto(feedback);
+                return new ResponseEntity<>(feedbackDto, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            }
+        } catch (FeedbackNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
+        } catch (UserNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }

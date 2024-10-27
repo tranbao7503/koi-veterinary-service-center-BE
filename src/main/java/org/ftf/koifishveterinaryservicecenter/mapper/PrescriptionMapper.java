@@ -32,6 +32,7 @@ public interface PrescriptionMapper {
     default MedicineDto mapToMedicineDto(PrescriptionMedicine prescriptionMedicine) {
         MedicineDto medicineDto = MEDICINE_MAPPER.convertEntityToDto(prescriptionMedicine.getMedicine());
         medicineDto.setQuantity(prescriptionMedicine.getQuantity());
+        medicineDto.setInstruction(prescriptionMedicine.getInstruction());
         return medicineDto;
     }
 }

@@ -11,5 +11,5 @@ public interface PaymentService {
 
     Payment updatePayment(Integer paymentId, Payment payment);
 
-    Payment updatePaymentForVnPay(Integer paymentId, Date payDate, String transactionId, String description);
+    Payment updatePaymentForVnPay(Integer appointmentId, Date payDate, String transactionId, String description);
 }

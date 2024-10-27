@@ -14,11 +14,9 @@ import java.util.List;
 
 public interface AppointmentService {
 
-
     void createMedicalReport(MedicalReport medicalReport, Integer appointmentId);
 
     List<Status> findStatusByAppointmentId(Integer appointmentId);
-
 
     Appointment getAppointmentById(Integer appointmentId);
 
@@ -40,5 +38,7 @@ public interface AppointmentService {
     Feedback createFeedback(Integer appointmentId, Feedback feedback);
 
     void updateStatus(Integer appointmentId, AppointmentStatus status);
+
+    Appointment createFollowUpAppointment(Integer appointmentId, Appointment newAppointment);
 
 }
