@@ -101,7 +101,22 @@ public class FishServiceImp implements FishService {
 
             // So sánh userId với customerId của con cá
             if (fish.getCustomer().getUserId() == userId) {
-                return fishMapper.convertEntityToDto(fish);
+
+                // Lấy danh sách hình ảnh từ ImageRepository dựa trên fishId
+                List<Image> images = imageRepository.findByFishFishId(fishId);
+
+                // Sử dụng ImageMapper để chuyển đổi danh sách Image thành danh sách ImageDTO
+                List<ImageDTO> imageDTOs = images.stream()
+                        .map(imageMapper::convertEntityToDto) // Sử dụng ImageMapper
+                        .collect(Collectors.toList());
+
+                // Chuyển đổi Fish entity thành FishDTO
+                FishDTO fishDTO = fishMapper.convertEntityToDto(fish);
+
+                // Gán danh sách hình ảnh vào FishDTO
+                fishDTO.setImages(imageDTOs);
+
+                return fishDTO;
             } else {
                 // Trả về 406 nếu không có quyền truy cập
                 throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "You do not have permission to access this fish.");
