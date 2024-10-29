@@ -5,7 +5,6 @@ import org.ftf.koifishveterinaryservicecenter.entity.*;
 import org.ftf.koifishveterinaryservicecenter.enums.AppointmentStatus;
 import org.ftf.koifishveterinaryservicecenter.enums.PaymentMethod;
 import org.ftf.koifishveterinaryservicecenter.repository.*;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -24,11 +23,6 @@ public class AppointmentRepositoryTest {
     @Autowired
     private AppointmentRepository appointmentRepository;
 
-    @Autowired
-    private PrescriptionRepository prescriptionRepository;
-
-    @Autowired
-    private MedicalReportRepository medicalReportRepository;
 
     @Autowired
     private ServiceRepository serviceRepository;
@@ -43,38 +37,13 @@ public class AppointmentRepositoryTest {
     private PaymentRepository paymentRepository;
 
 
-    @Disabled
-    @Test
-    public void testCreateMedicalReportSuccess() {
-        int prescriptionId = 82;
-        Optional<Prescription> prescription = prescriptionRepository.findById(prescriptionId);
-
-        MedicalReport medicalReport = new MedicalReport();
-        medicalReport.setConclusion("Pond temperature fluctuation noted.");
-        medicalReport.setAdvise("Install heaters for temperature control.");
-
-        medicalReport.setPrescription(prescription.get());
-
-        User veterinarian = userRepository.findVeterinarianById(3);
-        medicalReport.setVeterinarian(veterinarian);
-
-        medicalReportRepository.save(medicalReport);
-    }
 
     @Test
     public void testCreateAppointmentSuccess() {
         LocalDateTime date = LocalDateTime.now();
         Optional<Service> service = serviceRepository.findById(1);
-        Address address = Address.builder()
-                .city("Ho Chi Minh")
-                .district("Quan 1")
-                .ward("Phuong Ben Nghe")
-                .homeNumber("88").build();
-        TimeSlot slot = TimeSlot.builder()
-                .slotOrder(1)
-                .day(10)
-                .month(10)
-                .year(2024).build();
+        Address address = Address.builder().city("Ho Chi Minh").district("Quan 1").ward("Phuong Ben Nghe").homeNumber("88").build();
+        TimeSlot slot = TimeSlot.builder().slotOrder(1).day(10).month(10).year(2024).build();
         TimeSlot savedTimeSlot = timeSlotRepository.save(slot);
 
         User customer = userRepository.findUsersByUserId(6);
@@ -111,5 +80,36 @@ public class AppointmentRepositoryTest {
         Assertions.assertThat(fromDb).isNotNull();
     }
 
+    @Test
+    public void testGetAppointmentById() {
+        Integer appointmentId = 10;
+        Optional<Appointment> appointment = appointmentRepository.findById(appointmentId);
+        Assertions.assertThat(appointment).isPresent();
+        System.out.println(appointment.get().getTimeSlot().toString());
+    }
 
+    @Test
+    public void testUpdateAppointmentStatusTriggerInsertingToStatusTableSuccess() {
+        Integer appointmentId = 10;
+
+        // get appointment by Id
+        Optional<Appointment> appointment = appointmentRepository.findById(appointmentId);
+        System.out.println("Before updating: " + appointment.get().getCurrentStatus());
+
+
+        // update statues PENDING --> CONFIRMED
+        appointment.get().setCurrentStatus(AppointmentStatus.CONFIRMED);
+
+        // insert to Status table
+        Status status = new Status();
+        status.setAppointment(appointment.get());
+        status.setStatusName(AppointmentStatus.CONFIRMED);
+        status.setTime(LocalDateTime.now());
+        status.setNote("Update to CONFIRMED successfully");
+        appointment.get().addStatus(status);
+
+        appointmentRepository.save(appointment.get());
+        System.out.println("After updating: " + appointment.get().getCurrentStatus());
+
+    }
 }

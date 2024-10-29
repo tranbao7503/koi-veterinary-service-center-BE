@@ -10,6 +10,9 @@ import lombok.*;
 @AllArgsConstructor
 public class AddressDTO {
 
+    @JsonProperty("address_id")
+    private Integer addressId;
+
     @JsonProperty("city")
     private String city;
 
@@ -22,5 +25,6 @@ public class AddressDTO {
     @JsonProperty("home_number")
     private String homeNumber;
 
-
+    @JsonProperty("status")
+    private boolean status;
 }

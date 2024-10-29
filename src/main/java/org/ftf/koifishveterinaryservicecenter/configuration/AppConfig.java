@@ -1,37 +1,34 @@
 package org.ftf.koifishveterinaryservicecenter.configuration;
+
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
-
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 public class AppConfig {
 
     private final String[] PUBLIC_ENDPOINTS = {
-            "/api/v1/users/token", "/api/v1/users/introspect", "api/v1/users/customers", "api/v1/users/signup"
+            "/api/v1/users/token", "/api/v1/users/introspect", "api/v1/users/customers", "api/v1/users/signup", "api/v1/users/**",
+            "/api/v1/users/outbound/authentication"
     };
 
-    @Value("${jwt.signer}")
-    private String SIGNER_KEY;
+
+    private CustomJwtDecoder customJwtDecoder;
+
     @Bean
-    /*
-    * ModelMapper use for mapping Entity to DTO
-    * */
     public ModelMapper modelMapper(){
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setAmbiguityIgnored(true);
@@ -43,7 +40,7 @@ public class AppConfig {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean  // xoa prefix
+    @Bean  // Remove authority prefix
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
         jwtGrantedAuthoritiesConverter.setAuthorityPrefix("");
@@ -56,33 +53,68 @@ public class AppConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
-
-
-                .csrf(csrfConfig -> csrfConfig.ignoringRequestMatchers("/api/v1/users/token", "/api/v1/users/introspect", "api/v1/users/customers", "api/v1/users/signup", "api/v1/fishes"))
-
+                .csrf(csrfConfig -> csrfConfig
+                        .ignoringRequestMatchers("/api/v1/users/token",
+                                "/api/v1/users/introspect", "/api/v1/users/customers",
+                                "/api/v1/users/signup", "/api/v1/fishes", "api/v1/users/logout",
+                                "api/v1/users/refresh", "/api/v1/users/outbound/authentication"))
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(Customizer.withDefaults())
-
                 .authorizeHttpRequests(request -> request
-                // Cho phép truy cập công khai đối với các endpoint được chỉ định
-                .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
-                // Chỉ cho phép các vai trò "STA", "VET", "MAN" truy cập /api/v1/users/customers
+                        .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/fish/update/**").permitAll()
+                        // Chỉ cho phép role CUS truy cập PUT /api/v1/fishes/deletefish
+
+                        // Các yêu cầu còn lại phải được xác thực
+                        .requestMatchers("/api/v1/users/signup").hasAnyAuthority("MAN")
+                        .requestMatchers("/api/v1/users/staff").hasAnyAuthority("MAN")
+                        .requestMatchers("/api/v1/users/staffs").hasAnyAuthority("MAN")
                         .requestMatchers("/api/v1/users/customers").hasAnyAuthority("MAN")
-                // Các quyền khác cho /api/v1/users
-                .requestMatchers("/api/v1/users").hasAnyAuthority("MAN", "STA", "VET")
-                // Các yêu cầu còn lại phải được xác thực
+                        .requestMatchers("/api/v1/users/deleteuser").hasAnyAuthority("MAN")
+                        .requestMatchers("/api/v1/email/sendNotification").hasAnyAuthority("STA")
+                        .requestMatchers("api/v1/email/sendBill").hasAnyAuthority("CUS")  // for test
+                        .requestMatchers("/api/v1/email/sendNotification").hasAnyAuthority("STA")
+                        .requestMatchers("api/v1/email/sendBill").hasAnyAuthority("CUS")  // for test
+
+                        .requestMatchers("/files/**", "/favicon.ico").permitAll()
+                        .requestMatchers("/api/v1/email/sendNotification").hasAnyAuthority("STA")
+                        .requestMatchers("api/v1/email/sendBill").hasAnyAuthority("CUS")  // for test
+
+                        .requestMatchers("/files/images/**", "/files/certificates/**", "/api/v1/payments/vnpay-notify", "/error", "/api/v1/feedbacks/limited").permitAll()
+                        .requestMatchers("/api/v1/certificates/**").hasAnyAuthority("MAN")
+                        .requestMatchers("/api/v1/email/sendNotification").hasAnyAuthority("STA")
+                        .requestMatchers("api/v1/email/sendBill").hasAnyAuthority("CUS")  // for test
+
+                        .requestMatchers("api/v1/users/payment-statistics").hasAnyAuthority("MAN")
+                        .requestMatchers("api/v1/users/appointment-statistics").hasAnyAuthority("MAN")
+                        .requestMatchers("api/v1/users/user-fish-statistics").hasAnyAuthority("MAN")
+                        .requestMatchers("api/v1/users/{vetId}/slots-this-week").hasAnyAuthority("MAN")
                         .anyRequest().authenticated())
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer ->
-                        jwtConfigurer.decoder(jwtDecoder()).jwtAuthenticationConverter(jwtAuthenticationConverter())
-                ));
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwtConfigurer -> jwtConfigurer
+                                .decoder(customJwtDecoder)
+                                .jwtAuthenticationConverter(jwtAuthenticationConverter())
+                        ))
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.ALWAYS) // or SessionCreationPolicy.ALWAYS
+                )
+                .cors(cors -> cors.configurationSource(corsConfigurationSource())); // Enable CORS
 
         return httpSecurity.build();
     }
 
     @Bean
-    public JwtDecoder jwtDecoder() {
-        byte[] secretKeyBytes = SIGNER_KEY.getBytes();
-        SecretKey secretKey = new SecretKeySpec(secretKeyBytes, "HmacSHA512");
-        return NimbusJwtDecoder.withSecretKey(secretKey).macAlgorithm(MacAlgorithm.HS512).build();
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.addAllowedOrigin("http://koi-fish-veterinary-interface.s3-website-ap-southeast-1.amazonaws.com"); // Allow requests from React app
+        configuration.addAllowedMethod("*"); // Allow all HTTP methods (GET, POST, PUT, DELETE, etc.)
+        configuration.addAllowedHeader("*"); // Allow all headers
+        configuration.setAllowCredentials(true); // Allow credentials (e.g., cookies, authorization headers)
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration); // Apply this CORS configuration to all endpoints
+        return source;
     }
 }
+
+
