@@ -66,11 +66,30 @@ public class TimeSlotController {
 
     // get all available slot id > current hour + 3h
     // for Customer
+//    @GetMapping("/available")
+//    public ResponseEntity<?> getAvailableSlots() {
+//        List<TimeSlot> timeSlots = slotService.getListAvailableTimeSlots();
+//        List<TimeSlotDto> dtos = timeSlots.stream().map(timeSlotMapper::convertToTimeSlotDtoAvailable).toList();
+//        return new ResponseEntity<>(dtos, HttpStatus.OK);
+//    }
+
+    /*
+     * Get all available slots since current day for customer for choosing in case not specifying veterinarian
+     * Actors: Customer
+     * */
     @GetMapping("/available")
     public ResponseEntity<?> getAvailableSlots() {
-        List<TimeSlot> timeSlots = slotService.getListAvailableTimeSlots();
-        List<TimeSlotDto> dtos = timeSlots.stream().map(timeSlotMapper::convertToTimeSlotDtoAvailable).toList();
-        return new ResponseEntity<>(dtos, HttpStatus.OK);
+        try {
+            List<TimeSlot> slots = slotService.getAvailableSlots();
+            List<TimeSlotDto> slotDtos = slots.stream()
+                    .map(TimeSlotMapper.INSTANCE::convertToAvailableTimeSlotDto)
+                    .collect(Collectors.toList());
+            return new ResponseEntity<>(slotDtos, HttpStatus.OK);
+        } catch (TimeSlotNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 
