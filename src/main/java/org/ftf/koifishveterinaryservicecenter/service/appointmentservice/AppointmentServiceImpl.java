@@ -444,7 +444,6 @@ public class AppointmentServiceImpl implements AppointmentService {
         return appointment.getCustomer().getUserId();
     }
 
-
     private boolean isAbleToUpdateAppointment(Appointment appointment, AppointmentUpdateDto appointmentUpdateDto) throws AppointmentUpdatedException {
         LocalDateTime openingTime = appointment.getTimeSlot().getDateTimeBasedOnSlot();
         LocalDateTime now = LocalDateTime.now();
