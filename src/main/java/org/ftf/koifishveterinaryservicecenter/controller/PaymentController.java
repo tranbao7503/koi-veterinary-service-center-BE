@@ -172,8 +172,9 @@ public class PaymentController {
 
                 Appointment appointment = appointmentService.getAppointmentById(appointmentId);
 
-                // Asynchronously send the email
-                emailService.sendAppointmentBills(appointment.getEmail(), "Koi Fish - Appointment Bills", appointment);
+                System.out.println("Check point");
+
+
 
                 response.sendRedirect("http://localhost:3000/my-appointment"); // Redirect to appointment details page of FE
             } else {
