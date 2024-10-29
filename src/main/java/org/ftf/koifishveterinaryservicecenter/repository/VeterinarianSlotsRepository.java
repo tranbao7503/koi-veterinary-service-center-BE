@@ -21,15 +21,14 @@ public interface VeterinarianSlotsRepository extends JpaRepository<VeterinarianS
 
     @Query("SELECT COUNT(vs) FROM VeterinarianSlots vs " +
             "WHERE vs.veterinarianSlotId.veterinarianId = :vetId " +
-            "AND (vs.timeSlot.year = :year " +
+            "AND vs.status = 'BOOKED' " +
+            "AND vs.timeSlot.year = :year " +
             "AND vs.timeSlot.month = :month " +
-            "AND vs.timeSlot.day BETWEEN :startDay AND :endDay) " +
-            "AND vs.status = 'BOOKED'")
-    long countSlotsByVetInDateRange(@Param("vetId") Integer vetId,
-                                    @Param("year") Integer year,
-                                    @Param("month") Integer month,
-                                    @Param("startDay") Integer startDay,
-                                    @Param("endDay") Integer endDay);
+            "AND vs.timeSlot.day = :day")
+    long countSlotsByVetInDate(@Param("vetId") Integer vetId,
+                               @Param("year") Integer year,
+                               @Param("month") Integer month,
+                               @Param("day") Integer day);
 
 
   }
