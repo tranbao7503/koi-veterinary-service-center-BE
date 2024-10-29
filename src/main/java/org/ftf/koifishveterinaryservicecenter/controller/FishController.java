@@ -2,9 +2,6 @@ package org.ftf.koifishveterinaryservicecenter.controller;
 
 import org.ftf.koifishveterinaryservicecenter.dto.FishDTO;
 import org.ftf.koifishveterinaryservicecenter.dto.ImageDTO;
-import org.ftf.koifishveterinaryservicecenter.dto.IntrospectRequestDTO;
-import org.ftf.koifishveterinaryservicecenter.dto.response.IntrospectResponse;
-import org.ftf.koifishveterinaryservicecenter.entity.Fish;
 import org.ftf.koifishveterinaryservicecenter.exception.FishNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.exception.ImageNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.FishMapper;
@@ -17,9 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.text.ParseException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/fishes")
@@ -47,34 +42,16 @@ public class FishController {
     }
 
     @GetMapping()
-    public ResponseEntity<?> getListFishes(@RequestHeader("Authorization") String authorizationHeader) throws ParseException {
-        // Loại bỏ tiền tố "Bearer " từ Authorization header
-        String token = authorizationHeader.replace("Bearer ", "");
-
-        // Gọi hàm getUserInfoFromToken để lấy userId từ token
-        IntrospectResponse introspectResponse = authenticationService.getUserInfoFromToken(new IntrospectRequestDTO(token));
-
-        // Kiểm tra introspectResponse có bị null hay không
-        if (introspectResponse == null) {
-            return new ResponseEntity<>("Invalid token or user information", HttpStatus.UNAUTHORIZED);
-        }
-
-        int userId = introspectResponse.getUserId();
-
-        // Gọi service để lấy danh sách cá theo userId
-        List<Fish> fishes = fishService.getAllFishByUserId(userId);
+    public ResponseEntity<List<FishDTO>> getListFishes(@RequestHeader("Authorization") String authorizationHeader) {
+        // Gọi service để lấy danh sách cá theo token
+        List<FishDTO> fishDTOs = fishService.getAllFishByToken(authorizationHeader);
 
         // Kiểm tra nếu danh sách rỗng
-        if (fishes.isEmpty()) {
+        if (fishDTOs.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } else {
-            // Chuyển đổi danh sách Fish sang FishDTO
-            List<FishDTO> fishDTOs = fishes.stream()
-                    .map(fishMapper::convertEntityToDto)
-                    .collect(Collectors.toList());
             return new ResponseEntity<>(fishDTOs, HttpStatus.OK);
         }
-
     }
 
     @DeleteMapping("/deletefish")
