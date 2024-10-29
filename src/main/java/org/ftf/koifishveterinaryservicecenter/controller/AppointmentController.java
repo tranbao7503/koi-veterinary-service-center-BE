@@ -6,9 +6,11 @@ import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentDetails
 import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentDto;
 import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentForListDto;
 import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentUpdateDto;
-import org.ftf.koifishveterinaryservicecenter.entity.*;
+import org.ftf.koifishveterinaryservicecenter.entity.Appointment;
+import org.ftf.koifishveterinaryservicecenter.entity.MedicalReport;
+import org.ftf.koifishveterinaryservicecenter.entity.Status;
+import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.ftf.koifishveterinaryservicecenter.enums.AppointmentStatus;
-import org.ftf.koifishveterinaryservicecenter.enums.PaymentMethod;
 import org.ftf.koifishveterinaryservicecenter.exception.IllegalStateException;
 import org.ftf.koifishveterinaryservicecenter.exception.*;
 import org.ftf.koifishveterinaryservicecenter.mapper.AppointmentMapper;

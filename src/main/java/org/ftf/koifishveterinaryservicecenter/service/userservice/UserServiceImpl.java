@@ -2,7 +2,6 @@ package org.ftf.koifishveterinaryservicecenter.service.userservice;
 
 import org.ftf.koifishveterinaryservicecenter.dto.UserDTO;
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
-import org.ftf.koifishveterinaryservicecenter.entity.Meeting;
 import org.ftf.koifishveterinaryservicecenter.entity.Role;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.ftf.koifishveterinaryservicecenter.enums.PaymentMethod;
@@ -437,7 +436,6 @@ public class UserServiceImpl implements UserService {
         // Sử dụng mapper để chuyển đổi entity sang DTO
         return userMapper.convertEntityToDto(updatedUser);
     }
-
 
 
     @Override

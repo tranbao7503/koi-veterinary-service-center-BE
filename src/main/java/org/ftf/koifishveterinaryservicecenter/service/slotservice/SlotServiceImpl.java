@@ -69,15 +69,18 @@ public class SlotServiceImpl implements SlotService {
         LocalDateTime threeMonthsFromNow = LocalDateTime.now().plusMonths(3);
 
         List<TimeSlot> availableTimeSlot = timeSlotRepository.getAvailableTimeSlot();
-        return availableTimeSlot.stream().filter(timeSlot -> timeSlot.getDateTimeBasedOnSlot().isAfter(threeHoursFromNow) && timeSlot.getDateTimeBasedOnSlot().isBefore(threeMonthsFromNow)).toList();
+        return availableTimeSlot.stream().filter(timeSlot -> timeSlot.getDateTimeBasedOnSlot().isAfter(threeHoursFromNow) && timeSlot.getDateTimeBasedOnSlot().isBefore(threeMonthsFromNow) && hasAvailableVeterinarian(timeSlot.getSlotId())).toList();
 
     }
 
     @Override
     public List<VeterinarianSlots> getVeterinarianSlotsBySlotId(Integer slotId) {
-        TimeSlot timeSlot = getTimeSlotById(slotId);
-        List<VeterinarianSlots> veterinarianSlots = veterinarianSlotsRepository.getAvailableSlotsBySlotId(SlotStatus.AVAILABLE, timeSlot.getSlotId());
+        List<VeterinarianSlots> veterinarianSlots = veterinarianSlotsRepository.getAvailableSlotsBySlotId(SlotStatus.AVAILABLE, slotId);
         return veterinarianSlots;
+    }
+
+    private boolean hasAvailableVeterinarian(Integer slotId){
+        return getVeterinarianSlotsBySlotId(slotId).size() > 0;
     }
 
 
@@ -150,9 +153,10 @@ public class SlotServiceImpl implements SlotService {
         if (timeSlots.isEmpty()) { // Not found
             throw new TimeSlotNotFoundException("There are no booked slots");
         }
-
         return timeSlots;
     }
+
+
 
 
 }

@@ -11,7 +11,9 @@ import java.util.List;
 
 @Service
 public interface FishService {
-    List<Fish> getAllFishByUserId(int Id);
+
+
+    List<FishDTO> getAllFishByToken(String authorizationHeader);
 
     FishDTO getDetailFish(int fishId);
 
