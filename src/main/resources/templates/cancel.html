@@ -9,7 +9,7 @@
 </head>
 <body>
 <div>
-    <p>Dear, <b th:text="${String.join(' ',customer.getFirstName(),customer.getLastName())}"></b></p>
+    <p>Dear, <b th:text="|${customer.firstName} ${customer.lastName}|"></b></p>
     <p>Thanks for your caring. Hopefully being severed for you later !!</p>
 </div>
 </body>

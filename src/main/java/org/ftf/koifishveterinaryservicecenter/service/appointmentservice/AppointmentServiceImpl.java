@@ -275,7 +275,15 @@ public class AppointmentServiceImpl implements AppointmentService {
         if (appointment.isEmpty())
             throw new AppointmentNotFoundException("Appointment not found with id: " + appointmentId);
 
+        if(appointment.get().getVeterinarian() != null){
+            Integer veterinarianId = appointment.get().getVeterinarian().getUserId();
+            Integer slotId = appointment.get().getTimeSlot().getSlotId();
+
+            // update to 'AVAILABLE' due to being cancelled
+            slotService.updateVeterinarianSlotsStatus(veterinarianId, slotId, SlotStatus.AVAILABLE);
+        }
         appointment.get().setCurrentStatus(AppointmentStatus.CANCELED);
+
         appointmentRepository.save(appointment.get());
 
         // send email
