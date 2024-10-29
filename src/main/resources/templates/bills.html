@@ -19,15 +19,10 @@
     <p><strong>Service</strong> <span th:text="${appointment.service.serviceName}"></span></p>
     <p><strong>Veterinarian</strong> <span
             th:text="|${appointment.veterinarian.firstName} ${appointment.veterinarian.lastName}|"></span></p>
- feature/KSVS_92/View_fist_detail
-    <p><strong>Appointment Date:</strong> <span th:text="${appointment.timeSlot.date}"></span></p>
-    <p><strong>Time:</strong> <span th:text="${appointment.timeSlot.startTime}"></span> - <span
-            th:text="${appointment.timeSlot.endTime}"></span></p>
 
     <p><strong>Appointment Time:</strong> <span
             th:text="|${appointment.timeSlot.day}/${appointment.timeSlot.month}/${appointment.timeSlot.year}|"></span>
     </p>
- dev
 </div>
 
 <div>

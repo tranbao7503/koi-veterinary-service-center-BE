@@ -18,10 +18,9 @@ public class VeterinarianSlotsRepositoryTests {
 
     @Test
     public void testGetVeterinarianSlotsByCompositeId() {
-        Integer veterinarianSlotId = 11;
+        Integer veterinarianSlotId = 13;
         Integer slotId = 177;
         VeterinarianSlots veterinarianSlot = veterinarianSlotsRepository.getVeterinarianSlotsById(veterinarianSlotId, slotId);
         Assertions.assertThat(veterinarianSlot).isNotNull();
-        System.out.println(veterinarianSlot.toString());
     }
 }

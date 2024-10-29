@@ -56,7 +56,7 @@ public class EmailServiceTest {
 
 
         User customer = userRepository.findUsersByUserId(6);
-        User veterinarian = userRepository.findVeterinarianById(11);
+        User veterinarian = userRepository.findVeterinarianById(13);
         String email = "crisbrian070503@gmail.com";
         String phone = "0987654321";
         String customerName = "My name is Demo";

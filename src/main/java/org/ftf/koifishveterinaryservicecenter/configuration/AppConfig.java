@@ -29,13 +29,7 @@ public class AppConfig {
             "/api/v1/users/outbound/authentication"
     };
 
-    @Value("${jwt.signer}")
-    private String SIGNER_KEY;
 
-
-    @Lazy
-
-    @Autowired
     private CustomJwtDecoder customJwtDecoder;
 
     @Bean
@@ -116,7 +110,7 @@ public class AppConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("http://localhost:3000"); // Allow requests from React app
+        configuration.addAllowedOrigin("http://koi-fish-veterinary-interface.s3-website-ap-southeast-1.amazonaws.com"); // Allow requests from React app
         configuration.addAllowedMethod("*"); // Allow all HTTP methods (GET, POST, PUT, DELETE, etc.)
         configuration.addAllowedHeader("*"); // Allow all headers
         configuration.setAllowCredentials(true); // Allow credentials (e.g., cookies, authorization headers)
