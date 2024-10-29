@@ -16,6 +16,7 @@ import org.ftf.koifishveterinaryservicecenter.service.paymentservice.PaymentServ
 import org.ftf.koifishveterinaryservicecenter.service.paymentservice.VnPayService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,6 +36,9 @@ public class PaymentController {
     private final AuthenticationService authenticationService;
     private final VnPayService vnPayService;
     private final EmailService emailService;
+
+    @Value("${frontend.domain}")
+    private String frontendDomain;
 
     @Autowired
     public PaymentController(
@@ -90,8 +94,6 @@ public class PaymentController {
             Payment payment = PaymentMapper.INSTANCE.convertToFullEntity(paymentDto);
 
             PaymentDto updatedPaymentDto = PaymentMapper.INSTANCE.convertToDto(paymentService.updatePayment(appointment.getPayment().getPaymentId(), payment));
-
-            //appointmentService.updateStatus(appointmentId, AppointmentStatus.ON_GOING);
             appointmentService.updateStatus(appointmentId, AppointmentStatus.CHECKED_IN);
 
             return new ResponseEntity<>(updatedPaymentDto, HttpStatus.OK);
@@ -144,7 +146,7 @@ public class PaymentController {
         try {
 
             if (!vnPayService.verifySignature(vnpParams)) { // Verify Hash
-                response.sendRedirect("http://localhost:3000/my-appointment"); // Redirect to an error page on the FE
+                response.sendRedirect(frontendDomain + "/my-appointment"); // Redirect to an error page on the FE
                 return;
             }
 
@@ -175,13 +177,12 @@ public class PaymentController {
                 System.out.println("Check point");
 
 
-
-                response.sendRedirect("http://localhost:3000/my-appointment"); // Redirect to appointment details page of FE
+                response.sendRedirect(frontendDomain + "/my-appointment"); // Redirect to appointment details page of FE
             } else {
-                response.sendRedirect("http://localhost:3000/my-appointment" + appointmentId);
+                response.sendRedirect(frontendDomain + "/my-appointment" + appointmentId);
             }
         } catch (Exception e) {
-            response.sendRedirect("http://localhost:3000/my-appointment");
+            response.sendRedirect(frontendDomain + "/my-appointment");
         }
     }
 }
