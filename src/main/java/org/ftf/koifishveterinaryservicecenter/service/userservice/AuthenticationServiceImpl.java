@@ -66,7 +66,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @NonFinal
 
-    protected String REDIRECT_URI = "http://koi-fish-veterinary-interface.s3-website-ap-southeast-1.amazonaws.com/authenticate";
+    protected String REDIRECT_URI = "${frontend.domain}/authenticate";
 
     @NonFinal
     protected String GRANT_TYPE = "authorization_code";

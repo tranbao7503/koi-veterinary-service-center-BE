@@ -144,7 +144,7 @@ public class PaymentController {
         try {
 
             if (!vnPayService.verifySignature(vnpParams)) { // Verify Hash
-                response.sendRedirect("http://koi-fish-veterinary-interface.s3-website-ap-southeast-1.amazonaws.com/my-appointment"); // Redirect to an error page on the FE
+                response.sendRedirect("${frontend.domain}/my-appointment"); // Redirect to an error page on the FE
                 return;
             }
 
@@ -175,12 +175,12 @@ public class PaymentController {
                 // Asynchronously send the email
                 emailService.sendAppointmentBills(appointment.getEmail(), "Koi Fish - Appointment Bills", appointment);
 
-                response.sendRedirect("http://koi-fish-veterinary-interface.s3-website-ap-southeast-1.amazonaws.com/my-appointment"); // Redirect to appointment details page of FE
+                response.sendRedirect("${frontend.domain}/my-appointment"); // Redirect to appointment details page of FE
             } else {
-                response.sendRedirect("http://koi-fish-veterinary-interface.s3-website-ap-southeast-1.amazonaws.com/my-appointment" + appointmentId);
+                response.sendRedirect("${frontend.domain}/my-appointment" + appointmentId);
             }
         } catch (Exception e) {
-            response.sendRedirect("http://koi-fish-veterinary-interface.s3-website-ap-southeast-1.amazonaws.com/my-appointment");
+            response.sendRedirect("${frontend.domain}/my-appointment");
         }
     }
 }
