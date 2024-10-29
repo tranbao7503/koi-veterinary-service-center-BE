@@ -17,6 +17,7 @@ import org.ftf.koifishveterinaryservicecenter.mapper.AppointmentMapper;
 import org.ftf.koifishveterinaryservicecenter.mapper.MedicalReportMapper;
 import org.ftf.koifishveterinaryservicecenter.mapper.StatusMapper;
 import org.ftf.koifishveterinaryservicecenter.service.appointmentservice.AppointmentService;
+import org.ftf.koifishveterinaryservicecenter.service.emailservice.EmailService;
 import org.ftf.koifishveterinaryservicecenter.service.paymentservice.PaymentService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
@@ -37,14 +38,16 @@ public class AppointmentController {
     private final AuthenticationService authenticationService;
     private final UserService userService;
     private final PaymentService paymentService;
+    private final EmailService emailService;
 
 
     @Autowired
-    public AppointmentController(AppointmentService appointmentService, AuthenticationService authenticationService, UserService userService, PaymentService paymentService) {
+    public AppointmentController(AppointmentService appointmentService, AuthenticationService authenticationService, UserService userService, PaymentService paymentService, EmailService emailService) {
         this.appointmentService = appointmentService;
         this.authenticationService = authenticationService;
         this.userService = userService;
         this.paymentService = paymentService;
+        this.emailService = emailService;
     }
 
     // for Veterinarian
@@ -270,10 +273,14 @@ public class AppointmentController {
             AppointmentStatus appointmentStatus = AppointmentStatus.valueOf(updateStatus);
 
             try {
+                Appointment appointment = appointmentService.getAppointmentById(appointmentId);
+
                 appointmentService.updateStatus(appointmentId, appointmentStatus);
 
                 if (appointmentStatus.equals(AppointmentStatus.CONFIRMED)) {
                     appointmentService.updateStatus(appointmentId, AppointmentStatus.ON_GOING);
+                    // Asynchronously send the email
+                    emailService.sendAppointmentBills(appointment.getEmail(), "Koi Fish - Appointment Bills", appointment);
                 }
 
                 return new ResponseEntity<>("Status updated successfully", HttpStatus.OK);
