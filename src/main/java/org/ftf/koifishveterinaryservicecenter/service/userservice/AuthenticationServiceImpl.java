@@ -273,7 +273,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         //On board user
         Role role = roleRepository.findByRoleKey("CUS");
+
         String password = "123456789";
+        boolean x = true;
 
         var user = userRepository.findUserByEmail(userInfo.getEmail()).orElseGet(
                 () -> userRepository.save(User.builder()
@@ -282,6 +284,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                         .firstName(userInfo.getGivenName()) // Bổ sung first_name
                         .lastName(userInfo.getFamilyName())   // Có thể bổ sung last_name nếu cần
                         .role(role)
+                        .enabled(x)
                         .password("") // Lúc này có thể đtrống nếu không cần
                         .build()));
 
