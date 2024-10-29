@@ -66,7 +66,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @NonFinal
 
-    protected String REDIRECT_URI = "${frontend.domain}/authenticate";
+    protected String REDIRECT_URI = "http://localhost:3000/authenticate";
 
     @NonFinal
     protected String GRANT_TYPE = "authorization_code";

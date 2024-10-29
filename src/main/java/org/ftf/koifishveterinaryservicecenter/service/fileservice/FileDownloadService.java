@@ -15,11 +15,11 @@ public class FileDownloadService {
     private final String CERTIFICATE_DIR = "src/main/resources/static/files/certificates";
 
     public String getImageUrl(String fileName) {
-        return "${backend.domain}/files/images/" + fileName;
+        return "http://localhost:8080/files/images/" + fileName;
     }
 
     public String getCertificateUrl(String fileName) {
-        return "${backend.domain}/files/certificates/" + fileName;
+        return "http://localhost:8080/files/certificates/" + fileName;
     }
 
     public Resource loadImageAsResource(String fileName) throws FileNotFoundException {
