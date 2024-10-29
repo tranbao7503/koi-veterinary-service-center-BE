@@ -156,7 +156,37 @@ public class SlotServiceImpl implements SlotService {
         return timeSlots;
     }
 
+    @Override   // get all available slots prior to current_time 3 hours
+    public List<TimeSlot> getAvailableSlots() {
 
+        LocalDateTime currentDate = LocalDateTime.now();
+        LocalDateTime threeHoursFromNow = currentDate.plusHours(3);
+        Integer nextThreeHour = threeHoursFromNow.getHour();
+        Integer nextSlot = 1;
+        if (nextThreeHour <= 10){
+            nextSlot = 2;
+        } else if (nextThreeHour <= 13){
+            nextSlot = 3;
+        } else if (nextThreeHour <= 15){
+            nextSlot = 4;
+        } else {
+            currentDate = currentDate.plusDays(1);
+        }
 
+        Integer currentYear = currentDate.getYear();
+        Integer currentMonth = currentDate.getMonthValue();
+        Integer currentDay = currentDate.getDayOfMonth();
+
+        LocalDateTime endDate = currentDate.plusDays(30);
+        Integer endYear = endDate.getYear();
+        Integer endMonth = endDate.getMonthValue();
+        Integer endDay = endDate.getDayOfMonth();
+
+        List<TimeSlot> timeSlots = timeSlotRepository.findAvailableTimeSlot(currentYear, currentMonth, currentDay, nextSlot, endYear, endMonth, endDay);
+        if (timeSlots.isEmpty()) {
+            throw new TimeSlotNotFoundException("There are no available slots");
+        }
+        return timeSlots;
+    }
 
 }
