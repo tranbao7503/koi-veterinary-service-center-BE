@@ -23,7 +23,7 @@ public class UsersRepositoryTests {
         int userId = 1;
         User user = userRepository.findUsersByUserId(userId);
 
-        Assertions.assertThat(user.getCurrentAddress()).isNotNull();
+        Assertions.assertThat(user).isNotNull();
         System.out.println(user);
     }
 

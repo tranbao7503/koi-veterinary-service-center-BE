@@ -27,7 +27,7 @@ public class MedicalReportRepositoryTests {
 
     @Test
     public void testCreateMedicalReport() {
-        Integer veterinarianId = 11;
+        Integer veterinarianId = 13;
         User veterinarian = userRepository.findVeterinarianById(veterinarianId);
 
         MedicalReport medicalReport = new MedicalReport();

@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -23,13 +25,11 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class AppConfig {
 
     private final String[] PUBLIC_ENDPOINTS = {
-            "/api/v1/users/token", "/api/v1/users/introspect", "api/v1/users/customers", "api/v1/users/signup", "api/v1/users/**"
+            "/api/v1/users/token", "/api/v1/users/introspect", "api/v1/users/customers", "api/v1/users/signup", "api/v1/users/**",
+            "/api/v1/users/outbound/authentication"
     };
 
-    @Value("${jwt.signer}")
-    private String SIGNER_KEY;
 
-    @Autowired
     private CustomJwtDecoder customJwtDecoder;
 
     @Bean
@@ -58,7 +58,10 @@ public class AppConfig {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .csrf(csrfConfig -> csrfConfig
-                        .ignoringRequestMatchers("/api/v1/users/token", "/api/v1/users/introspect", "/api/v1/users/customers", "/api/v1/users/signup", "/api/v1/fishes", "api/v1/users/logout", "api/v1/users/refresh"))
+                        .ignoringRequestMatchers("/api/v1/users/token",
+                                "/api/v1/users/introspect", "/api/v1/users/customers",
+                                "/api/v1/users/signup", "/api/v1/fishes", "api/v1/users/logout",
+                                "api/v1/users/refresh", "/api/v1/users/outbound/authentication"))
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(Customizer.withDefaults())
                 .authorizeHttpRequests(request -> request
@@ -74,8 +77,14 @@ public class AppConfig {
                         .requestMatchers("/api/v1/users/deleteuser").hasAnyAuthority("MAN")
                         .requestMatchers("/api/v1/email/sendNotification").hasAnyAuthority("STA")
                         .requestMatchers("api/v1/email/sendBill").hasAnyAuthority("CUS")  // for test
+                        .requestMatchers("/api/v1/email/sendNotification").hasAnyAuthority("STA")
+                        .requestMatchers("api/v1/email/sendBill").hasAnyAuthority("CUS")  // for test
 
-                        .requestMatchers("/files/images/**", "/files/certificates/**", "/api/v1/payments/vnpay-notify", "/error").permitAll()
+                        .requestMatchers("/files/**", "/favicon.ico").permitAll()
+                        .requestMatchers("/api/v1/email/sendNotification").hasAnyAuthority("STA")
+                        .requestMatchers("api/v1/email/sendBill").hasAnyAuthority("CUS")  // for test
+
+                        .requestMatchers("/files/images/**", "/files/certificates/**", "/api/v1/payments/vnpay-notify", "/error", "/api/v1/feedbacks/limited").permitAll()
                         .requestMatchers("/api/v1/certificates/**").hasAnyAuthority("MAN")
                         .requestMatchers("/api/v1/email/sendNotification").hasAnyAuthority("STA")
                         .requestMatchers("api/v1/email/sendBill").hasAnyAuthority("CUS")  // for test
@@ -101,7 +110,7 @@ public class AppConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("http://localhost:3000"); // Allow requests from React app
+        configuration.addAllowedOrigin("http://koi-fish-veterinary-interface.s3-website-ap-southeast-1.amazonaws.com"); // Allow requests from React app
         configuration.addAllowedMethod("*"); // Allow all HTTP methods (GET, POST, PUT, DELETE, etc.)
         configuration.addAllowedHeader("*"); // Allow all headers
         configuration.setAllowCredentials(true); // Allow credentials (e.g., cookies, authorization headers)
@@ -111,3 +120,5 @@ public class AppConfig {
         return source;
     }
 }
+
+

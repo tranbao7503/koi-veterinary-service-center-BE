@@ -36,10 +36,10 @@ public class User {
     @Column(name = "email", nullable = true, length = 50, unique = false)
     private String email;
 
-    @Column(name = "first_name", nullable = false, length = 50)
+    @Column(name = "first_name", nullable = true, length = 50)
     private String firstName;
 
-    @Column(name = "last_name", nullable = false, length = 50)
+    @Column(name = "last_name", nullable = true, length = 50)
     private String lastName;
 
     @Column(name = "phone_number", nullable = true, length = 10)
@@ -112,6 +112,11 @@ public class User {
 //    private Set<TimeSlot> timeSlots = new LinkedHashSet<>();
     @OneToMany(mappedBy = "veterinarian", orphanRemoval = true)
     private Set<VeterinarianSlots> veterinarianSlots = new LinkedHashSet<>();
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "meeting_id", referencedColumnName = "id")
+    private Meeting meeting;
 
 
     @OneToOne(fetch = FetchType.LAZY)

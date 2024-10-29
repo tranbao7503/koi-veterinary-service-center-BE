@@ -91,6 +91,9 @@ public class PaymentController {
 
             PaymentDto updatedPaymentDto = PaymentMapper.INSTANCE.convertToDto(paymentService.updatePayment(appointment.getPayment().getPaymentId(), payment));
 
+            //appointmentService.updateStatus(appointmentId, AppointmentStatus.ON_GOING);
+            appointmentService.updateStatus(appointmentId, AppointmentStatus.CHECKED_IN);
+
             return new ResponseEntity<>(updatedPaymentDto, HttpStatus.OK);
 
         } catch (AppointmentNotFoundException e) {
@@ -141,7 +144,7 @@ public class PaymentController {
         try {
 
             if (!vnPayService.verifySignature(vnpParams)) { // Verify Hash
-                response.sendRedirect("http://localhost:8080/api/v1/payments/"); // Redirect to an error page on the FE
+                response.sendRedirect("http://koi-fish-veterinary-interface.s3-website-ap-southeast-1.amazonaws.com/my-appointment"); // Redirect to an error page on the FE
                 return;
             }
 
@@ -162,19 +165,22 @@ public class PaymentController {
 
                 // Update payment
                 paymentService.updatePaymentForVnPay(appointmentId, paymentDate, transactionId, orderInfo);
+
+                // system update ON_GOING
                 appointmentService.updateStatus(appointmentId, AppointmentStatus.ON_GOING);
+
 
                 Appointment appointment = appointmentService.getAppointmentById(appointmentId);
 
                 // Asynchronously send the email
                 emailService.sendAppointmentBills(appointment.getEmail(), "Koi Fish - Appointment Bills", appointment);
 
-                response.sendRedirect("http://localhost:8080/api/v1/payments/" + appointmentId); // Redirect to appointment details page of FE
+                response.sendRedirect("http://koi-fish-veterinary-interface.s3-website-ap-southeast-1.amazonaws.com/my-appointment"); // Redirect to appointment details page of FE
             } else {
-                response.sendRedirect("http://localhost:8080/api/v1/payments/" + appointmentId);
+                response.sendRedirect("http://koi-fish-veterinary-interface.s3-website-ap-southeast-1.amazonaws.com/my-appointment" + appointmentId);
             }
         } catch (Exception e) {
-            response.sendRedirect("http://localhost:8080/api/v1/payments/");
+            response.sendRedirect("http://koi-fish-veterinary-interface.s3-website-ap-southeast-1.amazonaws.com/my-appointment");
         }
     }
 }

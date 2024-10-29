@@ -268,12 +268,11 @@ public class AppointmentController {
             AppointmentStatus appointmentStatus = AppointmentStatus.valueOf(updateStatus);
 
             try {
-                Payment payment = paymentService.findPaymentByAppointmentId(appointmentId);
+                appointmentService.updateStatus(appointmentId, appointmentStatus);
 
-                if (payment.getPaymentMethod().equals(PaymentMethod.CASH) && appointmentStatus.equals(AppointmentStatus.CONFIRMED)) {
+                if (appointmentStatus.equals(AppointmentStatus.CONFIRMED)) {
                     appointmentService.updateStatus(appointmentId, AppointmentStatus.ON_GOING);
                 }
-                appointmentService.updateStatus(appointmentId, appointmentStatus);
 
                 return new ResponseEntity<>("Status updated successfully", HttpStatus.OK);
             } catch (AppointmentNotFoundException e) {
@@ -291,9 +290,7 @@ public class AppointmentController {
      * Actors: Veterinarian
      * */
     @PostMapping("/follow-up-appointment")
-    public ResponseEntity<?> createFollowUpAppointment(
-            @RequestParam Integer appointmentId
-            , @RequestBody AppointmentDto followUpAppointmentDto) {
+    public ResponseEntity<?> createFollowUpAppointment(@RequestParam Integer appointmentId, @RequestBody AppointmentDto followUpAppointmentDto) {
         try {
             Integer userId = authenticationService.getAuthenticatedUserId();
 
@@ -314,5 +311,5 @@ public class AppointmentController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 }
+

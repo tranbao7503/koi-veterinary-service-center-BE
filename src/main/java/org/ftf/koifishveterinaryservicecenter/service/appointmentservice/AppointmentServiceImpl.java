@@ -308,23 +308,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         AppointmentContext appointmentContext = new AppointmentContext(updatedAppointment, appointmentStateFactory);
         appointmentContext.update(updatedAppointment);
-        // staff: PENDING -> CONFIRMED  --> sending email
-        //        PENDING -> CANCELED
 
-
-        // 1. online
-        //     payment successfully    <---    customer
-        //  system:  payment: UNPAID -> PAID
-        //          appointment: CONFIRMED -> ONGOING
-
-        // 2. at home
-        //  system: appointment: CONFIRMED -> CHECKIN
-        //  staff:  payment: UNPAID -> PAID
-        //          appointment: CHECKIN -> ONGOING
-
-
-        // staff
-        // appointment: ONGOING --> DONE
     }
 
 
@@ -396,7 +380,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         followUpAppointment.setPayment(paymentService.createPayment(payment));
 
         // Current status
-        followUpAppointment.setCurrentStatus(AppointmentStatus.ON_GOING);
+        followUpAppointment.setCurrentStatus(AppointmentStatus.PENDING);
 
         Appointment savedFollowUpAppointment = appointmentRepository.save(followUpAppointment);
 

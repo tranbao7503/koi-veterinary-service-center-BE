@@ -2,30 +2,27 @@ package org.ftf.koifishveterinaryservicecenter.service.userservice;
 
 import org.ftf.koifishveterinaryservicecenter.dto.UserDTO;
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
+import org.ftf.koifishveterinaryservicecenter.entity.Meeting;
 import org.ftf.koifishveterinaryservicecenter.entity.Role;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.ftf.koifishveterinaryservicecenter.enums.PaymentMethod;
 import org.ftf.koifishveterinaryservicecenter.enums.PaymentStatus;
-import org.ftf.koifishveterinaryservicecenter.exception.AddressNotFoundException;
-import org.ftf.koifishveterinaryservicecenter.exception.AuthenticationException;
-import org.ftf.koifishveterinaryservicecenter.exception.RoleException;
-import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
+import org.ftf.koifishveterinaryservicecenter.exception.*;
 import org.ftf.koifishveterinaryservicecenter.mapper.UserMapper;
 import org.ftf.koifishveterinaryservicecenter.repository.*;
 import org.ftf.koifishveterinaryservicecenter.service.fileservice.FileDownloadService;
 import org.ftf.koifishveterinaryservicecenter.service.fileservice.FileUploadService;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -64,22 +61,72 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserProfile(Integer userId) {
         User user = userRepository.findUsersByUserId(userId);
-        if (user.getAvatar() != null && !user.getAvatar().startsWith("http://")) {
-            String avatarPath = fileDownloadService.getImageUrl(user.getAvatar());
-            user.setAvatar(avatarPath);
-        }
+//        if (user.getAvatar() != null && !user.getAvatar().startsWith("http://")) {
+//            String avatarPath = fileDownloadService.getImageUrl(user.getAvatar());
+//            user.setAvatar(avatarPath);
+//        }
         return user;
     }
+
+    @Override
+    public UserDTO getMyInfo() {
+        // Retrieve the authentication context
+        var context = SecurityContextHolder.getContext();
+        String email = context.getAuthentication().getName();
+
+        // Fetch the user by email
+        User user = userRepository.findUserByEmail(email)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        // Map the user entity to the UserDTO
+        UserDTO userResponse = userMapper.convertEntityToDto(user);
+
+        // Additional logic: set noPassword and noDob fields
+        userResponse.setNoPassword(!StringUtils.hasText(user.getPassword()));
+
+        return userResponse;
+    }
+
+    public void createPassword(String password) {
+        var context = SecurityContextHolder.getContext();
+        String email = context.getAuthentication().getName();
+
+        // Fetch the user by email
+        User user = userRepository.findUserByEmail(email)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        // Check if the user already has a password set
+        if (StringUtils.hasText(user.getPassword())) {
+            throw new AppException(ErrorCode.INVALID_PASSWORD); // User already has a password
+        }
+
+        // Kiểm tra password
+        if (password == null || password.isBlank()) {
+            throw new AuthenticationException("Password can not be empty");
+        }
+        if (password.length() < 8) {
+            throw new AuthenticationException("Password can not be less than 8 characters");
+        }
+        String passwordPattern = "^(?=.*[@#$%^&+=!{}]).{8,}$";
+        if (!password.matches(passwordPattern)) {
+            throw new AuthenticationException("Password must contain at least one special character and be at least 8 characters long");
+        }
+
+        // Encode the password and save the user
+        user.setPassword(passwordEncoder.encode(password));
+        userRepository.save(user);
+    }
+
 
     @Override
     public List<User> getAllVeterinarians() {
         Role role = roleRepository.findByRoleKey("VET");
         List<User> veterinarians = new ArrayList<>(role.getUsers());
-        veterinarians.forEach(veterinarian -> {
-            if (veterinarian.getAvatar() != null && !veterinarian.getAvatar().startsWith("http://")) {
-                veterinarian.setAvatar(fileDownloadService.getImageUrl(veterinarian.getAvatar()));
-            }
-        });
+//        veterinarians.forEach(veterinarian -> {
+//            if (veterinarian.getAvatar() != null && !veterinarian.getAvatar().startsWith("http://")) {
+//                veterinarian.setAvatar(fileDownloadService.getImageUrl(veterinarian.getAvatar()));
+//            }
+//        });
         return veterinarians;
     }
 
@@ -144,11 +191,11 @@ public class UserServiceImpl implements UserService {
     public List<User> getAllCustomers() {
         Role role = roleRepository.findByRoleKey("CUS");
         List<User> customers = new ArrayList<>(role.getUsers());
-        customers.forEach(customer -> {
-            if (customer.getAvatar() != null && !customer.getAvatar().startsWith("http://")) {
-                customer.setAvatar(fileDownloadService.getImageUrl(customer.getAvatar()));
-            }
-        });
+//        customers.forEach(customer -> {
+//            if (customer.getAvatar() != null && !customer.getAvatar().startsWith("http://")) {
+//                customer.setAvatar(fileDownloadService.getImageUrl(customer.getAvatar()));
+//            }
+//        });
         return customers;
     }
 
@@ -187,9 +234,12 @@ public class UserServiceImpl implements UserService {
         if (!email.matches(emailPattern)) {
             throw new AuthenticationException("Email is not valid");
         }
-        if (userRepository.findUserByEmail(email) != null) {
+//        if (userRepository.findUserByEmail(email) != null) {
+//            throw new AuthenticationException("Email is already registered");
+//        }
+        userRepository.findUserByEmail(email).ifPresent(user -> {
             throw new AuthenticationException("Email is already registered");
-        }
+        });
 
         // Kiểm tra first_name
         if (first_Name == null || first_Name.isBlank()) {
@@ -220,10 +270,10 @@ public class UserServiceImpl implements UserService {
         if (veterinarian == null) {
             throw new UserNotFoundException("Veterinarian not found with Id: " + veterinarianId);
         }
-        if (veterinarian.getAvatar() != null && !veterinarian.getAvatar().startsWith("http://")) {
-            String avatarPath = fileDownloadService.getImageUrl(veterinarian.getAvatar());
-            veterinarian.setAvatar(avatarPath);
-        }
+//        if (veterinarian.getAvatar() != null && !veterinarian.getAvatar().startsWith("http://")) {
+//            String avatarPath = fileDownloadService.getImageUrl(veterinarian.getAvatar());
+//            veterinarian.setAvatar(avatarPath);
+//        }
         return veterinarian;
     }
 
@@ -233,10 +283,10 @@ public class UserServiceImpl implements UserService {
         if (customer == null) {
             throw new UserNotFoundException("Customer not found with Id: " + customerId);
         }
-        if (customer.getAvatar() != null && !customer.getAvatar().startsWith("http://")) {
-            String avatarPath = fileDownloadService.getImageUrl(customer.getAvatar());
-            customer.setAvatar(avatarPath);
-        }
+//        if (customer.getAvatar() != null && !customer.getAvatar().startsWith("http://")) {
+//            String avatarPath = fileDownloadService.getImageUrl(customer.getAvatar());
+//            customer.setAvatar(avatarPath);
+//        }
         return customer;
     }
 
@@ -354,11 +404,11 @@ public class UserServiceImpl implements UserService {
 
         List<User> staffs = new ArrayList<>(staffRole.getUsers());
 
-        staffs.forEach(staff -> {
-            if (staff.getAvatar() != null && !staff.getAvatar().startsWith("http://")) {
-                staff.setAvatar(fileDownloadService.getImageUrl(staff.getAvatar()));
-            }
-        });
+//        staffs.forEach(staff -> {
+//            if (staff.getAvatar() != null && !staff.getAvatar().startsWith("http://")) {
+//                staff.setAvatar(fileDownloadService.getImageUrl(staff.getAvatar()));
+//            }
+//        });
 
         // Trả về danh sách users từ role "STA"
         return staffs;
@@ -599,6 +649,7 @@ public class UserServiceImpl implements UserService {
 
         return totalSlots;
     }
+
     //them so luong feedback voi so luong sao trung binh cua bac si
     @Override
     public Map<String, Object> getFeedbackStatistics() {
@@ -634,18 +685,13 @@ public class UserServiceImpl implements UserService {
         return feedbackStatistics;
     }
 
-
-
-
+    @Override
+    public Optional<String> getLinkMeetByVetId(Integer vetId) {
+//        return vetMeetingRepository.findByVetId(vetId)
+//                .map(Meeting::getLinkMeet);
+        User veterinarian = this.getVeterinarianById(vetId);
+        return Optional.of(veterinarian.getMeeting().getLinkMeet());
+    }
 
 
 }
-
-
-
-
-
-
-
-
-

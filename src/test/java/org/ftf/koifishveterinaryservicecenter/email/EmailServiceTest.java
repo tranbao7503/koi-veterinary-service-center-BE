@@ -11,12 +11,14 @@ import org.ftf.koifishveterinaryservicecenter.service.emailservice.EmailService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
 @SpringBootTest
+@Rollback(value = true)
 public class EmailServiceTest {
 
     @Autowired
@@ -54,7 +56,7 @@ public class EmailServiceTest {
 
 
         User customer = userRepository.findUsersByUserId(6);
-        User veterinarian = userRepository.findVeterinarianById(11);
+        User veterinarian = userRepository.findVeterinarianById(13);
         String email = "crisbrian070503@gmail.com";
         String phone = "0987654321";
         String customerName = "My name is Demo";
