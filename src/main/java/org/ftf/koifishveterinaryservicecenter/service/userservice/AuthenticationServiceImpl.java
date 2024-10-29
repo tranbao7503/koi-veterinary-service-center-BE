@@ -54,6 +54,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     private final OutboundUserClient outboundUserClient;
 
+    @Value("${frontend.domain}")
+    private String frontendDomain;
 
     @NonFinal
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
@@ -66,7 +68,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @NonFinal
 
-    protected String REDIRECT_URI = "http://localhost:3000/authenticate";
+    protected String REDIRECT_URI = frontendDomain + "/authenticate";
 
     @NonFinal
     protected String GRANT_TYPE = "authorization_code";

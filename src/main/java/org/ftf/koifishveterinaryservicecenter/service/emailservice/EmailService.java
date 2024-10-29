@@ -33,6 +33,7 @@ public class EmailService {
         this.templateEngine = templateEngine;
     }
 
+
     public void sendTextEmail(String to, String subject, String message) {
         SimpleMailMessage mailMessage = new SimpleMailMessage();
         mailMessage.setFrom(senderEmail);
