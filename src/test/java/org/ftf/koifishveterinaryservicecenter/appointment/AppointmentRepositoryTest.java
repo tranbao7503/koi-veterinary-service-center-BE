@@ -82,7 +82,7 @@ public class AppointmentRepositoryTest {
 
     @Test
     public void testGetAppointmentById() {
-        Integer appointmentId = 22;
+        Integer appointmentId = 10;
         Optional<Appointment> appointment = appointmentRepository.findById(appointmentId);
         Assertions.assertThat(appointment).isPresent();
         System.out.println(appointment.get().getTimeSlot().toString());
@@ -90,7 +90,7 @@ public class AppointmentRepositoryTest {
 
     @Test
     public void testUpdateAppointmentStatusTriggerInsertingToStatusTableSuccess() {
-        Integer appointmentId = 22;
+        Integer appointmentId = 10;
 
         // get appointment by Id
         Optional<Appointment> appointment = appointmentRepository.findById(appointmentId);

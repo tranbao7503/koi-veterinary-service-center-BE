@@ -633,22 +633,21 @@ public class UserServiceImpl implements UserService {
     @Override
     public long getVetSlotsInCurrentWeek(int vetId) {
         LocalDate today = LocalDate.now();
-
-        // Tính ngày đầu tuần (Thứ Hai)
         LocalDate startOfWeek = today.with(DayOfWeek.MONDAY);
-
-        // Tính ngày cuối tuần (Chủ Nhật)
         LocalDate endOfWeek = today.with(DayOfWeek.SUNDAY);
 
-        // Lấy năm và tháng của ngày bắt đầu
-        int year = startOfWeek.getYear();
-        int month = startOfWeek.getMonthValue();
-        int startDay = startOfWeek.getDayOfMonth();
-        int endDay = endOfWeek.getDayOfMonth();
+        long totalSlots = 0;
 
-        // Gọi phương thức đếm slots của bác sĩ
-        return veterinarianSlotsRepository.countSlotsByVetInDateRange(vetId, year, month, startDay, endDay);
-        //them vo thang
+        for (LocalDate date = startOfWeek; !date.isAfter(endOfWeek); date = date.plusDays(1)) {
+            totalSlots += veterinarianSlotsRepository.countSlotsByVetInDate(
+                    vetId,
+                    date.getYear(),
+                    date.getMonthValue(),
+                    date.getDayOfMonth()
+            );
+        }
+
+        return totalSlots;
     }
 
     //them so luong feedback voi so luong sao trung binh cua bac si

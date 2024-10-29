@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -28,13 +29,7 @@ public class AppConfig {
             "/api/v1/users/outbound/authentication"
     };
 
-    @Value("${jwt.signer}")
-    private String SIGNER_KEY;
 
-
-    @Lazy
-
-    @Autowired
     private CustomJwtDecoder customJwtDecoder;
 
     @Bean
@@ -115,7 +110,7 @@ public class AppConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("http://localhost:3000"); // Allow requests from React app
+        configuration.addAllowedOrigin("http://koi-fish-veterinary-interface.s3-website-ap-southeast-1.amazonaws.com"); // Allow requests from React app
         configuration.addAllowedMethod("*"); // Allow all HTTP methods (GET, POST, PUT, DELETE, etc.)
         configuration.addAllowedHeader("*"); // Allow all headers
         configuration.setAllowCredentials(true); // Allow credentials (e.g., cookies, authorization headers)
