@@ -193,7 +193,6 @@ public class AppointmentController {
     /*
      * Actors: Manager, Staff
      * */
-
     @GetMapping()
     public ResponseEntity<?> getAllAppointments() {
         try {
