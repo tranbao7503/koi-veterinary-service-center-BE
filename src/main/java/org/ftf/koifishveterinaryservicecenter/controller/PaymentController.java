@@ -8,6 +8,7 @@ import org.ftf.koifishveterinaryservicecenter.enums.AppointmentStatus;
 import org.ftf.koifishveterinaryservicecenter.enums.PaymentMethod;
 import org.ftf.koifishveterinaryservicecenter.enums.PaymentStatus;
 import org.ftf.koifishveterinaryservicecenter.exception.AppointmentNotFoundException;
+import org.ftf.koifishveterinaryservicecenter.exception.AppointmentUpdatedException;
 import org.ftf.koifishveterinaryservicecenter.exception.PaymentNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.PaymentMapper;
 import org.ftf.koifishveterinaryservicecenter.service.appointmentservice.AppointmentService;
@@ -102,8 +103,8 @@ public class PaymentController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (PaymentNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
-        } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (AppointmentUpdatedException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -142,7 +143,7 @@ public class PaymentController {
     @GetMapping("/vnpay-notify")
     public void handleVnPayNotify(
             @RequestParam Map<String, String> vnpParams
-            , HttpServletResponse response) throws IOException {
+            , HttpServletResponse response) throws IOException, AppointmentUpdatedException {
         try {
 
             if (!vnPayService.verifySignature(vnpParams)) { // Verify Hash

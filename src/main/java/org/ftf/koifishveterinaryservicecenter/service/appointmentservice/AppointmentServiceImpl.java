@@ -305,7 +305,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public void updateStatus(Integer appointmentId, AppointmentStatus updatedStatus) {
+    public void updateStatus(Integer appointmentId, AppointmentStatus updatedStatus) throws AppointmentUpdatedException {
 
         Appointment updatedAppointment = getAppointmentById(appointmentId);
 
