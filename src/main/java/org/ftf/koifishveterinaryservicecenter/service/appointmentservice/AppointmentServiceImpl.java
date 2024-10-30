@@ -156,13 +156,9 @@ public class AppointmentServiceImpl implements AppointmentService {
             newAppointment.setMovingSurcharge(movingSurcharge);
         }
 
-
         // slot_id
         TimeSlot timeSlot = slotService.getTimeSlotById(appointment.getTimeSlot().getSlotId());
         newAppointment.setTimeSlot(timeSlot);
-
-        // feedback_id
-        // report_id
 
         // user_id
         User userFromDb = userService.getCustomerById(customerId);
@@ -173,8 +169,7 @@ public class AppointmentServiceImpl implements AppointmentService {
             User veterinarianFromDb = userService.getVeterinarianById(appointment.getVeterinarian().getUserId());
             newAppointment.setVeterinarian(veterinarianFromDb);
 
-            // Update Veterinarian_Slot status
-            slotService.updateVeterinarianSlotsStatus(appointment.getVeterinarian().getUserId(), timeSlot.getSlotId(), SlotStatus.BOOKED);
+            // as staff confirmed, vet_slot turns to 'BOOKED'
         }
 
         // email
@@ -316,7 +311,6 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         AppointmentContext appointmentContext = new AppointmentContext(updatedAppointment, appointmentStateFactory);
         appointmentContext.update(updatedAppointment);
-
     }
 
 
