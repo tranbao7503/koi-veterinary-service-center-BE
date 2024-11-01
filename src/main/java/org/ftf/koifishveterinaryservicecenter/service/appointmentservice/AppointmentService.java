@@ -41,4 +41,6 @@ public interface AppointmentService {
 
     Appointment createFollowUpAppointment(Integer appointmentId, Appointment newAppointment);
 
+    List<Appointment> getAllAppointmentsByFishId(Integer fishId);
+
 }

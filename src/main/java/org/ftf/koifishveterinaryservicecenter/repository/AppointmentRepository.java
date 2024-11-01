@@ -35,6 +35,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Intege
     @Query("SELECT COUNT(a) FROM Appointment a WHERE a.service.serviceId = :serviceId AND MONTH(a.createdDate) = :month AND YEAR(a.createdDate) = :year")
     long countByServiceAndMonth(@Param("serviceId") int serviceId, @Param("month") int month, @Param("year") int year);
 
+    @Query("SELECT a FROM Appointment a WHERE a.fish.fishId = :fishId")
+    List<Appointment> findAppointmentByFishId(Integer fishId);
 
 }
 

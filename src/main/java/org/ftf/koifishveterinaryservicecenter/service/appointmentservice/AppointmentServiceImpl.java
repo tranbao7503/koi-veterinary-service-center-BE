@@ -407,6 +407,18 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
+    public List<Appointment> getAllAppointmentsByFishId(Integer fishId) {
+        List<Appointment> appointments = appointmentRepository.findAppointmentByFishId(fishId);
+        if (appointments.isEmpty()) {
+            throw new AppointmentNotFoundException("Appointment not found!");
+        }
+        // Sort by newest appointment
+        appointments.sort(Comparator.comparing(Appointment::getAppointmentId).reversed());
+
+        return appointments;
+    }
+
+    @Override
     public Appointment getAppointmentById(Integer appointmentId) {
         Optional<Appointment> appointmentOptional = appointmentRepository.findById(appointmentId);
         if (appointmentOptional.isEmpty())
