@@ -38,6 +38,7 @@ public interface AppointmentMapper {
     @Mapping(source = "timeSlot", target = "timeSlot", qualifiedByName = "convertToAvailableTimeSlotDto")
     @Mapping(source = "followUpAppointment.appointmentId", target = "followUpAppointmentId")
     @Mapping(source = "feedback.feedbackId", target = "feedbackId")
+    @Mapping(source = "voucher.discountAmount", target = "discount")
     @Mapping(target = "veterinarian.username", ignore = true)
     @Mapping(target = "veterinarian.password", ignore = true)
     @Mapping(target = "veterinarian.avatar", ignore = true)

@@ -103,7 +103,7 @@ public class AppointmentRepositoryTest {
         // insert to Status table
         Status status = new Status();
         status.setAppointment(appointment.get());
-        status.setStatusName(AppointmentStatus.CONFIRMED);
+        status.setStatusName(AppointmentStatus.CONFIRMED.toString());
         status.setTime(LocalDateTime.now());
         status.setNote("Update to CONFIRMED successfully");
         appointment.get().addStatus(status);

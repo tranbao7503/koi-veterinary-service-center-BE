@@ -59,7 +59,7 @@ public class CheckInState implements AppointmentState {
     private void logToStatus(Appointment appointment, User veterinarian) {
         Status status = new Status();
         status.setAppointment(appointment);
-        status.setStatusName(appointment.getCurrentStatus());
+        status.setStatusName(appointment.getCurrentStatus().toString());
         status.setTime(LocalDateTime.now());
         status.setNote("Veterinarian - " + veterinarian.getFirstName() + " " + veterinarian.getLastName() + " marked DONE the appointment successfully");
         appointment.addStatus(status);

@@ -54,4 +54,7 @@ public class AppointmentDetailsDto extends AppointmentBaseDto {
 
     @JsonProperty("feedback_id")
     private Integer feedbackId;
+
+    @JsonProperty("discount")
+    private BigDecimal discount;
 }
