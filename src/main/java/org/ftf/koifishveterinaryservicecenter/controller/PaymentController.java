@@ -83,10 +83,11 @@ public class PaymentController {
     }
 
     /*
+     * Confirm payment of customer when pay in cash
      * Actors: Staff
      * */
-    @PutMapping("/{appointmentId}")
-    public ResponseEntity<?> updatePayment(
+    @PutMapping("/{appointmentId}/confirm")
+    public ResponseEntity<?> confirmPayment(
             @PathVariable("appointmentId") Integer appointmentId
             , @RequestBody PaymentDto paymentDto) {
         try {
@@ -94,7 +95,7 @@ public class PaymentController {
 
             Payment payment = PaymentMapper.INSTANCE.convertToFullEntity(paymentDto);
 
-            PaymentDto updatedPaymentDto = PaymentMapper.INSTANCE.convertToDto(paymentService.updatePayment(appointment.getPayment().getPaymentId(), payment));
+            PaymentDto updatedPaymentDto = PaymentMapper.INSTANCE.convertToDto(paymentService.confirmPayment(appointment.getPayment().getPaymentId(), payment));
             appointmentService.updateStatus(appointmentId, AppointmentStatus.CHECKED_IN);
 
             return new ResponseEntity<>(updatedPaymentDto, HttpStatus.OK);
@@ -105,6 +106,32 @@ public class PaymentController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
         } catch (AppointmentUpdatedException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    /*
+     * Refund payment for customer
+     * Actors: Staff
+     * */
+    @PutMapping("/{appointmentId}/refund")
+    public ResponseEntity<?> refundPayment(
+            @PathVariable("appointmentId") Integer appointmentId
+            , @RequestBody PaymentDto paymentDto) {
+        try {
+            Appointment appointment = appointmentService.getAppointmentById(appointmentId);
+
+            Payment payment = PaymentMapper.INSTANCE.convertToFullEntity(paymentDto);
+
+            PaymentDto updatedPaymentDto = PaymentMapper.INSTANCE.convertToDto(paymentService.refundPayment(appointment.getPayment().getPaymentId(), payment));
+
+            return new ResponseEntity<>(updatedPaymentDto, HttpStatus.OK);
+
+        } catch (AppointmentNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (PaymentNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

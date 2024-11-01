@@ -68,21 +68,28 @@ public class VoucherController {
     }
 
     /*
-    * For testing
-    * Add voucher for customer
-    * */
-    @PostMapping("/{voucherId}/{customerId}")
+     * Add voucher for customer
+     * Actors: Staff
+     * */
+    @PostMapping()
     public ResponseEntity<?> addVoucher(
-            @PathVariable("voucherId") Integer voucherId
-    , @PathVariable("customerId") Integer customerId) {
-        Integer updatedVoucherId = voucherService.addVoucherForCustomer(customerId, voucherId);
-        return new ResponseEntity<>(updatedVoucherId, HttpStatus.OK);
+            @RequestParam("customerId") Integer customerId
+            , @RequestParam("voucherId") Integer voucherId) {
+        try {
+            Integer updatedVoucherId = voucherService.addVoucherForCustomer(customerId, voucherId);
+            return new ResponseEntity<>(updatedVoucherId, HttpStatus.OK);
+        } catch (VoucherNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 
     /*
-    * For testing
-    * Subtract used voucher of customer
-    * */
+     * For testing
+     * Subtract used voucher of customer
+     * */
     @DeleteMapping("/{voucherId}")
     public ResponseEntity<?> deleteVoucher(
             @PathVariable("voucherId") Integer voucherId) {
