@@ -5,6 +5,7 @@ import lombok.*;
 import org.ftf.koifishveterinaryservicecenter.entity.veterinarian_slots.VeterinarianSlots;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -87,6 +88,12 @@ public class TimeSlot {
                 ", year=" + year +
                 ", slotId=" + slotId +
                 '}';
+    }
+
+    public long getDaysUntilNow() {
+        LocalDateTime slotDateTime = this.getDateTimeBasedOnSlot();
+        LocalDateTime now = LocalDateTime.now();
+        return ChronoUnit.DAYS.between(slotDateTime, now);
     }
 
 }

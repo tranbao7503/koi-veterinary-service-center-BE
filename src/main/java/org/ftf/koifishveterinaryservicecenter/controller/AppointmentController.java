@@ -169,7 +169,6 @@ public class AppointmentController {
     /*
      * Actors: Customer
      * */
-
     @GetMapping("/{appointmentId}/customer")
     public ResponseEntity<?> getAppointmentForCustomer(@PathVariable("appointmentId") Integer appointmentId) {
         try {
@@ -314,6 +313,21 @@ public class AppointmentController {
 
             return new ResponseEntity<>(appointmentDetailsDto, HttpStatus.CREATED);
         } catch (AppointmentNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/fish/{fishId}")
+    public ResponseEntity<?> getAppointmentsByFishId(@PathVariable Integer fishId) {
+        try {
+            List<Appointment> appointments = appointmentService.getAllAppointmentsByFishId(fishId);
+            List<AppointmentForListDto> appointmentForListDtos = appointments.stream().map(AppointmentMapper.INSTANCE::convertedToAppointmentDtoForList).collect(Collectors.toList());
+            return new ResponseEntity<>(appointmentForListDtos, HttpStatus.OK);
+        } catch (AppointmentNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
+        } catch (UserNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
