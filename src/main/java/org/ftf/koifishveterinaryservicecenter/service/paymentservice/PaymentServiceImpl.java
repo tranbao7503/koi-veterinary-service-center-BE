@@ -47,7 +47,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     @Transactional
-    public Payment updatePayment(Integer paymentId, Payment newPayment) throws PaymentNotFoundException {
+    public Payment confirmPayment(Integer paymentId, Payment newPayment) throws PaymentNotFoundException {
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new PaymentNotFoundException("Payment not found with id: " + paymentId));
 
@@ -56,6 +56,10 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setStatus(PaymentStatus.PAID);
 
         paymentRepository.save(payment);
+
+        // =============
+        // Log in status
+        // =============
 
         return payment;
     }
@@ -70,7 +74,32 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setDescription(URLDecoder.decode(description));
         payment.setStatus(PaymentStatus.PAID);
 
+        // =============
+        // Log in status
+        // =============
+
         return paymentRepository.save(payment);
+    }
+
+    @Override
+    public Payment refundPayment(Integer paymentId, Payment newPayment) {
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new PaymentNotFoundException("Payment not found with id: " + paymentId));
+
+        payment.setTransactionTime(LocalDateTime.now());
+        payment.setPaymentMethod(newPayment.getPaymentMethod());
+        payment.setTransactionId(newPayment.getTransactionId());
+        payment.setDescription(newPayment.getDescription());
+        payment.setAmount(newPayment.getAmount());
+        payment.setStatus(PaymentStatus.REFUNDED);
+
+        paymentRepository.save(payment);
+
+        // =============
+        // Log in status
+        // =============
+
+        return payment;
     }
 }
 
