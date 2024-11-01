@@ -64,7 +64,7 @@ public class PendingState implements AppointmentState {
     private void logToStatus(Appointment appointment, User staff) {
         Status status = new Status();
         status.setAppointment(appointment);
-        status.setStatusName(appointment.getCurrentStatus());
+        status.setStatusName(appointment.getCurrentStatus().toString());
         status.setTime(LocalDateTime.now());
 
         status.setNote("Staff - " + staff.getFirstName() + " " + staff.getLastName() + " update CONFIRMED successfully");

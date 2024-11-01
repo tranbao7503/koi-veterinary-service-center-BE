@@ -280,6 +280,13 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         appointmentRepository.save(appointment.get());
 
+        // Update timeslot -> available
+        Appointment existedAppointment = appointment.get();
+        slotService.updateVeterinarianSlotsStatus(
+                existedAppointment.getVeterinarian().getUserId()
+                , existedAppointment.getTimeSlot().getSlotId()
+                , SlotStatus.AVAILABLE);
+
         // send email
         User customer = appointment.get().getCustomer();
         emailService.sendEmailForCancelingAppointment(appointment.get().getEmail(), "Koi fish - Thanks you", customer);

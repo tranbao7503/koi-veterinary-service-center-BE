@@ -32,7 +32,7 @@ public class ConfirmedState implements AppointmentState {
     private void logToStatus(Appointment appointment) {
         Status status = new Status();
         status.setAppointment(appointment);
-        status.setStatusName(appointment.getCurrentStatus());
+        status.setStatusName(appointment.getCurrentStatus().toString());
         status.setTime(LocalDateTime.now());
         status.setNote("System - marked ON_GOING the appointment successfully");
         appointment.addStatus(status);

@@ -49,7 +49,7 @@ public class OngoingState implements AppointmentState {
         Status status = new Status();
 
         status.setAppointment(appointment);
-        status.setStatusName(appointment.getCurrentStatus());
+        status.setStatusName(appointment.getCurrentStatus().toString());
         status.setTime(LocalDateTime.now());
 
 

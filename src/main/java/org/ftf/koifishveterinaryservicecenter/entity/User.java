@@ -3,6 +3,7 @@ package org.ftf.koifishveterinaryservicecenter.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import org.ftf.koifishveterinaryservicecenter.entity.user_voucher.UserVoucher;
 import org.ftf.koifishveterinaryservicecenter.entity.veterinarian_slots.VeterinarianSlots;
 import org.hibernate.annotations.ColumnDefault;
 
@@ -45,7 +46,6 @@ public class User {
     @Column(name = "phone_number", nullable = true, length = 10)
     private String phoneNumber;
 
-
     @Column(name = "avatar", nullable = true, length = 255)
     private String avatar;
 
@@ -53,11 +53,9 @@ public class User {
     @Column(name = "enable", nullable = false)
     private boolean enabled = true;
 
-
     // Uni-directional, identifying relationship
     // owning side: User
     // inverse side: Role
-
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY, optional = false)  // optional = false  <-> user must have a role
     @JoinColumn(name = "role_id", nullable = false, referencedColumnName = "role_id")
@@ -67,7 +65,6 @@ public class User {
     // Uni-directional, non-identifying relationship
     // Owning side: User
     // Inverse side: Address
-
     @JsonIgnore
     @OneToMany(mappedBy = "customer"/*, optional = true*/)
     //@JoinColumn(name = "address_id"/*, unique = false, nullable = true*/)
@@ -77,7 +74,6 @@ public class User {
     // Bidirectional, identifying relationship
     // Owning side: Fish
     // Inverse side: User(customer)
-
     @JsonIgnore
     @OneToMany(mappedBy = "customer"/*, orphanRemoval = true*/) // Shouldn't allow to remove data
     // orphanRemoval: true -->  remove User then all related Fishes will be removed
@@ -86,7 +82,6 @@ public class User {
     // Bidirectional, identifying relationship
     // Owning side: Appointment
     // Inverse side: User(customer)
-
     @JsonIgnore
     @OneToMany(mappedBy = "customer")
     private Set<Appointment> allBookedAppointmentOfCustomer = new LinkedHashSet<>();
@@ -94,7 +89,6 @@ public class User {
     // Bidirectional, identifying relationship
     // Owning side: Appointment
     // Inverse side: User(veterinarian)
-
     @JsonIgnore
     @OneToMany(mappedBy = "veterinarian")
     private Set<Appointment> allAssignedAppointmentOfVeterinarian = new LinkedHashSet<>();
@@ -102,7 +96,6 @@ public class User {
     // Bidirectional, identifying  relationship
     // Owning side: VeterinarianSlots
     // Inverse side: User(Veterinarian)
-
     //    @ManyToMany(fetch = FetchType.LAZY)
 //    @JoinTable(
 //            name = "veterinarian_slots",
@@ -110,18 +103,20 @@ public class User {
 //            inverseJoinColumns = @JoinColumn(name = "slot_id")
 //    )
 //    private Set<TimeSlot> timeSlots = new LinkedHashSet<>();
+
     @OneToMany(mappedBy = "veterinarian", orphanRemoval = true)
     private Set<VeterinarianSlots> veterinarianSlots = new LinkedHashSet<>();
-
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "meeting_id", referencedColumnName = "id")
     private Meeting meeting;
 
-
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "current_address_id", nullable = true)
     private Address currentAddress;
+
+    @OneToMany(mappedBy = "user")
+    private Set<UserVoucher> userVouchers = new LinkedHashSet<>();
 
     @Override
     public boolean equals(Object o) {
