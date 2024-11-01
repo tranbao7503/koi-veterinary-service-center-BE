@@ -5,6 +5,7 @@ import org.ftf.koifishveterinaryservicecenter.entity.Status;
 import org.ftf.koifishveterinaryservicecenter.entity.TimeSlot;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.ftf.koifishveterinaryservicecenter.enums.AppointmentStatus;
+import org.ftf.koifishveterinaryservicecenter.enums.PaymentMethod;
 import org.ftf.koifishveterinaryservicecenter.enums.PaymentStatus;
 import org.ftf.koifishveterinaryservicecenter.enums.SlotStatus;
 import org.ftf.koifishveterinaryservicecenter.exception.AppointmentUpdatedException;
@@ -41,9 +42,9 @@ public class PendingState implements AppointmentState {
         if (!roleKey.equals("STA"))
             throw new IllegalStateException("Only Staff can update appointments from PENDING to CONFIRMED");
 
-        if(appointment.getPayment().getStatus().equals(PaymentStatus.NOT_PAID))
+        if (appointment.getPayment().getPaymentMethod().equals(PaymentMethod.VN_PAY) && appointment.getPayment().getStatus().equals(PaymentStatus.NOT_PAID))
             throw new AppointmentUpdatedException("You can not update CONFIRMED of un-paid appointment");
-        
+
         // set new status for the appointment
         appointment.setCurrentStatus(AppointmentStatus.CONFIRMED);
 
