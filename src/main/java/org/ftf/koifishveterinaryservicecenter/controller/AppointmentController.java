@@ -193,7 +193,6 @@ public class AppointmentController {
     /*
      * Actors: Manager, Staff
      * */
-
     @GetMapping()
     public ResponseEntity<?> getAllAppointments() {
         try {
@@ -286,7 +285,7 @@ public class AppointmentController {
                 return new ResponseEntity<>("Status updated successfully", HttpStatus.OK);
             } catch (AppointmentNotFoundException e) {
                 return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-            } catch (IllegalStateException e) {
+            } catch (IllegalStateException | AppointmentUpdatedException e) {
                 return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
             }
         }
