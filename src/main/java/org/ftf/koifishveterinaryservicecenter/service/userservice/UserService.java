@@ -78,4 +78,6 @@ public interface UserService {
 
 
     List<FeedbackDto> getFeedbacksAboveRatingForService(Integer serviceId);
+
+    Double getAverageRatingForVeterinarian(Integer veterinarianId);
 }

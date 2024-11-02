@@ -39,6 +39,10 @@ public interface FeedbackRepository extends JpaRepository<Feedback, Integer> {
     @Query("SELECT f FROM Feedback f JOIN f.appointment a WHERE a.service.serviceId = :serviceId AND f.rating > 4")
     List<Feedback> findFeedbacksAboveRatingByServiceId(@Param("serviceId") Integer serviceId);
 
+    // Query to calculate average rating for a veterinarian by their ID
+    @Query("SELECT AVG(f.rating) FROM Feedback f WHERE f.veterinarian.userId = :veterinarianId")
+    Double findAverageRatingByVeterinarianId(@Param("veterinarianId") Integer veterinarianId);
+
 
 
 
