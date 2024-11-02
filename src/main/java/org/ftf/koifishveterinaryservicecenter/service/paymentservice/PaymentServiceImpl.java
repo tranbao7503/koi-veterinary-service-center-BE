@@ -1,11 +1,14 @@
 package org.ftf.koifishveterinaryservicecenter.service.paymentservice;
 
+import org.ftf.koifishveterinaryservicecenter.entity.Appointment;
 import org.ftf.koifishveterinaryservicecenter.entity.Payment;
+import org.ftf.koifishveterinaryservicecenter.entity.Status;
+import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.ftf.koifishveterinaryservicecenter.enums.PaymentStatus;
 import org.ftf.koifishveterinaryservicecenter.exception.PaymentNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.repository.AppointmentRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.PaymentRepository;
-import org.ftf.koifishveterinaryservicecenter.service.emailservice.EmailService;
+import org.ftf.koifishveterinaryservicecenter.repository.StatusRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,19 +17,19 @@ import java.net.URLDecoder;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.Optional;
 
 @Service
 public class PaymentServiceImpl implements PaymentService {
 
-
     private final PaymentRepository paymentRepository;
-    private final EmailService emailService;
+    private final StatusRepository statusRepository;
     private final AppointmentRepository appointmentRepository;
 
     @Autowired
-    public PaymentServiceImpl(PaymentRepository paymentRepository, EmailService emailService, AppointmentRepository appointmentRepository) {
+    public PaymentServiceImpl(PaymentRepository paymentRepository, StatusRepository statusRepository, AppointmentRepository appointmentRepository) {
         this.paymentRepository = paymentRepository;
-        this.emailService = emailService;
+        this.statusRepository = statusRepository;
         this.appointmentRepository = appointmentRepository;
     }
 
@@ -35,6 +38,7 @@ public class PaymentServiceImpl implements PaymentService {
     public Payment createPayment(Payment payment) {
         return paymentRepository.save(payment);
     }
+
 
     @Override
     public Payment findPaymentByAppointmentId(Integer appointmentId) {
@@ -57,9 +61,11 @@ public class PaymentServiceImpl implements PaymentService {
 
         paymentRepository.save(payment);
 
-        // =============
         // Log in status
-        // =============
+        Appointment appointment = appointmentRepository.findAppointmentByPaymentId(paymentId);
+        User customer = appointment.getCustomer();
+        logToStatus(appointment, customer, payment.getStatus());
+
 
         return payment;
     }
@@ -74,9 +80,12 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setDescription(URLDecoder.decode(description));
         payment.setStatus(PaymentStatus.PAID);
 
-        // =============
         // Log in status
-        // =============
+        Optional<Appointment> appointment = appointmentRepository.findById(appointmentId);
+        if(appointment.isPresent()) {
+            User customer = appointment.get().getCustomer();
+            logToStatus(appointment.orElse(null), customer, payment.getStatus());
+        }
 
         return paymentRepository.save(payment);
     }
@@ -95,11 +104,32 @@ public class PaymentServiceImpl implements PaymentService {
 
         paymentRepository.save(payment);
 
-        // =============
         // Log in status
-        // =============
+        Appointment appointment = appointmentRepository.findAppointmentByPaymentId(paymentId);
+        User customer = appointment.getCustomer();
+        logToStatus(appointment, customer, payment.getStatus());
 
         return payment;
+    }
+
+    @Override
+    public Payment findPaymentByPaymentId(Integer paymentId) {
+        Optional<Payment> payment = paymentRepository.findById(paymentId);
+        if (payment.isEmpty())
+            throw new PaymentNotFoundException("Payment not found with id: " + paymentId);
+        return payment.get();
+    }
+
+
+    private void logToStatus(Appointment appointment, User customer, PaymentStatus paymentStatus) {
+        Status status = new Status();
+
+        status.setStatusName(String.valueOf(paymentStatus));
+        status.setTime(LocalDateTime.now());
+        status.setNote("Customer - " + customer.getFirstName() + " " + customer.getLastName() + " " + paymentStatus + " successfully");
+        status.setAppointment(appointment);
+        status.setUser(customer);
+        statusRepository.save(status);
     }
 }
 

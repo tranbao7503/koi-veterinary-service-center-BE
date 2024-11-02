@@ -433,6 +433,8 @@ public class AppointmentServiceImpl implements AppointmentService {
         return appointments;
     }
 
+
+
     @Override
     public Appointment getAppointmentById(Integer appointmentId) {
         Optional<Appointment> appointmentOptional = appointmentRepository.findById(appointmentId);
@@ -492,5 +494,6 @@ public class AppointmentServiceImpl implements AppointmentService {
                 && (appointment.getCurrentStatus().equals(AppointmentStatus.PENDING)
                 || appointment.getCurrentStatus().equals(AppointmentStatus.CONFIRMED));
     }
+
 
 }
