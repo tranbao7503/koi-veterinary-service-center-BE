@@ -37,5 +37,12 @@ public class Status {
     @JoinColumn(name = "appointment_id", nullable = false, referencedColumnName = "appointment_id")
     private Appointment appointment;
 
+    // Unidirectional, non-identifying relationship
+    // Owning side: Status
+    // Inverse side: User
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "user_id", nullable = true, referencedColumnName = "user_id")
+    private User user;
+
 
 }

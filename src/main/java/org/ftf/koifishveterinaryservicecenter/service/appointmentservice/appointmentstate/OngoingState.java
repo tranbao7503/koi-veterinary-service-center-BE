@@ -60,9 +60,12 @@ public class OngoingState implements AppointmentState {
         if (paymentMethod.equals(PaymentMethod.VN_PAY) && roleKey.equals("STA")) {
             status.setNote(produceLogMessage(confirmedActor, roleKey));
         }
+
         if (paymentMethod.equals(PaymentMethod.CASH) && ((roleKey.equals("STA") || roleKey.equals("VET")))) {
             status.setNote(produceLogMessage(confirmedActor, roleKey));
         }
+
+        status.setUser(confirmedActor);
         appointment.addStatus(status);
     }
 

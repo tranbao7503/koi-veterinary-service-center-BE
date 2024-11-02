@@ -265,11 +265,15 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public void cancelAppointment(Integer appointmentId) {
+
+        Integer cancelledActorId = authenticationService.getAuthenticatedUserId();
+        User cancelledActor = userService.getUserProfile(cancelledActorId);
+
         Optional<Appointment> appointment = appointmentRepository.findById(appointmentId);
         if (appointment.isEmpty())
             throw new AppointmentNotFoundException("Appointment not found with id: " + appointmentId);
 
-        if(appointment.get().getVeterinarian() != null){
+        if (appointment.get().getVeterinarian() != null) {
             Integer veterinarianId = appointment.get().getVeterinarian().getUserId();
             Integer slotId = appointment.get().getTimeSlot().getSlotId();
 
@@ -277,6 +281,8 @@ public class AppointmentServiceImpl implements AppointmentService {
             slotService.updateVeterinarianSlotsStatus(veterinarianId, slotId, SlotStatus.AVAILABLE);
         }
         appointment.get().setCurrentStatus(AppointmentStatus.CANCELED);
+
+        logToStatus(appointment.get(), cancelledActor);
 
         appointmentRepository.save(appointment.get());
 
@@ -290,7 +296,16 @@ public class AppointmentServiceImpl implements AppointmentService {
         // send email
         User customer = appointment.get().getCustomer();
         emailService.sendEmailForCancelingAppointment(appointment.get().getEmail(), "Koi fish - Thanks you", customer);
+    }
 
+    private void logToStatus(Appointment appointment, User cancelledActor) {
+        Status status = new Status();
+        status.setAppointment(appointment);
+        status.setStatusName(appointment.getCurrentStatus().toString());
+        status.setTime(LocalDateTime.now());
+        status.setNote("Staff - marked CANCELLED the appointment successfully");
+        status.setUser(cancelledActor);
+        appointment.addStatus(status);
     }
 
     @Override

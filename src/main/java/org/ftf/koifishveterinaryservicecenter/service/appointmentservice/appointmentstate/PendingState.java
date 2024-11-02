@@ -68,6 +68,7 @@ public class PendingState implements AppointmentState {
         status.setTime(LocalDateTime.now());
 
         status.setNote("Staff - " + staff.getFirstName() + " " + staff.getLastName() + " update CONFIRMED successfully");
+        status.setUser(staff);
         appointment.addStatus(status);
     }
 }
