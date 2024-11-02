@@ -1,5 +1,6 @@
 package org.ftf.koifishveterinaryservicecenter.service.fileservice;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -11,15 +12,20 @@ import java.nio.file.Paths;
 @Service
 public class FileDownloadService {
 
+
+    @Value("${backend.domain}")
+    private String backendDomain;
+
     private final String IMAGE_DIR = "src/main/resources/static/files/images";
     private final String CERTIFICATE_DIR = "src/main/resources/static/files/certificates";
 
+
     public String getImageUrl(String fileName) {
-        return "http://localhost:8080/files/images/" + fileName;
+        return backendDomain + "/files/images/" + fileName;
     }
 
     public String getCertificateUrl(String fileName) {
-        return "http://localhost:8080/files/certificates/" + fileName;
+        return backendDomain + "/files/certificates/" + fileName;
     }
 
     public Resource loadImageAsResource(String fileName) throws FileNotFoundException {

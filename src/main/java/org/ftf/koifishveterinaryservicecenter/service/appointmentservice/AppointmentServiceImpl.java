@@ -24,6 +24,7 @@ import org.ftf.koifishveterinaryservicecenter.service.slotservice.SlotService;
 import org.ftf.koifishveterinaryservicecenter.service.surchargeservice.SurchargeService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
+import org.ftf.koifishveterinaryservicecenter.service.voucherservice.VoucherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -53,6 +54,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final FeedbackService feedbackService;
     private final AppointmentStateFactory appointmentStateFactory;
     private final EmailService emailService;
+    private final VoucherService voucherService;
 
 
     @Autowired
@@ -68,7 +70,7 @@ public class AppointmentServiceImpl implements AppointmentService {
             , AddressService addressService
             , SurchargeService surchargeService
             , FishService fishService
-            , FeedbackService feedbackService, AppointmentStateFactory appointmentStateFactory, EmailService emailService) {
+            , FeedbackService feedbackService, AppointmentStateFactory appointmentStateFactory, EmailService emailService, VoucherService voucherService) {
         this.appointmentRepository = appointmentRepository;
         this.medicalReportService = medicalReportService;
         this.userService = userService;
@@ -84,6 +86,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         this.feedbackService = feedbackService;
         this.appointmentStateFactory = appointmentStateFactory;
         this.emailService = emailService;
+        this.voucherService = voucherService;
     }
 
 
@@ -130,7 +133,6 @@ public class AppointmentServiceImpl implements AppointmentService {
         return statuses;
     }
 
-
     public void createAppointment(Appointment appointment, Integer customerId) {
         // 1. online booking
         // 2. consultation at home
@@ -156,13 +158,9 @@ public class AppointmentServiceImpl implements AppointmentService {
             newAppointment.setMovingSurcharge(movingSurcharge);
         }
 
-
         // slot_id
         TimeSlot timeSlot = slotService.getTimeSlotById(appointment.getTimeSlot().getSlotId());
         newAppointment.setTimeSlot(timeSlot);
-
-        // feedback_id
-        // report_id
 
         // user_id
         User userFromDb = userService.getCustomerById(customerId);
@@ -173,8 +171,7 @@ public class AppointmentServiceImpl implements AppointmentService {
             User veterinarianFromDb = userService.getVeterinarianById(appointment.getVeterinarian().getUserId());
             newAppointment.setVeterinarian(veterinarianFromDb);
 
-            // Update Veterinarian_Slot status
-            slotService.updateVeterinarianSlotsStatus(appointment.getVeterinarian().getUserId(), timeSlot.getSlotId(), SlotStatus.BOOKED);
+            // as staff confirmed, vet_slot turns to 'BOOKED'
         }
 
         // email
@@ -197,6 +194,13 @@ public class AppointmentServiceImpl implements AppointmentService {
         if (fishId != null) {
             Fish fish = fishService.getFishById(fishId);
             newAppointment.setFish(fish);
+        }
+
+        // voucher
+        Integer voucherId = appointment.getVoucher().getId();
+        if (voucherId != null) {
+            Voucher voucher = voucherService.findVoucherById(voucherId);
+            newAppointment.setVoucher(voucher);
         }
 
         // total price
@@ -271,17 +275,47 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public void cancelAppointment(Integer appointmentId) {
+
+        Integer cancelledActorId = authenticationService.getAuthenticatedUserId();
+        User cancelledActor = userService.getUserProfile(cancelledActorId);
+
         Optional<Appointment> appointment = appointmentRepository.findById(appointmentId);
         if (appointment.isEmpty())
             throw new AppointmentNotFoundException("Appointment not found with id: " + appointmentId);
 
+        if (appointment.get().getVeterinarian() != null) {
+            Integer veterinarianId = appointment.get().getVeterinarian().getUserId();
+            Integer slotId = appointment.get().getTimeSlot().getSlotId();
+
+            // update to 'AVAILABLE' due to being cancelled
+            slotService.updateVeterinarianSlotsStatus(veterinarianId, slotId, SlotStatus.AVAILABLE);
+        }
         appointment.get().setCurrentStatus(AppointmentStatus.CANCELED);
+
+        logToStatus(appointment.get(), cancelledActor);
+
         appointmentRepository.save(appointment.get());
+
+        // Update timeslot -> available
+        Appointment existedAppointment = appointment.get();
+        slotService.updateVeterinarianSlotsStatus(
+                existedAppointment.getVeterinarian().getUserId()
+                , existedAppointment.getTimeSlot().getSlotId()
+                , SlotStatus.AVAILABLE);
 
         // send email
         User customer = appointment.get().getCustomer();
         emailService.sendEmailForCancelingAppointment(appointment.get().getEmail(), "Koi fish - Thanks you", customer);
+    }
 
+    private void logToStatus(Appointment appointment, User cancelledActor) {
+        Status status = new Status();
+        status.setAppointment(appointment);
+        status.setStatusName(appointment.getCurrentStatus().toString());
+        status.setTime(LocalDateTime.now());
+        status.setNote("Staff - marked CANCELLED the appointment successfully");
+        status.setUser(cancelledActor);
+        appointment.addStatus(status);
     }
 
     @Override
@@ -302,13 +336,12 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public void updateStatus(Integer appointmentId, AppointmentStatus updatedStatus) {
+    public void updateStatus(Integer appointmentId, AppointmentStatus updatedStatus) throws AppointmentUpdatedException {
 
         Appointment updatedAppointment = getAppointmentById(appointmentId);
 
         AppointmentContext appointmentContext = new AppointmentContext(updatedAppointment, appointmentStateFactory);
         appointmentContext.update(updatedAppointment);
-
     }
 
 
@@ -399,6 +432,19 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
+    public List<Appointment> getAllAppointmentsByFishId(Integer fishId) {
+        List<Appointment> appointments = appointmentRepository.findAppointmentByFishId(fishId);
+        if (appointments.isEmpty()) {
+            throw new AppointmentNotFoundException("Appointment not found!");
+        }
+        // Sort by newest appointment
+        appointments.sort(Comparator.comparing(Appointment::getAppointmentId).reversed());
+
+        return appointments;
+    }
+
+
+    @Override
     public Appointment getAppointmentById(Integer appointmentId) {
         Optional<Appointment> appointmentOptional = appointmentRepository.findById(appointmentId);
         if (appointmentOptional.isEmpty())
@@ -436,7 +482,9 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     private BigDecimal calculatePrice(Appointment appointment) {
         BigDecimal servicePrice = appointment.getService().getServicePrice();
-        return appointment.getMovingSurcharge() == null ? servicePrice : servicePrice.add(appointment.getMovingSurcharge().getPrice());
+        servicePrice = appointment.getMovingSurcharge() == null ? servicePrice : servicePrice.add(appointment.getMovingSurcharge().getPrice());
+        servicePrice = appointment.getVoucher() == null ? servicePrice : servicePrice.subtract(appointment.getVoucher().getDiscountAmount());
+        return servicePrice;
     }
 
     public Integer getAppointmentOwnerId(Integer appointmentId) {
@@ -444,7 +492,9 @@ public class AppointmentServiceImpl implements AppointmentService {
         return appointment.getCustomer().getUserId();
     }
 
-
+    /**
+     * Appointment can update with new slotId if new slotId is available
+     */
     private boolean isAbleToUpdateAppointment(Appointment appointment, AppointmentUpdateDto appointmentUpdateDto) throws AppointmentUpdatedException {
         LocalDateTime openingTime = appointment.getTimeSlot().getDateTimeBasedOnSlot();
         LocalDateTime now = LocalDateTime.now();
@@ -458,5 +508,6 @@ public class AppointmentServiceImpl implements AppointmentService {
                 && (appointment.getCurrentStatus().equals(AppointmentStatus.PENDING)
                 || appointment.getCurrentStatus().equals(AppointmentStatus.CONFIRMED));
     }
+
 
 }

@@ -9,7 +9,11 @@ public interface PaymentService {
 
     Payment findPaymentByAppointmentId(Integer appointmentId);
 
-    Payment updatePayment(Integer paymentId, Payment payment);
+    Payment confirmPayment(Integer paymentId, Payment payment);
 
     Payment updatePaymentForVnPay(Integer appointmentId, Date payDate, String transactionId, String description);
+
+    Payment refundPayment(Integer paymentId, Payment newPayment);
+
+    Payment findPaymentByPaymentId(Integer paymentId);
 }

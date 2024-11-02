@@ -24,4 +24,6 @@ public interface SlotService {
 
     List<TimeSlot> getBookedTimeSlots();
 
+    List<TimeSlot> getAvailableSlots();
+
 }

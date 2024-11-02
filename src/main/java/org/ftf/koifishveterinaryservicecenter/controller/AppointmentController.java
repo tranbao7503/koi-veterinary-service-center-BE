@@ -6,15 +6,18 @@ import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentDetails
 import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentDto;
 import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentForListDto;
 import org.ftf.koifishveterinaryservicecenter.dto.appointment.AppointmentUpdateDto;
-import org.ftf.koifishveterinaryservicecenter.entity.*;
+import org.ftf.koifishveterinaryservicecenter.entity.Appointment;
+import org.ftf.koifishveterinaryservicecenter.entity.MedicalReport;
+import org.ftf.koifishveterinaryservicecenter.entity.Status;
+import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.ftf.koifishveterinaryservicecenter.enums.AppointmentStatus;
-import org.ftf.koifishveterinaryservicecenter.enums.PaymentMethod;
 import org.ftf.koifishveterinaryservicecenter.exception.IllegalStateException;
 import org.ftf.koifishveterinaryservicecenter.exception.*;
 import org.ftf.koifishveterinaryservicecenter.mapper.AppointmentMapper;
 import org.ftf.koifishveterinaryservicecenter.mapper.MedicalReportMapper;
 import org.ftf.koifishveterinaryservicecenter.mapper.StatusMapper;
 import org.ftf.koifishveterinaryservicecenter.service.appointmentservice.AppointmentService;
+import org.ftf.koifishveterinaryservicecenter.service.emailservice.EmailService;
 import org.ftf.koifishveterinaryservicecenter.service.paymentservice.PaymentService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
@@ -35,14 +38,16 @@ public class AppointmentController {
     private final AuthenticationService authenticationService;
     private final UserService userService;
     private final PaymentService paymentService;
+    private final EmailService emailService;
 
 
     @Autowired
-    public AppointmentController(AppointmentService appointmentService, AuthenticationService authenticationService, UserService userService, PaymentService paymentService) {
+    public AppointmentController(AppointmentService appointmentService, AuthenticationService authenticationService, UserService userService, PaymentService paymentService, EmailService emailService) {
         this.appointmentService = appointmentService;
         this.authenticationService = authenticationService;
         this.userService = userService;
         this.paymentService = paymentService;
+        this.emailService = emailService;
     }
 
     // for Veterinarian
@@ -164,7 +169,6 @@ public class AppointmentController {
     /*
      * Actors: Customer
      * */
-
     @GetMapping("/{appointmentId}/customer")
     public ResponseEntity<?> getAppointmentForCustomer(@PathVariable("appointmentId") Integer appointmentId) {
         try {
@@ -188,7 +192,6 @@ public class AppointmentController {
     /*
      * Actors: Manager, Staff
      * */
-
     @GetMapping()
     public ResponseEntity<?> getAllAppointments() {
         try {
@@ -268,16 +271,20 @@ public class AppointmentController {
             AppointmentStatus appointmentStatus = AppointmentStatus.valueOf(updateStatus);
 
             try {
+                Appointment appointment = appointmentService.getAppointmentById(appointmentId);
+
                 appointmentService.updateStatus(appointmentId, appointmentStatus);
 
                 if (appointmentStatus.equals(AppointmentStatus.CONFIRMED)) {
                     appointmentService.updateStatus(appointmentId, AppointmentStatus.ON_GOING);
+                    // Asynchronously send the email
+                    emailService.sendAppointmentBills(appointment.getEmail(), "Koi Fish - Appointment Bills", appointment);
                 }
 
                 return new ResponseEntity<>("Status updated successfully", HttpStatus.OK);
             } catch (AppointmentNotFoundException e) {
                 return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-            } catch (IllegalStateException e) {
+            } catch (IllegalStateException | AppointmentUpdatedException e) {
                 return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
             }
         }
@@ -306,6 +313,21 @@ public class AppointmentController {
 
             return new ResponseEntity<>(appointmentDetailsDto, HttpStatus.CREATED);
         } catch (AppointmentNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/fish/{fishId}")
+    public ResponseEntity<?> getAppointmentsByFishId(@PathVariable Integer fishId) {
+        try {
+            List<Appointment> appointments = appointmentService.getAllAppointmentsByFishId(fishId);
+            List<AppointmentForListDto> appointmentForListDtos = appointments.stream().map(AppointmentMapper.INSTANCE::convertedToAppointmentDtoForList).collect(Collectors.toList());
+            return new ResponseEntity<>(appointmentForListDtos, HttpStatus.OK);
+        } catch (AppointmentNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
+        } catch (UserNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);

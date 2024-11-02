@@ -38,7 +38,7 @@ public class SlotServiceImpl implements SlotService {
 
         // Veterinarian existed
         List<TimeSlot> veterinarianSlotsList = timeSlotRepository.findByVeterinarianId(veterinarianId);
-        if (veterinarianSlotsList.isEmpty()) { // Veterianrian has no slots
+        if (veterinarianSlotsList.isEmpty()) { // Veterinarian has no slots
             throw new TimeSlotNotFoundException("Veterinarian with ID: " + veterinarianId + " has no shift schedule yet");
         } // Veterinarian having slots
 
@@ -69,15 +69,17 @@ public class SlotServiceImpl implements SlotService {
         LocalDateTime threeMonthsFromNow = LocalDateTime.now().plusMonths(3);
 
         List<TimeSlot> availableTimeSlot = timeSlotRepository.getAvailableTimeSlot();
-        return availableTimeSlot.stream().filter(timeSlot -> timeSlot.getDateTimeBasedOnSlot().isAfter(threeHoursFromNow) && timeSlot.getDateTimeBasedOnSlot().isBefore(threeMonthsFromNow)).toList();
+        return availableTimeSlot.stream().filter(timeSlot -> timeSlot.getDateTimeBasedOnSlot().isAfter(threeHoursFromNow) && timeSlot.getDateTimeBasedOnSlot().isBefore(threeMonthsFromNow) && hasAvailableVeterinarian(timeSlot.getSlotId())).toList();
 
     }
 
     @Override
     public List<VeterinarianSlots> getVeterinarianSlotsBySlotId(Integer slotId) {
-        TimeSlot timeSlot = getTimeSlotById(slotId);
-        List<VeterinarianSlots> veterinarianSlots = veterinarianSlotsRepository.getAvailableSlotsBySlotId(SlotStatus.AVAILABLE, timeSlot.getSlotId());
-        return veterinarianSlots;
+        return veterinarianSlotsRepository.getAvailableSlotsBySlotId(SlotStatus.AVAILABLE, slotId);
+    }
+
+    private boolean hasAvailableVeterinarian(Integer slotId) {
+        return !getVeterinarianSlotsBySlotId(slotId).isEmpty();
     }
 
 
@@ -150,9 +152,40 @@ public class SlotServiceImpl implements SlotService {
         if (timeSlots.isEmpty()) { // Not found
             throw new TimeSlotNotFoundException("There are no booked slots");
         }
-
         return timeSlots;
     }
 
+    @Override   // get all available slots prior to current_time 3 hours
+    public List<TimeSlot> getAvailableSlots() {
+
+        LocalDateTime currentDate = LocalDateTime.now();
+        LocalDateTime threeHoursFromNow = currentDate.plusHours(3);
+        Integer nextThreeHour = threeHoursFromNow.getHour();
+        Integer nextSlot = 1;
+        if (nextThreeHour <= 10) {
+            nextSlot = 2;
+        } else if (nextThreeHour <= 13) {
+            nextSlot = 3;
+        } else if (nextThreeHour <= 15) {
+            nextSlot = 4;
+        } else {
+            currentDate = currentDate.plusDays(1);
+        }
+
+        Integer currentYear = currentDate.getYear();
+        Integer currentMonth = currentDate.getMonthValue();
+        Integer currentDay = currentDate.getDayOfMonth();
+
+        LocalDateTime endDate = currentDate.plusDays(30);
+        Integer endYear = endDate.getYear();
+        Integer endMonth = endDate.getMonthValue();
+        Integer endDay = endDate.getDayOfMonth();
+
+        List<TimeSlot> timeSlots = timeSlotRepository.findAvailableTimeSlot(currentYear, currentMonth, currentDay, nextSlot, endYear, endMonth, endDay);
+        if (timeSlots.isEmpty()) {
+            throw new TimeSlotNotFoundException("There are no available slots");
+        }
+        return timeSlots;
+    }
 
 }

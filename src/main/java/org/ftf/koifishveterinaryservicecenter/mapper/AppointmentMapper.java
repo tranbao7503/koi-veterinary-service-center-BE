@@ -27,6 +27,7 @@ public interface AppointmentMapper {
     @Mapping(source = "phoneNumber", target = "phoneNumber")
     @Mapping(source = "email", target = "email")
     @Mapping(source = "fishId", target = "fish.fishId", conditionExpression = "java(appointmentDto.getFishId() != null)")
+    @Mapping(source = "voucherId", target = "voucher.id", conditionExpression = "java(appointmentDto.getVoucherId() != null)")
     @Mapping(source = "description", target = "description")
     @Mapping(source = "payment", target = "payment", qualifiedByName = "convertToEntity")
     Appointment convertedToAppointment(AppointmentDto appointmentDto);
@@ -38,6 +39,7 @@ public interface AppointmentMapper {
     @Mapping(source = "timeSlot", target = "timeSlot", qualifiedByName = "convertToAvailableTimeSlotDto")
     @Mapping(source = "followUpAppointment.appointmentId", target = "followUpAppointmentId")
     @Mapping(source = "feedback.feedbackId", target = "feedbackId")
+    @Mapping(source = "voucher.discountAmount", target = "discount")
     @Mapping(target = "veterinarian.username", ignore = true)
     @Mapping(target = "veterinarian.password", ignore = true)
     @Mapping(target = "veterinarian.avatar", ignore = true)

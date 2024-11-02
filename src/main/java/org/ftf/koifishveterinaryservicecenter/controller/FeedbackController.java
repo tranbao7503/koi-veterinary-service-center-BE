@@ -143,6 +143,9 @@ public class FeedbackController {
             if (!appointment.getCustomer().getUserId().equals(authenticationService.getAuthenticatedUserId())) {
                 return new ResponseEntity<>(HttpStatus.FORBIDDEN);
             }
+            if (appointment.getTimeSlot().getDaysUntilNow() > 7) {
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            }
             Feedback feedback = FeedbackMapper.INSTANCE.convertFeedbackDtoToFeedback(feedbackDto);
             Feedback newFeedback = appointmentService.createFeedback(appointmentId, feedback);
             FeedbackDto newFeedbackDto = FeedbackMapper.INSTANCE.feedbackToFeedbackDto(newFeedback);

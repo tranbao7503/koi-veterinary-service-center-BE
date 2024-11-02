@@ -139,6 +139,13 @@ public class Appointment {
     @OneToMany(mappedBy = "appointment", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Status> statuses = new LinkedHashSet<>();
 
+    // Bidirectional, non-identifying relationship
+    // Owning side: Appointment
+    // Inverse side: Voucher
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "voucher_id", nullable = true, referencedColumnName = "voucher_id")
+    private Voucher voucher;
+
 
     public void addStatus(Status status) {
         status.setAppointment(this);
