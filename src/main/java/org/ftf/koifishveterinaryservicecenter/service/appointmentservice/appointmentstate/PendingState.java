@@ -12,6 +12,7 @@ import org.ftf.koifishveterinaryservicecenter.exception.AppointmentUpdatedExcept
 import org.ftf.koifishveterinaryservicecenter.exception.IllegalStateException;
 import org.ftf.koifishveterinaryservicecenter.repository.AppointmentRepository;
 import org.ftf.koifishveterinaryservicecenter.service.slotservice.SlotService;
+import org.ftf.koifishveterinaryservicecenter.service.statusservice.StatusService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
 import org.springframework.stereotype.Service;
@@ -26,12 +27,14 @@ public class PendingState implements AppointmentState {
     private final UserService userService;
     private final AppointmentRepository appointmentRepository;
     private final SlotService slotService;
+    private final StatusService statusService;
 
-    public PendingState(AuthenticationService authenticationService, UserService userService, AppointmentRepository appointmentRepository, SlotService slotService) {
+    public PendingState(AuthenticationService authenticationService, UserService userService, AppointmentRepository appointmentRepository, SlotService slotService, StatusService statusService) {
         this.authenticationService = authenticationService;
         this.userService = userService;
         this.appointmentRepository = appointmentRepository;
         this.slotService = slotService;
+        this.statusService = statusService;
     }
 
     @Override
@@ -56,19 +59,10 @@ public class PendingState implements AppointmentState {
         Integer staffId = authenticationService.getAuthenticatedUserId();
         User staff = userService.getUserProfile(staffId);
 
-        // insert to Status table
-        logToStatus(appointment, staff);
+        // Staff log confirmed
+        statusService.staffLogConfirmedAppointment(appointment, staff);
         appointmentRepository.save(appointment);
     }
 
-    private void logToStatus(Appointment appointment, User staff) {
-        Status status = new Status();
-        status.setAppointment(appointment);
-        status.setStatusName(appointment.getCurrentStatus().toString());
-        status.setTime(LocalDateTime.now());
 
-        status.setNote("Staff - " + staff.getFirstName() + " " + staff.getLastName() + " update CONFIRMED successfully");
-        status.setUser(staff);
-        appointment.addStatus(status);
-    }
 }

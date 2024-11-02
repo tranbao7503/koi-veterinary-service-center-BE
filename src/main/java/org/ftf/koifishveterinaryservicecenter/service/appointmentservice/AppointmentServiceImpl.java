@@ -434,7 +434,6 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
 
-
     @Override
     public Appointment getAppointmentById(Integer appointmentId) {
         Optional<Appointment> appointmentOptional = appointmentRepository.findById(appointmentId);

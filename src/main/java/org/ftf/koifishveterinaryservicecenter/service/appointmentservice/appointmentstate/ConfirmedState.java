@@ -4,6 +4,7 @@ import org.ftf.koifishveterinaryservicecenter.entity.Appointment;
 import org.ftf.koifishveterinaryservicecenter.entity.Status;
 import org.ftf.koifishveterinaryservicecenter.enums.AppointmentStatus;
 import org.ftf.koifishveterinaryservicecenter.repository.AppointmentRepository;
+import org.ftf.koifishveterinaryservicecenter.service.statusservice.StatusService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -13,9 +14,11 @@ public class ConfirmedState implements AppointmentState {
 
 
     private final AppointmentRepository appointmentRepository;
+    private final StatusService statusService;
 
-    public ConfirmedState(AppointmentRepository appointmentRepository) {
+    public ConfirmedState(AppointmentRepository appointmentRepository, StatusService statusService) {
         this.appointmentRepository = appointmentRepository;
+        this.statusService = statusService;
     }
 
     @Override
@@ -24,17 +27,8 @@ public class ConfirmedState implements AppointmentState {
         // set a new status for the appointment
         appointment.setCurrentStatus(AppointmentStatus.ON_GOING);
 
-        // logging to Status code
-        logToStatus(appointment);
+        // system logs ongoing
+        statusService.systemLogOngoingAppointment(appointment);
         appointmentRepository.save(appointment);
-    }
-
-    private void logToStatus(Appointment appointment) {
-        Status status = new Status();
-        status.setAppointment(appointment);
-        status.setStatusName(appointment.getCurrentStatus().toString());
-        status.setTime(LocalDateTime.now());
-        status.setNote("System - marked ON_GOING the appointment successfully");
-        appointment.addStatus(status);
     }
 }
