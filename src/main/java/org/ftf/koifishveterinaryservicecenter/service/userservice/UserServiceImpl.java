@@ -1,8 +1,9 @@
 package org.ftf.koifishveterinaryservicecenter.service.userservice;
 
+import org.ftf.koifishveterinaryservicecenter.dto.FeedbackDto;
 import org.ftf.koifishveterinaryservicecenter.dto.UserDTO;
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
-import org.ftf.koifishveterinaryservicecenter.entity.Meeting;
+import org.ftf.koifishveterinaryservicecenter.entity.Feedback;
 import org.ftf.koifishveterinaryservicecenter.entity.Role;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.ftf.koifishveterinaryservicecenter.enums.PaymentMethod;
@@ -20,9 +21,11 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -693,5 +696,25 @@ public class UserServiceImpl implements UserService {
         return Optional.of(veterinarian.getMeeting().getLinkMeet());
     }
 
+    @Override
+    public BigDecimal getAverageRatingForService(Integer serviceId) {
+        return feedbackRepository.findAverageRatingByServiceId(serviceId);
+    }
+
+    @Override
+    public List<FeedbackDto> getFeedbacksAboveRatingForService(Integer serviceId) {
+        List<Feedback> feedbacks = feedbackRepository.findFeedbacksAboveRatingByServiceId(serviceId);
+        return feedbacks.stream()
+                .map(feedback -> {
+                    FeedbackDto dto = new FeedbackDto();
+                    dto.setFeedbackId(feedback.getFeedbackId());
+                    dto.setRating(feedback.getRating());
+                    dto.setComment(feedback.getComment());
+                    dto.setDatetime(feedback.getDatetime());
+                    // Có thể thêm các thuộc tính khác nếu cần
+                    return dto;
+                })
+                .collect(Collectors.toList());
+    }
 
 }
