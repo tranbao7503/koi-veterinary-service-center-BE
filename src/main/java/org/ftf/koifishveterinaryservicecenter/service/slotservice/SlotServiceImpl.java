@@ -38,7 +38,7 @@ public class SlotServiceImpl implements SlotService {
 
         // Veterinarian existed
         List<TimeSlot> veterinarianSlotsList = timeSlotRepository.findByVeterinarianId(veterinarianId);
-        if (veterinarianSlotsList.isEmpty()) { // Veterianrian has no slots
+        if (veterinarianSlotsList.isEmpty()) { // Veterinarian has no slots
             throw new TimeSlotNotFoundException("Veterinarian with ID: " + veterinarianId + " has no shift schedule yet");
         } // Veterinarian having slots
 
@@ -75,12 +75,11 @@ public class SlotServiceImpl implements SlotService {
 
     @Override
     public List<VeterinarianSlots> getVeterinarianSlotsBySlotId(Integer slotId) {
-        List<VeterinarianSlots> veterinarianSlots = veterinarianSlotsRepository.getAvailableSlotsBySlotId(SlotStatus.AVAILABLE, slotId);
-        return veterinarianSlots;
+        return veterinarianSlotsRepository.getAvailableSlotsBySlotId(SlotStatus.AVAILABLE, slotId);
     }
 
     private boolean hasAvailableVeterinarian(Integer slotId){
-        return getVeterinarianSlotsBySlotId(slotId).size() > 0;
+        return !getVeterinarianSlotsBySlotId(slotId).isEmpty();
     }
 
 

@@ -62,6 +62,7 @@ public class CheckInState implements AppointmentState {
         status.setStatusName(appointment.getCurrentStatus().toString());
         status.setTime(LocalDateTime.now());
         status.setNote("Veterinarian - " + veterinarian.getFirstName() + " " + veterinarian.getLastName() + " marked DONE the appointment successfully");
+        status.setUser(veterinarian);
         appointment.addStatus(status);
     }
 
