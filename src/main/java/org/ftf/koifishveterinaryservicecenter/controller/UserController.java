@@ -27,7 +27,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
@@ -377,17 +376,9 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    //lay ra trung binh rating cua tung service
-    @GetMapping("/average-rating/{serviceId}")
-    public BigDecimal getAverageRating(@PathVariable Integer serviceId) {
-        return userService.getAverageRatingForService(serviceId);
+    //trung binh rating tung bac si
+    @GetMapping("/{veterinarianId}/average-rating")
+    public Double getAverageRating(@PathVariable Integer veterinarianId) {
+        return userService.getAverageRatingForVeterinarian(veterinarianId);
     }
-
-    //Lay ra nhung feedback tot cua tung service
-    @GetMapping("/service/{serviceId}")
-    public ResponseEntity<List<FeedbackDto>> getFeedbacksByService(@PathVariable Integer serviceId) {
-        List<FeedbackDto> feedbacks = userService.getFeedbacksAboveRatingForService(serviceId);
-        return ResponseEntity.ok(feedbacks);
-    }
-
 }

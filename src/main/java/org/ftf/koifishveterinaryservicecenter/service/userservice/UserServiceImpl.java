@@ -669,20 +669,11 @@ public class UserServiceImpl implements UserService {
         int currentQuarter = (currentMonth - 1) / 3 + 1;
         long totalFeedbackThisQuarter = feedbackRepository.countFeedbackByQuarter(currentQuarter, currentYear);
 
-        // Tính số sao trung bình của từng bác sĩ
-        List<Object[]> averageRatings = feedbackRepository.averageRatingPerVet();
-        Map<Integer, Double> averageRatingMap = new HashMap<>();
-        for (Object[] rating : averageRatings) {
-            Integer vetId = (Integer) rating[0];
-            Double averageRating = (Double) rating[1];
-            averageRatingMap.put(vetId, averageRating);
-        }
 
         // Thêm các giá trị vào map feedbackStatistics
         feedbackStatistics.put("totalFeedbackToday", totalFeedbackToday);
         feedbackStatistics.put("totalFeedbackThisMonth", totalFeedbackThisMonth);
         feedbackStatistics.put("totalFeedbackThisQuarter", totalFeedbackThisQuarter);
-        feedbackStatistics.put("averageRatingPerVet", averageRatingMap);
 
         return feedbackStatistics;
     }
@@ -714,6 +705,11 @@ public class UserServiceImpl implements UserService {
                     return dto;
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Double getAverageRatingForVeterinarian(Integer veterinarianId) {
+        return feedbackRepository.findAverageRatingByVeterinarianId(veterinarianId);
     }
 
 }
