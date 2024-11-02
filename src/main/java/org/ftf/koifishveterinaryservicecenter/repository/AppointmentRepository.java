@@ -20,7 +20,6 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Intege
 
     long countByService_ServiceId(long serviceId);
 
-
     @Query("SELECT COUNT(a) FROM Appointment a WHERE a.service.serviceId = :serviceId AND DATE(a.createdDate) = CURRENT_DATE")
     long countByService_ServiceIdToday(@Param("serviceId") long serviceId);
 
@@ -37,6 +36,9 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Intege
 
     @Query("SELECT a FROM Appointment a WHERE a.fish.fishId = :fishId")
     List<Appointment> findAppointmentByFishId(Integer fishId);
+
+    @Query("SELECT a FROM Appointment a WHERE a.veterinarian.userId = :veterinarianId AND a.timeSlot.slotId = :slotId")
+    Appointment findAppointmentByVeterinarianIdAndSlotId(Integer veterinarianId, Integer slotId);
 
 }
 

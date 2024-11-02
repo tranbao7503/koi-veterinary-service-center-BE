@@ -252,8 +252,16 @@ public class AppointmentServiceImpl implements AppointmentService {
             if (isAbleToUpdateAppointment(bookedAppointment, appointmentDto)) {
                 // update slot Id
                 if (appointmentDto.getSlotId() != null) {
+                    slotService.updateVeterinarianSlotsStatus(bookedAppointment.getVeterinarian().getUserId(), bookedAppointment.getTimeSlot().getSlotId(), SlotStatus.AVAILABLE);
+
                     TimeSlot newTimeSlot = slotService.getTimeSlotById(appointmentDto.getSlotId());
                     bookedAppointment.setTimeSlot(newTimeSlot);
+                }
+
+                if (appointmentDto.getVeterinarianId() != null){
+
+                    User veterinarian = userService.getVeterinarianById(appointmentDto.getVeterinarianId());
+                    bookedAppointment.setVeterinarian(veterinarian);
                 }
 
                 // update email
@@ -420,10 +428,6 @@ public class AppointmentServiceImpl implements AppointmentService {
         // Set follow-up appointment for main appointment
         appointment.setFollowUpAppointment(savedFollowUpAppointment);
 
-        // Update status
-//        Integer followUpAppointmentAppointmentId = savedFollowUpAppointment.getAppointmentId();
-//        this.updateStatus(followUpAppointmentAppointmentId, AppointmentStatus.CONFIRMED);
-//        this.updateStatus(followUpAppointmentAppointmentId, AppointmentStatus.ON_GOING);
 
         // Update Veterinarian_Slot status
         slotService.updateVeterinarianSlotsStatus(veterinarianId, slotId, SlotStatus.BOOKED);
@@ -441,6 +445,15 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointments.sort(Comparator.comparing(Appointment::getAppointmentId).reversed());
 
         return appointments;
+    }
+
+    @Override
+    public void unAssignedVeterinarianOnSlot(Integer veterinarianId, Integer slotId) {
+        Appointment appointment = appointmentRepository.findAppointmentByVeterinarianIdAndSlotId(veterinarianId, slotId);
+        if (appointment == null)
+            throw new TimeSlotNotFoundException("TimeSlot not found with id: " + slotId);
+        appointment.setVeterinarian(null);
+        appointmentRepository.save(appointment);
     }
 
 
@@ -479,6 +492,9 @@ public class AppointmentServiceImpl implements AppointmentService {
             veterinarianSlotsRepository.save(veterinarianSlot);
         }
     }
+
+
+
 
     private BigDecimal calculatePrice(Appointment appointment) {
         BigDecimal servicePrice = appointment.getService().getServicePrice();
