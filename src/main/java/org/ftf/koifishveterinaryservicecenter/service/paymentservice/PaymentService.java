@@ -14,4 +14,6 @@ public interface PaymentService {
     Payment updatePaymentForVnPay(Integer appointmentId, Date payDate, String transactionId, String description);
 
     Payment refundPayment(Integer paymentId, Payment newPayment);
+
+    Payment findPaymentByPaymentId(Integer paymentId);
 }
