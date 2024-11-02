@@ -8,6 +8,7 @@ import org.ftf.koifishveterinaryservicecenter.enums.AppointmentStatus;
 import org.ftf.koifishveterinaryservicecenter.enums.PaymentMethod;
 import org.ftf.koifishveterinaryservicecenter.enums.PaymentStatus;
 import org.ftf.koifishveterinaryservicecenter.exception.AppointmentNotFoundException;
+import org.ftf.koifishveterinaryservicecenter.exception.AppointmentUpdatedException;
 import org.ftf.koifishveterinaryservicecenter.exception.PaymentNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.PaymentMapper;
 import org.ftf.koifishveterinaryservicecenter.service.appointmentservice.AppointmentService;
@@ -16,6 +17,7 @@ import org.ftf.koifishveterinaryservicecenter.service.paymentservice.PaymentServ
 import org.ftf.koifishveterinaryservicecenter.service.paymentservice.VnPayService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,6 +37,9 @@ public class PaymentController {
     private final AuthenticationService authenticationService;
     private final VnPayService vnPayService;
     private final EmailService emailService;
+
+    @Value("${frontend.domain}")
+    private String frontendDomain;
 
     @Autowired
     public PaymentController(
@@ -78,10 +83,11 @@ public class PaymentController {
     }
 
     /*
+     * Confirm payment of customer when pay in cash
      * Actors: Staff
      * */
-    @PutMapping("/{appointmentId}")
-    public ResponseEntity<?> updatePayment(
+    @PutMapping("/{appointmentId}/confirm")
+    public ResponseEntity<?> confirmPayment(
             @PathVariable("appointmentId") Integer appointmentId
             , @RequestBody PaymentDto paymentDto) {
         try {
@@ -89,10 +95,34 @@ public class PaymentController {
 
             Payment payment = PaymentMapper.INSTANCE.convertToFullEntity(paymentDto);
 
-            PaymentDto updatedPaymentDto = PaymentMapper.INSTANCE.convertToDto(paymentService.updatePayment(appointment.getPayment().getPaymentId(), payment));
-
-            //appointmentService.updateStatus(appointmentId, AppointmentStatus.ON_GOING);
+            PaymentDto updatedPaymentDto = PaymentMapper.INSTANCE.convertToDto(paymentService.confirmPayment(appointment.getPayment().getPaymentId(), payment));
             appointmentService.updateStatus(appointmentId, AppointmentStatus.CHECKED_IN);
+
+            return new ResponseEntity<>(updatedPaymentDto, HttpStatus.OK);
+
+        } catch (AppointmentNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (PaymentNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
+        } catch (AppointmentUpdatedException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    /*
+     * Refund payment for customer
+     * Actors: Staff
+     * */
+    @PutMapping("/{appointmentId}/refund")
+    public ResponseEntity<?> refundPayment(
+            @PathVariable("appointmentId") Integer appointmentId
+            , @RequestBody PaymentDto paymentDto) {
+        try {
+            Appointment appointment = appointmentService.getAppointmentById(appointmentId);
+
+            Payment payment = PaymentMapper.INSTANCE.convertToFullEntity(paymentDto);
+
+            PaymentDto updatedPaymentDto = PaymentMapper.INSTANCE.convertToDto(paymentService.refundPayment(appointment.getPayment().getPaymentId(), payment));
 
             return new ResponseEntity<>(updatedPaymentDto, HttpStatus.OK);
 
@@ -140,11 +170,11 @@ public class PaymentController {
     @GetMapping("/vnpay-notify")
     public void handleVnPayNotify(
             @RequestParam Map<String, String> vnpParams
-            , HttpServletResponse response) throws IOException {
+            , HttpServletResponse response) throws IOException, AppointmentUpdatedException {
         try {
 
             if (!vnPayService.verifySignature(vnpParams)) { // Verify Hash
-                response.sendRedirect("http://koi-fish-veterinary-interface.s3-website-ap-southeast-1.amazonaws.com/my-appointment"); // Redirect to an error page on the FE
+                response.sendRedirect(frontendDomain + "/my-appointment"); // Redirect to an error page on the FE
                 return;
             }
 
@@ -172,15 +202,15 @@ public class PaymentController {
 
                 Appointment appointment = appointmentService.getAppointmentById(appointmentId);
 
-                // Asynchronously send the email
-                emailService.sendAppointmentBills(appointment.getEmail(), "Koi Fish - Appointment Bills", appointment);
+                System.out.println("Check point");
 
-                response.sendRedirect("http://koi-fish-veterinary-interface.s3-website-ap-southeast-1.amazonaws.com/my-appointment"); // Redirect to appointment details page of FE
+
+                response.sendRedirect(frontendDomain + "/my-appointment"); // Redirect to appointment details page of FE
             } else {
-                response.sendRedirect("http://koi-fish-veterinary-interface.s3-website-ap-southeast-1.amazonaws.com/my-appointment" + appointmentId);
+                response.sendRedirect(frontendDomain + "/my-appointment" + appointmentId);
             }
         } catch (Exception e) {
-            response.sendRedirect("http://koi-fish-veterinary-interface.s3-website-ap-southeast-1.amazonaws.com/my-appointment");
+            response.sendRedirect(frontendDomain + "/my-appointment");
         }
     }
 }

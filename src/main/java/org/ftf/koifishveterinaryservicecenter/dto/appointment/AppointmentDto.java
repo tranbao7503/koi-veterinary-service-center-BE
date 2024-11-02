@@ -38,6 +38,9 @@ public class AppointmentDto extends AppointmentBaseDto {
     @JsonProperty("fish_id")
     private Integer fishId;
 
+    @JsonProperty("voucher_id")
+    private Integer voucherId;
+
     @JsonProperty("total_price")
     private BigDecimal totalPrice;
 

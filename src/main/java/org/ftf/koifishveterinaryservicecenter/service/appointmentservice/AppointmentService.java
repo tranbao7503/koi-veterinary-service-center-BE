@@ -37,8 +37,9 @@ public interface AppointmentService {
 
     Feedback createFeedback(Integer appointmentId, Feedback feedback);
 
-    void updateStatus(Integer appointmentId, AppointmentStatus status);
+    void updateStatus(Integer appointmentId, AppointmentStatus status) throws AppointmentUpdatedException;
 
     Appointment createFollowUpAppointment(Integer appointmentId, Appointment newAppointment);
 
+    List<Appointment> getAllAppointmentsByFishId(Integer fishId);
 }

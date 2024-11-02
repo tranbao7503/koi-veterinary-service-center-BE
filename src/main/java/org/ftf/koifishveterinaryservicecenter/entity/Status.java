@@ -3,7 +3,6 @@ package org.ftf.koifishveterinaryservicecenter.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.ftf.koifishveterinaryservicecenter.enums.AppointmentStatus;
 
 import java.time.LocalDateTime;
 
@@ -18,9 +17,9 @@ public class Status {
     @Column(name = "status_id", nullable = false)
     private Integer statusId;
 
-    @Enumerated(EnumType.STRING)
+    //    @Enumerated(EnumType.STRING)
     @Column(name = "status_name", nullable = false)
-    private AppointmentStatus statusName;
+    private String statusName;
 
     @Column(name = "time", nullable = false, columnDefinition = "DATETIME")
     private LocalDateTime time;
@@ -35,6 +34,13 @@ public class Status {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "appointment_id", nullable = false, referencedColumnName = "appointment_id")
     private Appointment appointment;
+
+    // Unidirectional, non-identifying relationship
+    // Owning side: Status
+    // Inverse side: User
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "user_id", nullable = true, referencedColumnName = "user_id")
+    private User user;
 
 
 }

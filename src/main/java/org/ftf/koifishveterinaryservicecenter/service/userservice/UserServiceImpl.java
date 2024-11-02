@@ -442,7 +442,6 @@ public class UserServiceImpl implements UserService {
     }
 
 
-
     @Override
     public UserDTO updatePassword(String newPassword) {
         // Lấy userId từ token

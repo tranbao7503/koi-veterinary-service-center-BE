@@ -5,6 +5,7 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import jakarta.annotation.PostConstruct;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.ftf.koifishveterinaryservicecenter.dto.*;
@@ -54,6 +55,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     private final OutboundUserClient outboundUserClient;
 
+    @Value("${frontend.domain}")
+    private String frontendDomain;
 
     @NonFinal
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
@@ -65,8 +68,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     protected String CLIENT_SECRET;
 
     @NonFinal
+    protected String REDIRECT_URI;
 
-    protected String REDIRECT_URI = "http://koi-fish-veterinary-interface.s3-website-ap-southeast-1.amazonaws.com/authenticate";
+    @PostConstruct
+    public void init() {
+        REDIRECT_URI = frontendDomain + "/authenticate";
+    }
 
     @NonFinal
     protected String GRANT_TYPE = "authorization_code";
