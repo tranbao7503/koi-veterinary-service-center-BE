@@ -1,7 +1,6 @@
 package org.ftf.koifishveterinaryservicecenter.service.appointmentservice.appointmentstate;
 
 import org.ftf.koifishveterinaryservicecenter.entity.Appointment;
-import org.ftf.koifishveterinaryservicecenter.entity.Status;
 import org.ftf.koifishveterinaryservicecenter.entity.TimeSlot;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.ftf.koifishveterinaryservicecenter.enums.AppointmentStatus;
@@ -17,8 +16,6 @@ import org.ftf.koifishveterinaryservicecenter.service.userservice.Authentication
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
 
 @Service
 public class PendingState implements AppointmentState {

@@ -1,7 +1,6 @@
 package org.ftf.koifishveterinaryservicecenter.service.fileservice;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;

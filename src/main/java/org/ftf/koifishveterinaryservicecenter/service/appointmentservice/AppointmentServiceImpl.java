@@ -494,7 +494,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     /**
      * Appointment can update with new slotId if new slotId is available
-     * */
+     */
     private boolean isAbleToUpdateAppointment(Appointment appointment, AppointmentUpdateDto appointmentUpdateDto) throws AppointmentUpdatedException {
         LocalDateTime openingTime = appointment.getTimeSlot().getDateTimeBasedOnSlot();
         LocalDateTime now = LocalDateTime.now();

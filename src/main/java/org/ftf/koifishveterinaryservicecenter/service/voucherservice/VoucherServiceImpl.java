@@ -60,7 +60,7 @@ public class VoucherServiceImpl implements VoucherService {
     public Integer addVoucherForCustomer(Integer customerId, Integer voucherId) throws VoucherNotFoundException {
         Voucher voucher = this.findVoucherById(voucherId);
         User customer = userService.getCustomerById(customerId);
-                UserVoucherId userVoucherId = new UserVoucherId();
+        UserVoucherId userVoucherId = new UserVoucherId();
         userVoucherId.setUserId(customerId);
         userVoucherId.setVoucherId(voucherId);
         Optional<UserVoucher> optionalUserVoucher = userVoucherRepository.findById(userVoucherId);

@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface FeedbackRepository extends JpaRepository<Feedback, Integer> {
@@ -31,6 +32,14 @@ public interface FeedbackRepository extends JpaRepository<Feedback, Integer> {
 
     @Query("SELECT f.veterinarian.id, AVG(f.rating) FROM Feedback f GROUP BY f.veterinarian.id")
     List<Object[]> averageRatingPerVet();
+
+    @Query("SELECT AVG(f.rating) FROM Feedback f JOIN f.appointment a WHERE a.service.serviceId = :serviceId")
+    BigDecimal findAverageRatingByServiceId(@Param("serviceId") Integer serviceId);
+
+    @Query("SELECT f FROM Feedback f JOIN f.appointment a WHERE a.service.serviceId = :serviceId AND f.rating > 4")
+    List<Feedback> findFeedbacksAboveRatingByServiceId(@Param("serviceId") Integer serviceId);
+
+
 
 
 }

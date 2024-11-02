@@ -12,7 +12,6 @@ import org.ftf.koifishveterinaryservicecenter.exception.UserNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.mapper.FeedbackMapper;
 import org.ftf.koifishveterinaryservicecenter.service.appointmentservice.AppointmentService;
 import org.ftf.koifishveterinaryservicecenter.service.feedbackservice.FeedbackService;
-import org.ftf.koifishveterinaryservicecenter.service.slotservice.SlotService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
 import org.springframework.http.HttpStatus;
@@ -147,7 +146,7 @@ public class FeedbackController {
             if (appointment.getTimeSlot().getDaysUntilNow() > 7) {
                 return new ResponseEntity<>(HttpStatus.FORBIDDEN);
             }
-                Feedback feedback = FeedbackMapper.INSTANCE.convertFeedbackDtoToFeedback(feedbackDto);
+            Feedback feedback = FeedbackMapper.INSTANCE.convertFeedbackDtoToFeedback(feedbackDto);
             Feedback newFeedback = appointmentService.createFeedback(appointmentId, feedback);
             FeedbackDto newFeedbackDto = FeedbackMapper.INSTANCE.feedbackToFeedbackDto(newFeedback);
             return new ResponseEntity<>(newFeedbackDto, HttpStatus.CREATED);

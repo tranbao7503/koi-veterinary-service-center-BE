@@ -1,11 +1,13 @@
 package org.ftf.koifishveterinaryservicecenter.service.userservice;
 
+import org.ftf.koifishveterinaryservicecenter.dto.FeedbackDto;
 import org.ftf.koifishveterinaryservicecenter.dto.UserDTO;
 import org.ftf.koifishveterinaryservicecenter.entity.Address;
 import org.ftf.koifishveterinaryservicecenter.entity.User;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -72,4 +74,8 @@ public interface UserService {
 
     void createPassword(String password);
 
+    BigDecimal getAverageRatingForService(Integer serviceId);
+
+
+    List<FeedbackDto> getFeedbacksAboveRatingForService(Integer serviceId);
 }

@@ -1,5 +1,6 @@
 package org.ftf.koifishveterinaryservicecenter.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -52,6 +53,7 @@ public class Feedback {
     // Bidirectional, non-identifying relationship
     // Owning side: Appointment
     // Inverse side: Feedback
+    @JsonIgnore
     @OneToOne(mappedBy = "feedback", fetch = FetchType.LAZY)
     private Appointment appointment;
 

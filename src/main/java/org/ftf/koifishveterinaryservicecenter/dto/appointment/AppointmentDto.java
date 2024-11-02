@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.ftf.koifishveterinaryservicecenter.dto.PaymentDto;
-import org.ftf.koifishveterinaryservicecenter.entity.Voucher;
 
 import java.math.BigDecimal;
 

@@ -78,7 +78,7 @@ public class SlotServiceImpl implements SlotService {
         return veterinarianSlotsRepository.getAvailableSlotsBySlotId(SlotStatus.AVAILABLE, slotId);
     }
 
-    private boolean hasAvailableVeterinarian(Integer slotId){
+    private boolean hasAvailableVeterinarian(Integer slotId) {
         return !getVeterinarianSlotsBySlotId(slotId).isEmpty();
     }
 
@@ -162,11 +162,11 @@ public class SlotServiceImpl implements SlotService {
         LocalDateTime threeHoursFromNow = currentDate.plusHours(3);
         Integer nextThreeHour = threeHoursFromNow.getHour();
         Integer nextSlot = 1;
-        if (nextThreeHour <= 10){
+        if (nextThreeHour <= 10) {
             nextSlot = 2;
-        } else if (nextThreeHour <= 13){
+        } else if (nextThreeHour <= 13) {
             nextSlot = 3;
-        } else if (nextThreeHour <= 15){
+        } else if (nextThreeHour <= 15) {
             nextSlot = 4;
         } else {
             currentDate = currentDate.plusDays(1);

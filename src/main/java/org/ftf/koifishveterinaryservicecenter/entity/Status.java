@@ -3,8 +3,6 @@ package org.ftf.koifishveterinaryservicecenter.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.ftf.koifishveterinaryservicecenter.enums.AppointmentStatus;
-import org.ftf.koifishveterinaryservicecenter.enums.LogStatus;
 
 import java.time.LocalDateTime;
 
@@ -19,7 +17,7 @@ public class Status {
     @Column(name = "status_id", nullable = false)
     private Integer statusId;
 
-//    @Enumerated(EnumType.STRING)
+    //    @Enumerated(EnumType.STRING)
     @Column(name = "status_name", nullable = false)
     private String statusName;
 

@@ -4,7 +4,6 @@ import org.assertj.core.api.Assertions;
 import org.ftf.koifishveterinaryservicecenter.entity.TimeSlot;
 import org.ftf.koifishveterinaryservicecenter.entity.veterinarian_slots.VeterinarianSlots;
 import org.ftf.koifishveterinaryservicecenter.enums.SlotStatus;
-import org.ftf.koifishveterinaryservicecenter.exception.TimeSlotNotFoundException;
 import org.ftf.koifishveterinaryservicecenter.repository.TimeSlotRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.VeterinarianSlotsRepository;
 import org.junit.jupiter.api.Test;
@@ -15,7 +14,6 @@ import org.springframework.test.annotation.Rollback;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -36,10 +34,8 @@ public class VeterinarianSlotsRepositoryTests {
     }
 
 
-
-
     @Test
-    public void testGetAllAvailableSlotsSuccess(){
+    public void testGetAllAvailableSlotsSuccess() {
         LocalDateTime threeHoursFromNow = LocalDateTime.now().plusHours(3);
         LocalDateTime threeMonthsFromNow = LocalDateTime.now().plusMonths(3);
 
@@ -49,11 +45,11 @@ public class VeterinarianSlotsRepositoryTests {
         System.out.println(availableTimeSlot.size());
     }
 
-    private boolean hasAvailableVeterinarian(Integer slotId){
+    private boolean hasAvailableVeterinarian(Integer slotId) {
         return getVeterinarianSlotsBySlotId(slotId).size() > 0;
     }
 
-    public List<VeterinarianSlots> getVeterinarianSlotsBySlotId(Integer slotId ) {
+    public List<VeterinarianSlots> getVeterinarianSlotsBySlotId(Integer slotId) {
         List<VeterinarianSlots> veterinarianSlots = veterinarianSlotsRepository.getAvailableSlotsBySlotId(SlotStatus.AVAILABLE, slotId);
         return veterinarianSlots;
     }
