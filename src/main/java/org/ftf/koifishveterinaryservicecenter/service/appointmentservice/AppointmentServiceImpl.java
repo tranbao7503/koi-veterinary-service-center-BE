@@ -24,6 +24,7 @@ import org.ftf.koifishveterinaryservicecenter.service.slotservice.SlotService;
 import org.ftf.koifishveterinaryservicecenter.service.surchargeservice.SurchargeService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.AuthenticationService;
 import org.ftf.koifishveterinaryservicecenter.service.userservice.UserService;
+import org.ftf.koifishveterinaryservicecenter.service.voucherservice.VoucherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -53,6 +54,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final FeedbackService feedbackService;
     private final AppointmentStateFactory appointmentStateFactory;
     private final EmailService emailService;
+    private final VoucherService voucherService;
 
 
     @Autowired
@@ -68,7 +70,7 @@ public class AppointmentServiceImpl implements AppointmentService {
             , AddressService addressService
             , SurchargeService surchargeService
             , FishService fishService
-            , FeedbackService feedbackService, AppointmentStateFactory appointmentStateFactory, EmailService emailService) {
+            , FeedbackService feedbackService, AppointmentStateFactory appointmentStateFactory, EmailService emailService, VoucherService voucherService) {
         this.appointmentRepository = appointmentRepository;
         this.medicalReportService = medicalReportService;
         this.userService = userService;
@@ -84,6 +86,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         this.feedbackService = feedbackService;
         this.appointmentStateFactory = appointmentStateFactory;
         this.emailService = emailService;
+        this.voucherService = voucherService;
     }
 
 
@@ -191,6 +194,13 @@ public class AppointmentServiceImpl implements AppointmentService {
         if (fishId != null) {
             Fish fish = fishService.getFishById(fishId);
             newAppointment.setFish(fish);
+        }
+
+        // voucher
+        Integer voucherId = appointment.getVoucher().getId();
+        if (voucherId != null) {
+            Voucher voucher = voucherService.findVoucherById(voucherId);
+            newAppointment.setVoucher(voucher);
         }
 
         // total price
@@ -472,7 +482,9 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     private BigDecimal calculatePrice(Appointment appointment) {
         BigDecimal servicePrice = appointment.getService().getServicePrice();
-        return appointment.getMovingSurcharge() == null ? servicePrice : servicePrice.add(appointment.getMovingSurcharge().getPrice());
+        servicePrice = appointment.getMovingSurcharge() == null ? servicePrice : servicePrice.add(appointment.getMovingSurcharge().getPrice());
+        servicePrice = appointment.getVoucher() == null ? servicePrice : servicePrice.subtract(appointment.getVoucher().getDiscountAmount());
+        return servicePrice;
     }
 
     public Integer getAppointmentOwnerId(Integer appointmentId) {
@@ -480,6 +492,9 @@ public class AppointmentServiceImpl implements AppointmentService {
         return appointment.getCustomer().getUserId();
     }
 
+    /**
+     * Appointment can update with new slotId if new slotId is available
+     * */
     private boolean isAbleToUpdateAppointment(Appointment appointment, AppointmentUpdateDto appointmentUpdateDto) throws AppointmentUpdatedException {
         LocalDateTime openingTime = appointment.getTimeSlot().getDateTimeBasedOnSlot();
         LocalDateTime now = LocalDateTime.now();

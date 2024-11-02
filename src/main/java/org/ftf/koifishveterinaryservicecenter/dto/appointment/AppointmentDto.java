@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.ftf.koifishveterinaryservicecenter.dto.PaymentDto;
+import org.ftf.koifishveterinaryservicecenter.entity.Voucher;
 
 import java.math.BigDecimal;
 
@@ -37,6 +38,9 @@ public class AppointmentDto extends AppointmentBaseDto {
 
     @JsonProperty("fish_id")
     private Integer fishId;
+
+    @JsonProperty("voucher_id")
+    private Integer voucherId;
 
     @JsonProperty("total_price")
     private BigDecimal totalPrice;
