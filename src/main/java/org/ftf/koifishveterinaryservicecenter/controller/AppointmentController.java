@@ -224,7 +224,7 @@ public class AppointmentController {
 
 
     // for Customer
-    @PutMapping("/{appointmentId}")
+    @PatchMapping("/{appointmentId}")
     public ResponseEntity<?> updateAppointment(@PathVariable Integer appointmentId, @RequestBody AppointmentUpdateDto appointmentUpdateDto) {
 
         try {

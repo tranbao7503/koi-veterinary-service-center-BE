@@ -2,6 +2,7 @@ package org.ftf.koifishveterinaryservicecenter.veterinarianslots;
 
 import org.assertj.core.api.Assertions;
 import org.ftf.koifishveterinaryservicecenter.entity.TimeSlot;
+import org.ftf.koifishveterinaryservicecenter.entity.veterinarian_slots.VeterinarianSlotId;
 import org.ftf.koifishveterinaryservicecenter.entity.veterinarian_slots.VeterinarianSlots;
 import org.ftf.koifishveterinaryservicecenter.enums.SlotStatus;
 import org.ftf.koifishveterinaryservicecenter.exception.TimeSlotNotFoundException;
@@ -12,14 +13,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @DataJpaTest
+@ActiveProfiles("dev")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Rollback(value = true)
+@Rollback(value = false)
 public class VeterinarianSlotsRepositoryTests {
     @Autowired
     private VeterinarianSlotsRepository veterinarianSlotsRepository;
@@ -56,5 +59,21 @@ public class VeterinarianSlotsRepositoryTests {
     public List<VeterinarianSlots> getVeterinarianSlotsBySlotId(Integer slotId ) {
         List<VeterinarianSlots> veterinarianSlots = veterinarianSlotsRepository.getAvailableSlotsBySlotId(SlotStatus.AVAILABLE, slotId);
         return veterinarianSlots;
+    }
+
+    @Test
+    public void testUpdateVeterinarianSlotsSuccess(){
+        Integer veterinarianId = 17;
+        Integer slotId = 260;
+
+        VeterinarianSlotId veterinarianSlotId = new VeterinarianSlotId();
+        veterinarianSlotId.setSlotId(slotId);
+        veterinarianSlotId.setVeterinarianId(veterinarianId);
+
+        VeterinarianSlots veterinarianSlots = veterinarianSlotsRepository.findById(veterinarianSlotId).get();
+
+        veterinarianSlots.setStatus(SlotStatus.UNAVAILABLE);
+
+        veterinarianSlotsRepository.save(veterinarianSlots);
     }
 }

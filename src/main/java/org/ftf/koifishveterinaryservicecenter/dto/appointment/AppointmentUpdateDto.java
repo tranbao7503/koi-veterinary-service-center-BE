@@ -11,6 +11,9 @@ public class AppointmentUpdateDto extends AppointmentBaseDto {
     @JsonProperty("slot_id")
     private Integer slotId;
 
+    @JsonProperty("veterinarian_id")
+    private Integer veterinarianId;
+
     @JsonProperty("email")
     private String email;
 
