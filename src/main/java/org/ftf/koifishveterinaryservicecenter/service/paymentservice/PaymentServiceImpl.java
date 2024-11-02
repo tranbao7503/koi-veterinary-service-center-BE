@@ -9,6 +9,7 @@ import org.ftf.koifishveterinaryservicecenter.exception.PaymentNotFoundException
 import org.ftf.koifishveterinaryservicecenter.repository.AppointmentRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.PaymentRepository;
 import org.ftf.koifishveterinaryservicecenter.repository.StatusRepository;
+import org.ftf.koifishveterinaryservicecenter.service.statusservice.StatusService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,13 +24,13 @@ import java.util.Optional;
 public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentRepository paymentRepository;
-    private final StatusRepository statusRepository;
     private final AppointmentRepository appointmentRepository;
+    private final StatusService statusService;
 
     @Autowired
-    public PaymentServiceImpl(PaymentRepository paymentRepository, StatusRepository statusRepository, AppointmentRepository appointmentRepository) {
+    public PaymentServiceImpl(PaymentRepository paymentRepository, AppointmentRepository appointmentRepository, StatusService statusService) {
         this.paymentRepository = paymentRepository;
-        this.statusRepository = statusRepository;
+        this.statusService = statusService;
         this.appointmentRepository = appointmentRepository;
     }
 
@@ -64,8 +65,7 @@ public class PaymentServiceImpl implements PaymentService {
         // Log in status
         Appointment appointment = appointmentRepository.findAppointmentByPaymentId(paymentId);
         User customer = appointment.getCustomer();
-        logToStatus(appointment, customer, payment.getStatus());
-
+        statusService.customerLogStatusPayment(appointment, customer, payment.getStatus());
 
         return payment;
     }
@@ -82,9 +82,9 @@ public class PaymentServiceImpl implements PaymentService {
 
         // Log in status
         Optional<Appointment> appointment = appointmentRepository.findById(appointmentId);
-        if(appointment.isPresent()) {
+        if (appointment.isPresent()) {
             User customer = appointment.get().getCustomer();
-            logToStatus(appointment.orElse(null), customer, payment.getStatus());
+            statusService.customerLogStatusPayment(appointment.get(), customer, payment.getStatus());
         }
 
         return paymentRepository.save(payment);
@@ -107,7 +107,8 @@ public class PaymentServiceImpl implements PaymentService {
         // Log in status
         Appointment appointment = appointmentRepository.findAppointmentByPaymentId(paymentId);
         User customer = appointment.getCustomer();
-        logToStatus(appointment, customer, payment.getStatus());
+        statusService.customerLogStatusPayment(appointment, customer, payment.getStatus());
+
 
         return payment;
     }
@@ -120,17 +121,6 @@ public class PaymentServiceImpl implements PaymentService {
         return payment.get();
     }
 
-
-    private void logToStatus(Appointment appointment, User customer, PaymentStatus paymentStatus) {
-        Status status = new Status();
-
-        status.setStatusName(String.valueOf(paymentStatus));
-        status.setTime(LocalDateTime.now());
-        status.setNote("Customer - " + customer.getFirstName() + " " + customer.getLastName() + " " + paymentStatus + " successfully");
-        status.setAppointment(appointment);
-        status.setUser(customer);
-        statusRepository.save(status);
-    }
 }
 
 
