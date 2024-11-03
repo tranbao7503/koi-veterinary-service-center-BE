@@ -238,18 +238,28 @@ public class AppointmentServiceImpl implements AppointmentService {
         if (isAbleToUpdateAppointment(bookedAppointment, appointmentDto)) {
             // update slot Id
             if (appointmentDto.getSlotId() != null) {
+                // update current vet_slot to AVAILABLE
                 slotService.updateVeterinarianSlotsStatus(bookedAppointment.getVeterinarian().getUserId(), bookedAppointment.getTimeSlot().getSlotId(), SlotStatus.AVAILABLE);
 
                 TimeSlot newTimeSlot = slotService.getTimeSlotById(appointmentDto.getSlotId());
                 bookedAppointment.setTimeSlot(newTimeSlot);
+
+
+                // update new vet_slot to BOOKED
                 slotService.updateVeterinarianSlotsStatus(bookedAppointment.getVeterinarian().getUserId(), bookedAppointment.getTimeSlot().getSlotId(), SlotStatus.BOOKED);
             }
 
             if (appointmentDto.getVeterinarianId() != null) {
+                // update current vet_slot to AVAILABLE
+                slotService.updateVeterinarianSlotsStatus(bookedAppointment.getVeterinarian().getUserId(), bookedAppointment.getTimeSlot().getSlotId(), SlotStatus.AVAILABLE);
 
                 User veterinarian = userService.getVeterinarianById(appointmentDto.getVeterinarianId());
                 bookedAppointment.setVeterinarian(veterinarian);
+
+                // update new vet_slot to BOOKED
+                slotService.updateVeterinarianSlotsStatus(bookedAppointment.getVeterinarian().getUserId(), bookedAppointment.getTimeSlot().getSlotId(), SlotStatus.BOOKED);
             }
+
 
             // update email
             if (appointmentDto.getEmail() != null) {
@@ -264,8 +274,10 @@ public class AppointmentServiceImpl implements AppointmentService {
             return appointmentRepository.save(bookedAppointment);
         }
         throw new AppointmentUpdatedException("Cannot update this appointment. The appointment is upcoming soon");
-
     }
+
+
+
 
     @Override
     public void cancelAppointment(Integer appointmentId) {
