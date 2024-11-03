@@ -40,6 +40,7 @@ public interface AppointmentMapper {
     @Mapping(source = "followUpAppointment.appointmentId", target = "followUpAppointmentId")
     @Mapping(source = "feedback.feedbackId", target = "feedbackId")
     @Mapping(source = "voucher.discountAmount", target = "discount")
+    @Mapping(source = "customer.userId", target = "customerId")
     @Mapping(target = "veterinarian.username", ignore = true)
     @Mapping(target = "veterinarian.password", ignore = true)
     @Mapping(target = "veterinarian.avatar", ignore = true)
