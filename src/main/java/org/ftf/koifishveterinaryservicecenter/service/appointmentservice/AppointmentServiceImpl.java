@@ -277,8 +277,6 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
 
-
-
     @Override
     public void cancelAppointment(Integer appointmentId) {
 
@@ -289,22 +287,19 @@ public class AppointmentServiceImpl implements AppointmentService {
         if (appointment.isEmpty())
             throw new AppointmentNotFoundException("Appointment not found with id: " + appointmentId);
 
-        if (appointment.get().getVeterinarian() != null) {
+        if (appointment.get().getVeterinarian() != null && cancelledActor.getRole().getRoleKey().equals("CUS")) {
             Integer veterinarianId = appointment.get().getVeterinarian().getUserId();
             Integer slotId = appointment.get().getTimeSlot().getSlotId();
 
             // update to 'AVAILABLE' due to being cancelled
             slotService.updateVeterinarianSlotsStatus(veterinarianId, slotId, SlotStatus.AVAILABLE);
         }
+
         appointment.get().setCurrentStatus(AppointmentStatus.CANCELED);
 
         logToStatus(appointment.get(), cancelledActor);
 
         appointmentRepository.save(appointment.get());
-
-        // Update timeslot -> available
-        Appointment existedAppointment = appointment.get();
-        slotService.updateVeterinarianSlotsStatus(existedAppointment.getVeterinarian().getUserId(), existedAppointment.getTimeSlot().getSlotId(), SlotStatus.AVAILABLE);
 
         // send email
         User customer = appointment.get().getCustomer();
@@ -516,7 +511,6 @@ public class AppointmentServiceImpl implements AppointmentService {
 //                && (appointment.getCurrentStatus().equals(AppointmentStatus.PENDING)
 //                || appointment.getCurrentStatus().equals(AppointmentStatus.CONFIRMED));
 //    }
-
     private boolean isAbleToUpdateAppointment(Appointment appointment, AppointmentUpdateDto appointmentUpdateDto) throws AppointmentUpdatedException {
         LocalDateTime openingTime = appointment.getTimeSlot().getDateTimeBasedOnSlot();
         LocalDateTime now = LocalDateTime.now();
@@ -537,9 +531,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         }
 
         // Check if the appointment status is either PENDING or CONFIRMED
-        if (!(appointment.getCurrentStatus().equals(AppointmentStatus.PENDING)
-                || appointment.getCurrentStatus().equals(AppointmentStatus.CONFIRMED)
-                || appointment.getCurrentStatus().equals(AppointmentStatus.ON_GOING)) ) {
+        if (!(appointment.getCurrentStatus().equals(AppointmentStatus.PENDING) || appointment.getCurrentStatus().equals(AppointmentStatus.CONFIRMED) || appointment.getCurrentStatus().equals(AppointmentStatus.ON_GOING))) {
             throw new AppointmentUpdatedException("Appointment cannot be updated in its current status.");
         }
 
