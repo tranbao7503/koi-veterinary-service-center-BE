@@ -29,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.text.ParseException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -358,10 +359,18 @@ public class UserController {
         return userService.getPaymentStatistics();
     }
 
-    //xem vet duoc booked bao nhiêu lần trên tuần
-    @GetMapping("/{vetId}/slots-this-week")
-    public ResponseEntity<Long> getVetSlotsInCurrentWeek(@PathVariable int vetId) {
-        long slotsCount = userService.getVetSlotsInCurrentWeek(vetId);
+    // Kiểm tra vet được đặt bao nhiêu lần trong khoảng thời gian cụ thể
+    @GetMapping("/{vetId}/slots")
+    public ResponseEntity<Long> getVetSlotsInRange(
+            @PathVariable int vetId,
+            @RequestParam LocalDate startDate,
+            @RequestParam LocalDate endDate) {
+
+        if (startDate.isAfter(endDate)) {
+            return ResponseEntity.badRequest().body(0L);
+        }
+
+        long slotsCount = userService.getVetSlotsInRange(vetId, startDate, endDate);
         return ResponseEntity.ok(slotsCount);
     }
 

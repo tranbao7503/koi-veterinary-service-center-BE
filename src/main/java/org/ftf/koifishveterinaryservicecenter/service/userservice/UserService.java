@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -63,7 +64,8 @@ public interface UserService {
     // Hàm tính số liệu thanh toán
     Map<String, String> getPaymentStatistics();
 
-    long getVetSlotsInCurrentWeek(int vetId);
+
+    long getVetSlotsInRange(int vetId, LocalDate startDate, LocalDate endDate);
 
     //them so luong feedback voi so luong sao trung binh cua bac si
     Map<String, Object> getFeedbackStatistics();

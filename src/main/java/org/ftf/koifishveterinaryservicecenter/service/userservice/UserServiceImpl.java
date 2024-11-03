@@ -22,7 +22,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -633,14 +632,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public long getVetSlotsInCurrentWeek(int vetId) {
-        LocalDate today = LocalDate.now();
-        LocalDate startOfWeek = today.with(DayOfWeek.MONDAY);
-        LocalDate endOfWeek = today.with(DayOfWeek.SUNDAY);
-
+    public long getVetSlotsInRange(int vetId, LocalDate startDate, LocalDate endDate) {
         long totalSlots = 0;
 
-        for (LocalDate date = startOfWeek; !date.isAfter(endOfWeek); date = date.plusDays(1)) {
+        for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
             totalSlots += veterinarianSlotsRepository.countSlotsByVetInDate(
                     vetId,
                     date.getYear(),
