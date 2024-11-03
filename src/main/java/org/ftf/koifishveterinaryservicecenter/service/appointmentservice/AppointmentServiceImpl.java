@@ -242,6 +242,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
                 TimeSlot newTimeSlot = slotService.getTimeSlotById(appointmentDto.getSlotId());
                 bookedAppointment.setTimeSlot(newTimeSlot);
+                slotService.updateVeterinarianSlotsStatus(bookedAppointment.getVeterinarian().getUserId(), bookedAppointment.getTimeSlot().getSlotId(), SlotStatus.BOOKED);
             }
 
             if (appointmentDto.getVeterinarianId() != null) {
@@ -503,6 +504,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 //                && (appointment.getCurrentStatus().equals(AppointmentStatus.PENDING)
 //                || appointment.getCurrentStatus().equals(AppointmentStatus.CONFIRMED));
 //    }
+
     private boolean isAbleToUpdateAppointment(Appointment appointment, AppointmentUpdateDto appointmentUpdateDto) throws AppointmentUpdatedException {
         LocalDateTime openingTime = appointment.getTimeSlot().getDateTimeBasedOnSlot();
         LocalDateTime now = LocalDateTime.now();

@@ -125,3 +125,5 @@ public class AppointmentRepositoryTest {
         System.out.println(appointment.getPayment().getStatus());
     }
 }
+
+
