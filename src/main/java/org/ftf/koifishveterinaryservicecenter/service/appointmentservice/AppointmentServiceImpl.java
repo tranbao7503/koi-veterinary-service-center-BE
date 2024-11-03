@@ -58,19 +58,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
 
     @Autowired
-    public AppointmentServiceImpl(AppointmentRepository appointmentRepository
-            , MedicalReportService medicalReportService
-            , UserService userService
-            , MedicalReportRepository medicalReportRepository
-            , ServiceService serviceService
-            , SlotService slotService
-            , PaymentService paymentService
-            , AuthenticationService authenticationService
-            , VeterinarianSlotsRepository veterinarianSlotsRepository
-            , AddressService addressService
-            , SurchargeService surchargeService
-            , FishService fishService
-            , FeedbackService feedbackService, AppointmentStateFactory appointmentStateFactory, EmailService emailService, VoucherService voucherService) {
+    public AppointmentServiceImpl(AppointmentRepository appointmentRepository, MedicalReportService medicalReportService, UserService userService, MedicalReportRepository medicalReportRepository, ServiceService serviceService, SlotService slotService, PaymentService paymentService, AuthenticationService authenticationService, VeterinarianSlotsRepository veterinarianSlotsRepository, AddressService addressService, SurchargeService surchargeService, FishService fishService, FeedbackService feedbackService, AppointmentStateFactory appointmentStateFactory, EmailService emailService, VoucherService voucherService) {
         this.appointmentRepository = appointmentRepository;
         this.medicalReportService = medicalReportService;
         this.userService = userService;
@@ -244,41 +232,38 @@ public class AppointmentServiceImpl implements AppointmentService {
     public Appointment updateAppointment(AppointmentUpdateDto appointmentDto, Integer appointmentId) throws AppointmentUpdatedException {
 
         Integer authenticatedUserId = authenticationService.getAuthenticatedUserId();
-        Integer ownerId = getAppointmentOwnerId(appointmentId);
 
-        if (authenticatedUserId.equals(ownerId)) {
-            Appointment bookedAppointment = getAppointmentById(appointmentId);
+        Appointment bookedAppointment = getAppointmentById(appointmentId);
 
-            if (isAbleToUpdateAppointment(bookedAppointment, appointmentDto)) {
-                // update slot Id
-                if (appointmentDto.getSlotId() != null) {
-                    slotService.updateVeterinarianSlotsStatus(bookedAppointment.getVeterinarian().getUserId(), bookedAppointment.getTimeSlot().getSlotId(), SlotStatus.AVAILABLE);
+        if (isAbleToUpdateAppointment(bookedAppointment, appointmentDto)) {
+            // update slot Id
+            if (appointmentDto.getSlotId() != null) {
+                slotService.updateVeterinarianSlotsStatus(bookedAppointment.getVeterinarian().getUserId(), bookedAppointment.getTimeSlot().getSlotId(), SlotStatus.AVAILABLE);
 
-                    TimeSlot newTimeSlot = slotService.getTimeSlotById(appointmentDto.getSlotId());
-                    bookedAppointment.setTimeSlot(newTimeSlot);
-                }
-
-                if (appointmentDto.getVeterinarianId() != null){
-
-                    User veterinarian = userService.getVeterinarianById(appointmentDto.getVeterinarianId());
-                    bookedAppointment.setVeterinarian(veterinarian);
-                }
-
-                // update email
-                if (appointmentDto.getEmail() != null) {
-                    bookedAppointment.setEmail(appointmentDto.getEmail());
-                }
-
-                // update phone number
-                if (appointmentDto.getPhoneNumber() != null) {
-                    bookedAppointment.setPhoneNumber(appointmentDto.getPhoneNumber());
-                }
-
-                return appointmentRepository.save(bookedAppointment);
+                TimeSlot newTimeSlot = slotService.getTimeSlotById(appointmentDto.getSlotId());
+                bookedAppointment.setTimeSlot(newTimeSlot);
             }
-            throw new AppointmentUpdatedException("Cannot update this appointment. The appointment is upcoming soon");
+
+            if (appointmentDto.getVeterinarianId() != null) {
+
+                User veterinarian = userService.getVeterinarianById(appointmentDto.getVeterinarianId());
+                bookedAppointment.setVeterinarian(veterinarian);
+            }
+
+            // update email
+            if (appointmentDto.getEmail() != null) {
+                bookedAppointment.setEmail(appointmentDto.getEmail());
+            }
+
+            // update phone number
+            if (appointmentDto.getPhoneNumber() != null) {
+                bookedAppointment.setPhoneNumber(appointmentDto.getPhoneNumber());
+            }
+
+            return appointmentRepository.save(bookedAppointment);
         }
-        throw new AccessDeniedException("Access denied");   // bad practice handler exception
+        throw new AppointmentUpdatedException("Cannot update this appointment. The appointment is upcoming soon");
+
     }
 
     @Override
@@ -306,10 +291,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         // Update timeslot -> available
         Appointment existedAppointment = appointment.get();
-        slotService.updateVeterinarianSlotsStatus(
-                existedAppointment.getVeterinarian().getUserId()
-                , existedAppointment.getTimeSlot().getSlotId()
-                , SlotStatus.AVAILABLE);
+        slotService.updateVeterinarianSlotsStatus(existedAppointment.getVeterinarian().getUserId(), existedAppointment.getTimeSlot().getSlotId(), SlotStatus.AVAILABLE);
 
         // send email
         User customer = appointment.get().getCustomer();
@@ -450,8 +432,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public void unAssignedVeterinarianOnSlot(Integer veterinarianId, Integer slotId) {
         Appointment appointment = appointmentRepository.findAppointmentByVeterinarianIdAndSlotId(veterinarianId, slotId);
-        if (appointment == null)
-            throw new TimeSlotNotFoundException("TimeSlot not found with id: " + slotId);
+        if (appointment == null) throw new TimeSlotNotFoundException("TimeSlot not found with id: " + slotId);
         appointment.setVeterinarian(null);
         appointmentRepository.save(appointment);
     }
@@ -494,8 +475,6 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
 
-
-
     private BigDecimal calculatePrice(Appointment appointment) {
         BigDecimal servicePrice = appointment.getService().getServicePrice();
         servicePrice = appointment.getMovingSurcharge() == null ? servicePrice : servicePrice.add(appointment.getMovingSurcharge().getPrice());
@@ -511,18 +490,46 @@ public class AppointmentServiceImpl implements AppointmentService {
     /**
      * Appointment can update with new slotId if new slotId is available
      */
+//    private boolean isAbleToUpdateAppointment(Appointment appointment, AppointmentUpdateDto appointmentUpdateDto) throws AppointmentUpdatedException {
+//        LocalDateTime openingTime = appointment.getTimeSlot().getDateTimeBasedOnSlot();
+//        LocalDateTime now = LocalDateTime.now();
+//        LocalDateTime threeHoursFromNow = now.plusHours(3);
+//
+//        TimeSlot timeSlot = slotService.getTimeSlotById(appointmentUpdateDto.getSlotId());
+//        List<TimeSlot> availableTimeSlot = slotService.getListAvailableTimeSlots();
+//
+//        return openingTime.isAfter(threeHoursFromNow)
+//                && availableTimeSlot.contains(timeSlot)
+//                && (appointment.getCurrentStatus().equals(AppointmentStatus.PENDING)
+//                || appointment.getCurrentStatus().equals(AppointmentStatus.CONFIRMED));
+//    }
     private boolean isAbleToUpdateAppointment(Appointment appointment, AppointmentUpdateDto appointmentUpdateDto) throws AppointmentUpdatedException {
         LocalDateTime openingTime = appointment.getTimeSlot().getDateTimeBasedOnSlot();
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime threeHoursFromNow = now.plusHours(3);
 
-        TimeSlot timeSlot = slotService.getTimeSlotById(appointmentUpdateDto.getSlotId());
-        List<TimeSlot> availableTimeSlot = slotService.getListAvailableTimeSlots();
+        // Fetch the time slot and the list of available time slots
+        TimeSlot requestedTimeSlot = slotService.getTimeSlotById(appointmentUpdateDto.getSlotId());
+        List<TimeSlot> availableTimeSlots = slotService.getListAvailableTimeSlots();
 
-        return openingTime.isAfter(threeHoursFromNow)
-                && availableTimeSlot.contains(timeSlot)
-                && (appointment.getCurrentStatus().equals(AppointmentStatus.PENDING)
-                || appointment.getCurrentStatus().equals(AppointmentStatus.CONFIRMED));
+        // Check if the appointment time is at least three hours from now
+        if (!openingTime.isAfter(threeHoursFromNow)) {
+            throw new AppointmentUpdatedException("Appointment time must be more than three hours from now.");
+        }
+
+        // Check if the requested time slot is available
+        if (!availableTimeSlots.contains(requestedTimeSlot)) {
+            throw new AppointmentUpdatedException("Requested time slot is not available.");
+        }
+
+        // Check if the appointment status is either PENDING or CONFIRMED
+        if (!(appointment.getCurrentStatus().equals(AppointmentStatus.PENDING)
+                || appointment.getCurrentStatus().equals(AppointmentStatus.CONFIRMED)
+                || appointment.getCurrentStatus().equals(AppointmentStatus.ON_GOING)) ) {
+            throw new AppointmentUpdatedException("Appointment cannot be updated in its current status.");
+        }
+
+        return true;
     }
 
 
