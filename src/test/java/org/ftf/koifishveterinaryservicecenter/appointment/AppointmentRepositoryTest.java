@@ -10,12 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
 @DataJpaTest
+@ActiveProfiles("dev")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Rollback(value = true)
 public class AppointmentRepositoryTest {
@@ -82,7 +84,7 @@ public class AppointmentRepositoryTest {
 
     @Test
     public void testGetAppointmentById() {
-        Integer appointmentId = 10;
+        Integer appointmentId = 26;
         Optional<Appointment> appointment = appointmentRepository.findById(appointmentId);
         Assertions.assertThat(appointment).isPresent();
         System.out.println(appointment.get().getTimeSlot().toString());
@@ -111,5 +113,15 @@ public class AppointmentRepositoryTest {
         appointmentRepository.save(appointment.get());
         System.out.println("After updating: " + appointment.get().getCurrentStatus());
 
+    }
+
+    @Test
+    public void getPaymentFromAppointment(){
+        Integer appointmentId = 20;
+        Appointment appointment = appointmentRepository.findById(appointmentId).get();
+
+        Assertions.assertThat(appointment.getPayment()).isNotNull();
+
+        System.out.println(appointment.getPayment().getStatus());
     }
 }

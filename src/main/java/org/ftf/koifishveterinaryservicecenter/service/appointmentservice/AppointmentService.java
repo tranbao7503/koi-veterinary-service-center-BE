@@ -28,7 +28,6 @@ public interface AppointmentService {
 
     List<Appointment> getAllAppointments();
 
-    @PreAuthorize("@appointmentServiceImpl.getAppointmentOwnerId(#appointmentId) == authentication.principal.id")
     Appointment updateAppointment(AppointmentUpdateDto appointmentDto, Integer appointmentId) throws AppointmentUpdatedException;
 
     void cancelAppointment(Integer appointmentId);
